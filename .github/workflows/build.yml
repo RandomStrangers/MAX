@@ -1,4 +1,4 @@
-name: Build latest
+name: Build
 on: [push]
 
 concurrency:
@@ -6,7 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-mono:
+  build:
     if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
@@ -15,10 +15,10 @@ jobs:
         shell: bash
         id: compile
         run: |
-          msbuild PattyKaki.sln /p:Configuration=Debug
-          cp -R bin/Debug
-          rm bin/Debug/PattyKaki.exe bin/Debug/PattyKaki_.pdb
-          msbuild PK/PattyKaki.csproj /p:Configuration=Debug
+          msbuild PattyKaki.sln /p:Configuration=Release
+          cp -R bin/Release
+          rm bin/Release/PattyKaki.exe bin/Release/PattyKaki.pdb
+          msbuild PK/PattyKaki.csproj /p:Configuration=Release
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
@@ -29,7 +29,7 @@ jobs:
       - uses: ./.github/actions/notify_success
         if: ${{ always() && steps.compile.outcome == 'success' }}
         with:
-          SOURCE_FILE: 'bin/Debug'
+          SOURCE_FILE: 'bin/Release'
           DEST_NAME: 'PattyKaki'
           NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
