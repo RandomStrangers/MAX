@@ -46,13 +46,13 @@ namespace PattyKaki {
         static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e) {
             switch (e.SpecialKey) {
                 case ConsoleSpecialKey.ControlBreak:
-                    Write("&4-- Server shutdown (Ctrl+Break) --");
+                    Write("&d-- Server shutdown (Ctrl+Break) --");
                     Thread stopThread = Server.Stop(false, Server.Config.DefaultShutdownMessage);
                     stopThread.Join();
                     break;
                 case ConsoleSpecialKey.ControlC:
                     e.Cancel = true;
-                    Write("&4-- Server shutdown (Ctrl+C) --" );
+                    Write("&d-- Server shutdown (Ctrl+C) --" );
                     Server.Stop(false, Server.Config.DefaultShutdownMessage);
                     break;
             }
@@ -74,7 +74,7 @@ namespace PattyKaki {
             if (!Server.Config.PattyKakiLogging) return;
             switch (type) {
                 case LogType.Error:
-                    Write("&4!!!Error" + ExtractErrorMessage(message)
+                    Write("&d!!!Error" + ExtractErrorMessage(message)
                           + " - See " + FileLogger.ErrorLogPath + " for more details.");
                     break;
                 case LogType.BackgroundActivity:

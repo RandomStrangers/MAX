@@ -1,4 +1,4 @@
-name: Build
+name: Build2
 on: [push]
 
 concurrency:
@@ -22,8 +22,8 @@ jobs:
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
         with:
-          NOTIFY_MESSAGE: 'Failed to compile PattyKaki! <@804431499867717713>'
-          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
+          NOTIFY_MESSAGE: 'Failed to compile PattyKaki! <@1033483516622675968>'
+          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL2 }}'
           
       - uses: ./.github/actions/notify_success
         if: ${{ always() && steps.compile.outcome == 'success' }}
@@ -31,4 +31,4 @@ jobs:
           SOURCE_FILE: 'bin'
           DEST_NAME: 'PattyKaki'
           NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
-          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
+          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL2 }}'

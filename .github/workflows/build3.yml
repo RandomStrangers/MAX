@@ -1,4 +1,4 @@
-name: Build
+name: Build3
 on: [push]
 
 concurrency:
@@ -6,7 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Build:
+  Build2:
     if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
@@ -22,8 +22,8 @@ jobs:
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
         with:
-          NOTIFY_MESSAGE: 'Failed to compile PattyKaki! <@804431499867717713>'
-          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
+          NOTIFY_MESSAGE: 'Failed to compile PattyKaki! <@999409543001931788>'
+          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL3 }}'
           
       - uses: ./.github/actions/notify_success
         if: ${{ always() && steps.compile.outcome == 'success' }}
@@ -31,4 +31,4 @@ jobs:
           SOURCE_FILE: 'bin'
           DEST_NAME: 'PattyKaki'
           NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
-          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
+          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL3 }}'
