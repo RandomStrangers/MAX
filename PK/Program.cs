@@ -98,10 +98,10 @@ namespace PattyKaki {
         }
         static void CheckNameVerification() {
             if (Server.Config.VerifyNames) return;
-            Write("&4WARNING: Name verification is disabled! This means players can login as anyone, including YOU");
+            Write("&dWARNING: Name verification is disabled! This means players can login as anyone, including YOU");
         }
         static void LogNewerVersionDetected(object sender, EventArgs e) {
-            Write(Colors.Strip(Server.SoftwareName) + " &4update available! Update by replacing with the files from " + Updater.UploadsURL);
+            Write(Colors.Strip(Server.SoftwareName) + " &dupdate available! Update by replacing with the files from " + Updater.UploadsURL);
         }
         static void ConsoleLoop() {
             int eofs = 0;
