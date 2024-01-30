@@ -23,9 +23,9 @@ namespace PattyKaki.Drawing
 {
     public interface IPaletteMatcher 
     {
-        public void SetPalette(PaletteEntry[] front, PaletteEntry[] back);
-        public BlockID BestMatch(ref Pixel P);
-        public BlockID BestMatch(byte R, byte G, byte B, out bool backLayer);
+         void SetPalette(PaletteEntry[] front, PaletteEntry[] back);
+         BlockID BestMatch(ref Pixel P);
+         BlockID BestMatch(byte R, byte G, byte B, out bool backLayer);
     }
     
     public sealed class RgbPaletteMatcher : IPaletteMatcher 
