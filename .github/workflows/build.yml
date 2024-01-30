@@ -15,10 +15,10 @@ jobs:
         shell: bash
         id: compile
         run: |
-          msbuild PattyKaki.sln /p:Configuration=Release
-          cp -R bin/Release
-          rm bin/Release/PattyKaki.exe bin/Release/PattyKaki_.pdb
-          msbuild PK/PattyKaki.csproj /p:Configuration=Release
+          msbuild PattyKaki.sln /p:Configuration=Debug
+          cp -R bin/Debug
+          rm bin/Debug/PattyKaki.exe bin/Debug/PattyKaki_.pdb
+          msbuild PK/PattyKaki.csproj /p:Configuration=Debug
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
@@ -29,7 +29,7 @@ jobs:
       - uses: ./.github/actions/notify_success
         if: ${{ always() && steps.compile.outcome == 'success' }}
         with:
-          SOURCE_FILE: 'bin/Release'
+          SOURCE_FILE: 'bin/Debug'
           DEST_NAME: 'PattyKaki'
           NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
