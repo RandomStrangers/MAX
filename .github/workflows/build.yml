@@ -17,19 +17,19 @@ jobs:
         run: |
           msbuild PattyKaki.sln /p:Configuration=Release
           cp -R bin/Release
-          rm bin/Release/PattyKaki.exe bin/Release/PattyKaki.pdb
+          rm bin/PattyKaki.exe bin/PattyKaki.pdb
           msbuild PK/PattyKaki.csproj /p:Configuration=Release
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
         with:
-          NOTIFY_MESSAGE: 'Failed to compile PattyKaki .NET build! <@804431499867717713>'
+          NOTIFY_MESSAGE: 'Failed to compile PattyKaki! <@804431499867717713>'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
           
       - uses: ./.github/actions/notify_success
         if: ${{ always() && steps.compile.outcome == 'success' }}
         with:
-          SOURCE_FILE: 'bin/Release'
+          SOURCE_FILE: 'bin/'
           DEST_NAME: 'PattyKaki'
           NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
