@@ -16,7 +16,6 @@ jobs:
         id: compile
         run: |
           msbuild PattyKaki.sln /p:Configuration=Release
-          cp -R bin/Release
           rm bin/PattyKaki.exe bin/PattyKaki.pdb
           msbuild PK/PattyKaki.csproj /p:Configuration=Release
 
