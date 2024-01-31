@@ -54,7 +54,8 @@ namespace PattyKaki
         static void InitDatabase() {
             if (!Directory.Exists("blockdb")) Directory.CreateDirectory("blockdb");
 
-            Logger.Log(LogType.SystemActivity, "Using {0} for database backend", Database.Backend.EngineName);
+            //Logger.Log(LogType.SystemActivity, "Using {0} for database backend", Database.Backend.EngineName);
+            //Always using SQLite now, so remove in next commit.
             try {
                 Database.Backend.CreateDatabase();
             } catch (Exception e) {
@@ -66,7 +67,7 @@ namespace PattyKaki
             Database.CreateTable("Opstats", opstatsTable);
             Database.CreateTable("Players", playersTable);
             
-            //since 5.5.11 we are cleaning up the table Playercmds
+            //since MCForge 5.5.11 we are cleaning up the table Playercmds
             //if Playercmds exists copy-filter to Opstats and remove Playercmds
             if (Database.TableExists("Playercmds")) {
                 const string sql = "INSERT INTO Opstats (Time, Name, Cmd, Cmdmsg) SELECT Time, Name, Cmd, Cmdmsg FROM Playercmds WHERE {0};";

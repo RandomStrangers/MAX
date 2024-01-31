@@ -86,7 +86,7 @@ namespace PattyKaki
             for (int i = 0; i < paths.Count; i++) {
                 string path = paths[i];
                 // .lvl contents are already compressed, no point in compressing again
-                bool compressThis = compress && !path.CaselessContains(".lvl");
+                bool compressThis = compress && !path.CaselessContains(".lvl") && !path.CaselessContains(".pklvl");
                 
                 try {
                     using (Stream src = File.OpenRead(path)) {
