@@ -353,7 +353,6 @@
     <Compile Include="Database\BlockDB\NameConverter.cs" />
     <Compile Include="Database\ColumnDesc.cs" />
     <Compile Include="Database\IDatabaseBackend.cs" />
-    <Compile Include="Database\Backends\MySQL.cs" />
     <Compile Include="Database\PlayerData.cs" />
     <Compile Include="Database\Stats\OfflineStat.cs" />
     <Compile Include="Database\Stats\OnlineStat.cs" />

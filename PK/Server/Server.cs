@@ -91,7 +91,6 @@ namespace PattyKaki
             ForceEnableTLS();
 
             SQLiteBackend.Instance.LoadDependencies();
-            //MySQLBackend.Instance.LoadDependencies();
 
             EnsureFilesExist();
             IScripting.Init();

@@ -224,7 +224,7 @@ namespace PattyKaki.SQL
         }
 
         public static void UpdateActiveBackend() {
-            Backend = Server.Config.UseMySQL ? MySQLBackend.Instance : SQLiteBackend.Instance;
+            Backend = SQLiteBackend.Instance;
         }
         
         

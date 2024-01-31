@@ -181,19 +181,9 @@ namespace PattyKaki
         public bool IRCSSL = false;
         [ConfigString("irc-ignored-nicks", "IRC bot", "", true)]
         public string IRCIgnored = "";
-        
-        [ConfigBool("UseMySQL", "Database", false)]
-        public bool UseMySQL = false;
-        [ConfigString("host", "Database", "127.0.0.1")]
-        public string MySQLHost = "127.0.0.1";
-        [ConfigString("SQLPort", "Database", "3306", false, "0123456789")]
-        public string MySQLPort = "3306";
-        [ConfigString("Username", "Database", "root", true)]
-        public string MySQLUsername = "root";
-        [ConfigString("Password", "Database", "password", true)]
-        public string MySQLPassword = "password";
-        [ConfigString("DatabaseName", "Database", "MCZallDB")]
-        public string MySQLDatabaseName = "MCZallDB";
+
+        [ConfigString("DatabaseName", "Database", "PKDB")]
+        public string MySQLDatabaseName = "PKDB";
         [ConfigBool("Pooling", "Database", true)]
         public bool DatabasePooling = true;
 
