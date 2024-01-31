@@ -75,6 +75,7 @@ jobs:
           NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL4 }}'
 
+
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
         with:

@@ -224,8 +224,11 @@ namespace PattyKaki
 
             OnShuttingDownEvent.Call(restarting, msg);
             Plugin.UnloadAll();
+            Plugin_Simple.UnloadAll();
 
-            try {
+
+            try
+            {
                 string autoload = SaveAllLevels();
                 if (SetupFinished && !Config.AutoLoadMaps) {
                     File.WriteAllText("text/autoload.txt", autoload);

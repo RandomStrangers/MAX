@@ -167,12 +167,7 @@ namespace PattyKaki
             w.WriteLine("# Explanation of Backup settings:");
             w.WriteLine("#   backup-time                   = The number of seconds between automatic backups");
             w.WriteLine("# Explanation of Database settings:");
-            w.WriteLine("#   UseMySQL                      = Use MySQL (true) or use SQLite (false)");
-            w.WriteLine("#   Host                          = The host name for the database (usually 127.0.0.1)");
-            w.WriteLine("#   SQLPort                       = Port number to be used for MySQL.  Unless you manually changed the port, leave this alone.  Default 3306.");
-            w.WriteLine("#   Username                      = The username you used to create the database (usually root)");
-            w.WriteLine("#   Password                      = The password set while making the database");
-            w.WriteLine("#   DatabaseName                  = The name of the database stored (Default = MCZall)");
+            w.WriteLine("#   DatabaseName                  = The name of the database stored (Default = PKDB)");
             w.WriteLine("# Explanation of Color settings:");
             w.WriteLine("#   defaultColor                  = The color code of the default messages (Default = &e)");
             w.WriteLine("# Explanation of Other settings:");
