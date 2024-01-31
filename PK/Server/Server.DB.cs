@@ -54,8 +54,6 @@ namespace PattyKaki
         static void InitDatabase() {
             if (!Directory.Exists("blockdb")) Directory.CreateDirectory("blockdb");
 
-            //Logger.Log(LogType.SystemActivity, "Using {0} for database backend", Database.Backend.EngineName);
-            //Always using SQLite now, so remove in next commit.
             try {
                 Database.Backend.CreateDatabase();
             } catch (Exception e) {
