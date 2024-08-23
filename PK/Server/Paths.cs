@@ -33,7 +33,7 @@ namespace PattyKaki
         public const string AnnouncementsFile = "text/messages.txt";
         public const string AliasesFile = "text/aliases.txt";
         public const string NewsFile = "text/news.txt";
-        public const string WelcomeFile = "text/welcome.txt";
+        public const string WelcomeFile = "text/Welcome.txt";
         public const string JokerFile = "text/joker.txt";        
         public const string EightBallFile = "text/8ball.txt";   
         

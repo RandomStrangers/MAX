@@ -115,8 +115,8 @@ namespace PattyKaki.Commands.World
         }
 
         public override void Help(Player p) {
-        	string action = IsVisit ? "visit" : "build on";
-        	string verb   = IsVisit ? "visit" : "build";
+        	string action = IsVisit ? "visit" : "Build on";
+        	string verb   = IsVisit ? "visit" : "Build";
 
             p.Message("&T/{0} [level] [rank]", name);
             p.Message("&HSets the lowest rank able to {0} the given level.", action);
@@ -139,7 +139,7 @@ namespace PattyKaki.Commands.World
             get { return new[] { new CommandAlias("WorldBuild"), new CommandAlias("PerBuildMax", "-max") }; }
         }
         public override CommandPerm[] ExtraPerms {
-            get { return new[] { new CommandPerm(LevelPermission.Operator, "bypass max build rank restriction") }; }
+            get { return new[] { new CommandPerm(LevelPermission.Operator, "bypass max Build rank restriction") }; }
         }
     }
     

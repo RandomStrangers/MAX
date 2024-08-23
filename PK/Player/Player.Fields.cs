@@ -113,7 +113,7 @@ namespace PattyKaki {
         //Using for anything else can cause unintended effects!
         public bool possessed;
         
-        /// <summary> Whether this player has permission to build in the current level. </summary>
+        /// <summary> Whether this player has permission to Build in the current level. </summary>
         public bool AllowBuild = true;
 
         public int money;

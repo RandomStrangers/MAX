@@ -22,7 +22,7 @@ using PattyKaki.Events.ServerEvents;
 
 namespace PattyKaki.Core {
 
-    public sealed class CorePlugin : Plugin {
+    public sealed class CorePlugin : Plugin_Simple {
         public override string name { get { return "CorePlugin"; } }
 
         public override void Load(bool startup) {

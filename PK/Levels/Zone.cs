@@ -34,7 +34,7 @@ namespace PattyKaki {
         public string Color { get { return Group.GetColor(BuildMin); } }
     }
     
-    /// <summary> Encapuslates build access permissions for a zone. </summary>
+    /// <summary> Encapuslates Build access permissions for a zone. </summary>
     public sealed class ZoneAccessController : AccessController {
         public ZoneConfig cfg;
         
@@ -54,9 +54,9 @@ namespace PattyKaki {
         public override List<string> Blacklisted { get { return cfg.BuildBlacklist; } }
 
         public override string ColoredName { get { return "zone " + cfg.Color + cfg.Name; } }
-        public override string Action { get { return "build in"; } }
+        public override string Action { get { return "Build in"; } }
         public override string ActionIng { get { return "building in"; } }
-        public override string Type { get { return "build"; } }
+        public override string Type { get { return "Build"; } }
         public override string MaxCmd { get { return null; } }
 
 

@@ -17,6 +17,11 @@
 */
 using System;
 using System.Collections.Generic;
+using PattyKaki.Core;
+using PattyKaki.Modules.Moderation.Notes;
+using PattyKaki.Modules.Security;
+using PattyKaki.Relay.Discord;
+using PattyKaki.Relay.IRC;
 using PattyKaki.Scripting;
 
 namespace PattyKaki
@@ -40,13 +45,12 @@ namespace PattyKaki
         }
 
         /// <summary> Name of the plugin. </summary>
-        public virtual string name { get { return ""; } }
-        public virtual string Name { get { return ""; } }
+        public abstract string name { get; }
 
         /// <summary> Oldest version of PattyKaki this plugin is compatible with. </summary>
         public virtual string PK_Version { get { return null; } }
 
-        /// <summary> The creator/author of this plugin. (Your name) </summary>
+        /// <summary> The Creator/author of this plugin. (Your name) </summary>
         public virtual string Creator { get { return ""; } }
         public virtual string creator { get { return ""; } }
 
@@ -56,6 +60,8 @@ namespace PattyKaki
 
         public static List<Plugin_Simple> core = new List<Plugin_Simple>();
         public static List<Plugin_Simple> all = new List<Plugin_Simple>();
+        public static List<Plugin> New = new List<Plugin>();
+
 
         public static bool Load(Plugin_Simple p, bool auto)
         {
@@ -109,7 +115,33 @@ namespace PattyKaki
         }
         public static void LoadAll()
         {
+            LoadCorePlugin(new CorePlugin());
+            LoadCorePlugin(new NotesPlugin());
+            LoadCorePlugin(new DiscordPlugin());
+            LoadCorePlugin(new IRCPlugin());
+            LoadCorePlugin(new IPThrottler());
+            LoadCorePlugin(new ServerURLSender());
             IScripting_Simple.AutoloadSimplePlugins();
         }
+        static void LoadCorePlugin(Plugin_Simple plugin)
+        {
+            List<string> disabled = Server.Config.DisabledModules;
+            if (disabled.CaselessContains(plugin.name)) return;
+
+            plugin.Load(true);
+            core.Add(plugin);
+        }
+        public static void LoadPlugin(Plugin plugin)
+        {
+            plugin.Load(true);
+            New.Add(plugin);
+        }
     }
+
+    // This class is just kept around for backwards compatibility    
+    //   Plugin used to be completely abstract, with Plugin_Simple having virtual methods
+    //   However this is now obsolete as the virtual methods were moved into Plugin
+
+     [Obsolete("Derive from Plugin_Simple instead")]
+    public abstract partial class Plugin : Plugin_Simple { } 
 }

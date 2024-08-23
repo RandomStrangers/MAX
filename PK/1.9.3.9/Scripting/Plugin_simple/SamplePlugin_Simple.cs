@@ -18,7 +18,7 @@ Namespace PattyKaki
 \t\t\t\tReturn ""{0}""
 \t\t\tEnd Get
 \t\t End Property
-\t\tPublic Overrides ReadOnly Property creator() As String
+\t\tPublic Overrides ReadOnly Property Creator() As String
 \t\t\tGet
 \t\t\t\tReturn ""{1}""
 \t\t\tEnd Get

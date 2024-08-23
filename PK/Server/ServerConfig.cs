@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using PattyKaki.Config;
 using PattyKaki.Generator;
-using PattyKaki.Modules.Relay.IRC;
+using PattyKaki.Relay.IRC;
 namespace PattyKaki 
 {
 
@@ -37,6 +37,10 @@ namespace PattyKaki
         public int Port = 25565;
         [ConfigBool("public", "Server", false)]
         public bool Public = false;
+        [ConfigBool("send-url", "Server", false)]
+        public bool SendURL = false;
+        [ConfigBool("say-hello", "Server", false)]
+        public bool SayHello = false;
         [ConfigBool("verify-names", "Server", true)]
         public bool VerifyNames = true;
         [ConfigString("default-rank", "Server", "guest")]

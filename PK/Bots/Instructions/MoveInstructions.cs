@@ -85,7 +85,7 @@ namespace PattyKaki.Bots
         }
         
         public override string[] Help { get { return help; } }
-        public static string[] help = new string[] {
+        public static new string[] help = new string[] {
             "&T/BotAI add [name] walk",
             "&HCauses the bot to walk towards to a position.",
             "&H  Note: The position saved to the AI is your current position.",

@@ -97,7 +97,7 @@ namespace PattyKaki.Bots
         }
         
         public override string[] Help { get { return help; } }
-        public static string[] help = new string[] { "" +
+        public static new string[] help = new string[] { "" +
             "T/BotAI add [name] nod <interval> <speed>",
             "&HCauses the bot to nod up and down for a period of time.",
             "&H  <interval> is in tenths of a second, so an interval of 20 means " +

@@ -175,7 +175,7 @@ namespace PattyKaki
             w.WriteLine("#   profanity-filter              = Replace certain bad words in the chat.  Default false.");
             w.WriteLine("#   notify-on-join-leave          = Show a balloon popup in tray notification area when a player joins/leaves the server.  Default false.");
             w.WriteLine("#   allow-tp-to-higher-ranks      = Allows the teleportation to players of higher ranks");
-            w.WriteLine("#   agree-to-rules-on-entry       = Forces all new players to the server to agree to the rules before they can build or use commands.");
+            w.WriteLine("#   agree-to-rules-on-entry       = Forces all new players to the server to agree to the rules before they can Build or use commands.");
             w.WriteLine("#   admins-join-silent            = Players who have adminchat permission join the game silently. Default true");
             w.WriteLine("#   guest-limit-notify            = Show -Too Many Guests- message in chat when maxGuests has been reached. Default false");
             w.WriteLine("#   guest-join-notify             = Shows when guests and lower ranks join server in chat and IRC. Default true");

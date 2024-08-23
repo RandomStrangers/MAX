@@ -16,6 +16,8 @@
     permissions and limitations under the Licenses.
  */
 
+using System;
+
 namespace PattyKaki.Commands.CPE
 {
     public sealed class CmdReachDistance : Command2
@@ -33,9 +35,9 @@ namespace PattyKaki.Commands.CPE
             
             float dist = 0;
             if (!CommandParser.GetReal(p, message, "Distance", ref dist, 0, 1024)) return;
-            
+
             int packedDist = (int)(dist * 32);
-            if (packedDist > 1023) {
+            if (packedDist > short.MaxValue) {
                 p.Message("\"{0}\", is too long a reach distance. Max is 1023 blocks.", message); return;
             }
 
@@ -53,6 +55,7 @@ namespace PattyKaki.Commands.CPE
             p.Message("&T/ReachDistance [distance]");
             p.Message("&HSets the reach distance for how far away you can modify blocks.");
             p.Message("&H  The default reach distance is 5.");
+            p.Message("&H  The max reach distance is 1023 blocks.");
         }
     }
 }

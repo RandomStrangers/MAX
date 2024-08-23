@@ -73,7 +73,7 @@ namespace PattyKaki
         public static bool operator != (Position a, Position b) { return !a.Equals(b); }
 
 
-        public const int mask = 0x1FFFFF;
+        public const long mask = 0x1FFFFF;
         public long Pack() {
             return (X & mask) | ((Y & mask) << 21) | ((Z & mask) << 42);
         }

@@ -122,7 +122,7 @@ namespace PattyKaki.Commands.World {
         };
 
         public static string[] zoneHelp = new string[] {
-            "&T/os zone add [name] &H- Allows them to build in your map.",
+            "&T/os zone add [name] &H- Allows them to Build in your map.",
             "&T/os zone del all &H- Deletes all zones in your map.",
             "&T/os zone del [name] &H- Prevents them from building in your map.",
             "&T/os zone list &H- Shows zones affecting a particular block.",
@@ -276,7 +276,7 @@ namespace PattyKaki.Commands.World {
             if (lvl == null) return;
 
             MapGen.SetRealmPerms(p, lvl);
-            p.Message("Use &T/{0} zone add [name] &Sto allow other players to build in the map.", commandShortcut);
+            p.Message("Use &T/{0} zone add [name] &Sto allow other players to Build in the map.", commandShortcut);
 
             try {
                 lvl.Save(true);

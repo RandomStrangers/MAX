@@ -68,7 +68,7 @@ namespace PattyKaki.Modules.Compiling
         }
         
         /// <summary> Generates source code for an example plugin, 
-        /// preformatted with the given name and creator </summary>
+        /// preformatted with the given name and Creator </summary>
         public string GenExamplePlugin(string plugin, string creator) {
             return FormatSource(PluginSkeleton, plugin, creator, Server.Version);
         }

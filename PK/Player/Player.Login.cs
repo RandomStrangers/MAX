@@ -125,7 +125,7 @@ namespace PattyKaki
             }
 
             if (Server.Config.AgreeToRulesOnEntry && Rank == LevelPermission.Guest && !Server.agreed.Contains(name)) {
-                Message("&9You must read the &c/Rules &9and &c/Agree &9to them before you can build and use commands!");
+                Message("&9You must read the &c/Rules &9and &c/Agree &9to them before you can Build and use commands!");
                 agreed = false;
             }
             
@@ -164,7 +164,7 @@ namespace PattyKaki
                 string[] welcome = welcomeFile.GetText();
                 MessageLines(welcome);
             } catch (Exception ex) {
-                Logger.LogError("Error loading welcome text", ex);
+                Logger.LogError("Error loading Welcome text", ex);
             }
         }
         

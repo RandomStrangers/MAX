@@ -61,7 +61,7 @@ namespace PattyKaki.Drawing.Brushes
         public override string Name { get { return "ReplaceNotBrush"; } }        
         public override string[] Help { get { return HelpString; } }
 
-        public static string[] HelpString = new string[] {
+        public static new string[] HelpString = new string[] {
             "&TArguments: [block] [brush name] <brush args>",
             "&HDraws by replacing existing blocks that not the given [block] with the output of the given brush"
         };    

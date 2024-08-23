@@ -64,7 +64,7 @@ namespace PattyKaki.Commands.Info
                 p.Message("You have already agreed to the rules.");
             } else {                
                 p.agreed = true;
-                p.Message("Thank you for agreeing to follow the rules. You may now build and use commands!");
+                p.Message("Thank you for agreeing to follow the rules. You may now Build and use commands!");
                 Server.agreed.Save(false);
             }
         }

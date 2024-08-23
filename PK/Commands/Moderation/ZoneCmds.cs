@@ -73,7 +73,7 @@ namespace PattyKaki.Commands.Moderation {
             Zone z = new Zone();
             z.Access.Min = p.level.BuildAccess.Min;
             z.Access.Max = p.level.BuildAccess.Max;
-            // TODO readd once performance issues with massive zone build blacklists are fixed
+            // TODO readd once performance issues with massive zone Build blacklists are fixed
             //z.Access.CloneAccess(p.level.BuildAccess);
             
             z.Config.Name = args[offset];
@@ -156,11 +156,11 @@ namespace PattyKaki.Commands.Moderation {
         
         public override void Help(Player p) {
             p.Message("&T/Zone add [name] <permissions>");
-            p.Message("&HCreates a new zone, optionally also sets build permissions");
+            p.Message("&HCreates a new zone, optionally also sets Build permissions");
             p.Message("&T/Zone del [name]");
             p.Message("&HDeletes the given zone");
             p.Message("&T/Zone perbuild [name] [permissions]");
-            p.Message("&HSets build permissions for the given zone");
+            p.Message("&HSets Build permissions for the given zone");
             p.Message("&H  For syntax of permissions, see &T/Help PerBuild");
             p.Message("&T/Zone set [name] [property] [value]");
             p.Message("&HSets a property of this zone. See &T/Help zone properties");

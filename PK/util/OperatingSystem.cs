@@ -40,7 +40,7 @@ namespace PattyKaki.Platform
     public struct ProcInfo
     {
         public TimeSpan ProcessorTime;
-        public int PrivateMemorySize;
+        public long PrivateMemorySize;
         public int NumThreads;
     }
 
@@ -69,7 +69,7 @@ namespace PattyKaki.Platform
             
             info.ProcessorTime = proc.TotalProcessorTime;
             if (all) {
-                info.PrivateMemorySize = proc.PrivateMemorySize;
+                info.PrivateMemorySize = proc.PrivateMemorySize64;
                 info.NumThreads        = proc.Threads.Count;
             }
             return info;

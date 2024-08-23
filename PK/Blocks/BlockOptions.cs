@@ -50,7 +50,7 @@ namespace PattyKaki.Blocks {
             new BlockOption("StackBlock", SetStackId,"&HSets the block this block is changed into, when placed on top " +
                             "of itself (e.g. placing a slab on top of another slab turns into a double slab)"),
             new BlockOption("OPBlock",    SetOPBlock,"&HMarks the block as being on OP block. OP blocks can't be " +
-                            "blown up by explosions, and can't be replaced in games when build type is ModifyOnly."),
+                            "blown up by explosions, and can't be replaced in games when Build type is ModifyOnly."),
             new BlockOption("Drownable",  SetDrown,  "&HSets whether this block can drown players " +
                             "(Note &T/Map death &Hmust be enabled for players to drown)"),
             new BlockOption("Grass",      SetGrass,  "&HSets the block that this block is changed into, " +

@@ -39,7 +39,7 @@ namespace PattyKaki.Commands.Info
         }
         
         public override void Use(Player p, string message, CommandData data) {
-            p.Message("Break/build a block to display information.");
+            p.Message("Break/Build a block to display information.");
             p.MakeSelection(1, "Selecting location for &SBlock info", data, PlacedMark);
         }
 

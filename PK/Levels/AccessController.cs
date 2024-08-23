@@ -21,7 +21,7 @@ using PattyKaki.Commands;
 
 namespace PattyKaki {
     
-    /// <summary> Encapuslates access permissions (visit or build) for a level/zone. </summary>
+    /// <summary> Encapuslates access permissions (visit or Build) for a level/zone. </summary>
     public abstract class AccessController {
         
         public abstract LevelPermission Min { get; set; }
@@ -212,7 +212,7 @@ namespace PattyKaki {
         }
     }
     
-    /// <summary> Encapuslates access permissions (visit or build) for a level. </summary>
+    /// <summary> Encapuslates access permissions (visit or Build) for a level. </summary>
     public sealed class LevelAccessController : AccessController {
         public bool isVisit;
         public LevelConfig cfg;
@@ -249,9 +249,9 @@ namespace PattyKaki {
         }
 
         public override string ColoredName { get { return cfg.Color + lvlName; } }
-        public override string Action { get { return isVisit ? "go to" : "build in"; } }
+        public override string Action { get { return isVisit ? "go to" : "Build in"; } }
         public override string ActionIng { get { return isVisit ? "going to" : "building in"; } }
-        public override string Type { get { return isVisit ? "visit" : "build"; } }
+        public override string Type { get { return isVisit ? "visit" : "Build"; } }
         public override string MaxCmd { get { return isVisit ? "PerVisit" : "PerBuild"; } }
 
 

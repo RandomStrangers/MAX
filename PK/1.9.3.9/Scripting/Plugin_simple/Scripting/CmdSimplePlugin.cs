@@ -52,7 +52,7 @@ namespace PattyKaki.Commands.Scripting {
                 string modifier = args.Length > 1 ? args[1] : "";
                 
                 p.Message("Loaded simple plugins:");
-                MultiPageOutput.Output(p, Plugin_Simple.all, pl => pl.Name,
+                MultiPageOutput.Output(p, Plugin_Simple.all, pl => pl.name,
                                       "Simple plugins", "simple plugins", modifier, false);
                 return;
             }
@@ -104,11 +104,11 @@ namespace PattyKaki.Commands.Scripting {
 
         public static void UnloadSimplePlugin(Player p, string name) {
             Plugin_Simple plugin = Matcher.Find(p, name, out int matches, Plugin_Simple.all,
-                                         null, pln => pln.Name, "");
+                                         null, pln => pln.name, "");
             if (plugin == null) return;
             
             if (Plugin_Simple.core.Contains(plugin)) {
-                p.Message(plugin.Name + " is a core simple plugin and cannot be unloaded.");
+                p.Message(plugin.name + " is a core simple plugin and cannot be unloaded.");
                 return;
             }
             
@@ -119,7 +119,7 @@ namespace PattyKaki.Commands.Scripting {
                     p.Message("&WError unloading simple plugin. See error logs for more information.");
                 }
             } else {
-                p.Message("Loaded simple plugins: " + Plugin_Simple.all.Join(pl => pl.Name));
+                p.Message("Loaded simple plugins: " + Plugin_Simple.all.Join(pl => pl.name));
             }
         }
 

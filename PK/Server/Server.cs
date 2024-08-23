@@ -48,7 +48,7 @@ namespace PattyKaki
         //True = cancel event
         //Fale = dont cacnel event
         public static bool Check(string cmd, string message) {
-            if (PKCommand != null) PKCommand(cmd, message);
+            PKCommand?.Invoke(cmd, message);
             return cancelcommand;
         }
         
@@ -111,26 +111,17 @@ namespace PattyKaki
             Background.QueueOnce(InitTimers);
             Background.QueueOnce(InitRest);
             Background.QueueOnce(InitHeartbeat);
-            Background.QueueOnce(SayHello, null, TimeSpan.FromSeconds(10));
             ServerTasks.QueueTasks();
             Background.QueueRepeat(ThreadSafeCache.DBCache.CleanupTask,
                                    null, TimeSpan.FromMinutes(5));
 
         }
         
-    static void SayHello(SchedulerTask task)
-    {
-        Command.Find("say").Use(Player.PK, "Hello, World!" );
-        Logger.Log(LogType.SystemActivity, "Hello, World!");
-    }
+
     static void ForceEnableTLS() {
             // Force enable TLS 1.1/1.2, otherwise checking for updates on Github doesn't work
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0x300; } catch { }
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0xC00; } catch { }
-        }
-        static void EnsureDirectoryDoesntExist(string dir, bool persist)
-        {
-            if (Directory.Exists(dir)) Directory.Delete(dir, persist);
         }
         static void EnsureFilesExist() {
             EnsureDirectoryExists("properties");
@@ -286,7 +277,7 @@ namespace PattyKaki
 
 
         public static void UpdateUrl(string url) {
-            if (OnURLChange != null) OnURLChange(url);
+            OnURLChange?.Invoke(url);
         }
 
         static void RandomMessage(SchedulerTask task) {
@@ -296,7 +287,7 @@ namespace PattyKaki
         }
 
         internal static void SettingsUpdate() {
-            if (OnSettingsUpdate != null) OnSettingsUpdate();
+            OnSettingsUpdate?.Invoke();
         }
         
         public static bool SetMainLevel(string map) {
@@ -304,9 +295,7 @@ namespace PattyKaki
             string main = mainLevel != null ? mainLevel.name : Config.MainLevel;
             if (map.CaselessEq(main)) return false;
             
-            Level lvl = LevelInfo.FindExact(map);
-            if (lvl == null)
-                lvl = LevelActions.Load(Player.PK, map, false);
+            Level lvl = LevelInfo.FindExact(map) ?? LevelActions.Load(Player.PK, map, false);
             if (lvl == null) return false;
             
             SetMainLevel(lvl); 
@@ -354,10 +343,10 @@ namespace PattyKaki
             }
             return new string(str);
         }
-        
-        static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
-        static MD5CryptoServiceProvider md5  = new MD5CryptoServiceProvider();
-        static object md5Lock = new object();
+
+        readonly static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+        readonly static MD5CryptoServiceProvider md5  = new MD5CryptoServiceProvider();
+        readonly static object md5Lock = new object();
         
         /// <summary> Calculates mppass (verification token) for the given username. </summary>
         public static string CalcMppass(string name, string salt) {

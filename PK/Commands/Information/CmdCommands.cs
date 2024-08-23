@@ -157,7 +157,7 @@ namespace PattyKaki.Commands.Info
 
         public static string MapCategory(string type) {
             // convert old category/type names
-            if (type == "build")   return CommandTypes.Building;
+            if (type == "Build")   return CommandTypes.Building;
             if (type == "chat")    return CommandTypes.Chat;
             if (type == "economy") return CommandTypes.Economy;
             if (type == "game")    return CommandTypes.Games;

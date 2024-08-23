@@ -26,7 +26,7 @@ using PattyKaki.Tasks;
 
 namespace PattyKaki.Modules.Security
 {
-    public sealed class IPThrottler : Plugin 
+    public sealed class IPThrottler : Plugin_Simple 
     {
         public override string name { get { return "IPThrottler"; } }
         

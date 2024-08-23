@@ -100,8 +100,8 @@ namespace PattyKaki
 
                 if (diff > ReachDistance + 4)
                 {
-                    Logger.Log(LogType.Warning, "{0} attempted to build with a {1} distance offset", name, diff);
-                    Message("You can't build that far away.");
+                    Logger.Log(LogType.Warning, "{0} attempted to Build with a {1} distance offset", name, diff);
+                    Message("You can't Build that far away.");
                     RevertBlock(x, y, z); return;
                 }
             }

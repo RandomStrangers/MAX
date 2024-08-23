@@ -110,10 +110,10 @@ namespace PattyKaki
 \t\tpublic override string PK_Version {{ get {{ return ""{2}""; }} }}
 
 \t\t// Message displayed in server logs when this plugin is loaded
-\t\tpublic override string welcome {{ get {{ return ""Loaded Message!""; }} }}
+\t\tpublic override string Welcome {{ get {{ return ""Loaded Message!""; }} }}
 
 \t\t// Who created/authored this plugin
-\t\tpublic override string creator {{ get {{ return ""{1}""; }} }}
+\t\tpublic override string Creator {{ get {{ return ""{1}""; }} }}
 
 \t\t// Called when this plugin is being loaded (e.g. on server startup)
 \t\tpublic override void Load(bool startup)

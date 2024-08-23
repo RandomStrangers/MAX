@@ -20,7 +20,7 @@ using PattyKaki.Events;
 
 namespace PattyKaki.Modules.Moderation.Notes 
 {
-    public sealed class NotesPlugin : Plugin 
+    public sealed class NotesPlugin : Plugin_Simple 
     {
         public override string name { get { return "Notes"; } }
 

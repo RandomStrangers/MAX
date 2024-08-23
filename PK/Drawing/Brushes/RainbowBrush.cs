@@ -26,7 +26,7 @@ namespace PattyKaki.Drawing.Brushes
         public override string Name { get { return "Rainbow"; } }
         public RainbowBrush() : base(blocks) {}
 
-        public static BlockID[] blocks = new BlockID[] { 
+        public static new BlockID[] blocks = new BlockID[] { 
             Block.Red,   Block.Orange,  Block.Yellow,
             Block.Lime,  Block.Green,   Block.Teal,
             Block.Aqua,  Block.Cyan,    Block.Blue,
@@ -39,7 +39,7 @@ namespace PattyKaki.Drawing.Brushes
         public override string Name { get { return "BWRainbow"; } }
         public BWRainbowBrush() : base(blocks) {}
 
-        public static BlockID[] blocks = new BlockID[] { 
+        public static new BlockID[] blocks = new BlockID[] { 
             Block.Iron,  Block.White,    Block.Gray,
             Block.Black, Block.Obsidian, Block.Black, 
             Block.Gray,  Block.White };
