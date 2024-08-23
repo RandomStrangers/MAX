@@ -50,20 +50,23 @@ namespace PattyKaki
         }
 
         public void HandleManualChange(ushort x, ushort y, ushort z, bool placing,
-                                       BlockID block, bool checkPlaceDist) {
+                                       BlockID block, bool checkPlaceDist)
+        {
             BlockID old = level.GetBlock(x, y, z);
             if (old == Block.Invalid) return;
-            
+
             if (jailed || frozen || possessed) { RevertBlock(x, y, z); return; }
-            if (!agreed) {
+            if (!agreed)
+            {
                 Message(mustAgreeMsg);
                 RevertBlock(x, y, z); return;
             }
-            
+
             if (level.IsMuseum && Blockchange == null) return;
             bool deletingBlock = !painting && !placing;
 
-            if (Unverified) {
+            if (Unverified)
+            {
                 PassAuthenticator.Current.RequiresVerification(this, "modify blocks");
                 RevertBlock(x, y, z); return;
             }
@@ -72,73 +75,88 @@ namespace PattyKaki
             if (game != null && game.HandlesBlockchange(this, x, y, z)) return;
 
             if (ClickToMark && DoBlockchangeCallback(x, y, z, block)) return;
-            
+
             bool cancel = false;
             OnBlockChangingEvent.Call(this, x, y, z, block, placing, ref cancel);
             if (cancel) return;
 
-            if (old >= Block.Air_Flood && old <= Block.Door_Air_air) {
+            if (old >= Block.Air_Flood && old <= Block.Door_Air_air)
+            {
                 Message("Block is active, you cannot disturb it.");
                 RevertBlock(x, y, z); return;
             }
-            
-            if (!deletingBlock) {
+
+            if (!deletingBlock)
+            {
                 PhysicsArgs args = level.foundInfo(x, y, z);
                 if (args.HasWait) return;
             }
 
             if (Rank == LevelPermission.Banned) return;
-            if (checkPlaceDist) {
+            if (checkPlaceDist)
+            {
                 int dx = Pos.BlockX - x, dy = Pos.BlockY - y, dz = Pos.BlockZ - z;
                 int diff = (int)Math.Sqrt(dx * dx + dy * dy + dz * dz);
-                
-                if (diff > ReachDistance + 4) {
+
+                if (diff > ReachDistance + 4)
+                {
                     Logger.Log(LogType.Warning, "{0} attempted to build with a {1} distance offset", name, diff);
                     Message("You can't build that far away.");
                     RevertBlock(x, y, z); return;
                 }
             }
 
-            if (!CheckManualChange(old, deletingBlock)) {
+            if (!CheckManualChange(old, deletingBlock))
+            {
                 RevertBlock(x, y, z); return;
             }
-            
+
             BlockID raw = placing ? block : Block.Air;
             block = BlockBindings[block];
             if (ModeBlock != Block.Invalid) block = ModeBlock;
 
             BlockID newB = deletingBlock ? Block.Air : block;
             ChangeResult result;
-            
-            if (old == newB) {
+
+            if (old == newB)
+            {
                 // Ignores updating blocks that are the same and revert block back only to the player
                 result = ChangeResult.Unchanged;
-            } else if (deletingBlock) {
+            }
+            else if (deletingBlock)
+            {
                 result = DeleteBlock(old, x, y, z);
-            } else if (!CommandParser.IsBlockAllowed(this, "place", block)) {
+            }
+            else if (!CommandParser.IsBlockAllowed(this, "place", block))
+            {
                 // Not allowed to place new block
                 result = ChangeResult.Unchanged;
-            } else {
+            }
+            else
+            {
                 result = PlaceBlock(old, x, y, z, block);
             }
-            
-            if (result != ChangeResult.Modified) {
+
+            if (result != ChangeResult.Modified)
+            {
                 // Client always assumes that the place/delete succeeds
                 // So if actually didn't, need to revert to the actual block
                 if (!Block.VisuallyEquals(raw, old)) RevertBlock(x, y, z);
             }
             OnBlockChangedEvent.Call(this, x, y, z, result);
         }
-        
-        internal bool CheckManualChange(BlockID old, bool deleteMode) {
-            if (!group.Blocks[old] && !level.BuildIn(old) && !Block.AllowBreak(old)) {
+
+        internal bool CheckManualChange(BlockID old, bool deleteMode)
+        {
+            if (!group.Blocks[old] && !level.BuildIn(old) && !Block.AllowBreak(old))
+            {
                 string action = deleteMode ? "delete" : "replace";
                 BlockPerms.Find(old).MessageCannotUse(this, action);
                 return false;
             }
             return true;
         }
-        
+
         ChangeResult DeleteBlock(BlockID old, ushort x, ushort y, ushort z) {
             if (deleteMode) return ChangeBlock(x, y, z, Block.Air);
 

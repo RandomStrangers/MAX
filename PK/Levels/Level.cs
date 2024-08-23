@@ -34,7 +34,7 @@ namespace PattyKaki
     public enum LevelPermission
     {
         Banned  = -20, Guest =   0, Builder = 30, AdvBuilder =  50, 
-        Operator = 80, Admin = 100, Owner  = 120, PattyKaki = int.MaxValue,
+        Operator = 80, Admin = 100, Owner  = 120, PattyKaki = 127,
         Null = 150, Nobody = 120, Console = 127,// backwards compatibility
     }
     

@@ -39,7 +39,7 @@ namespace PattyKaki
         public static PlayerMetaList RankInfo = new PlayerMetaList("text/rankinfo.txt");
         public static PlayerMetaList Notes = new PlayerMetaList("text/notes.txt");
         /// <summary> *** DO NOT USE THIS! *** Use VersionString, as this field is a constant and is inlined if used. </summary>
-        public const string InternalVersion = "0.0.0.1";
+        public const string InternalVersion = "0.0.0.2";
         public static string Version { get { return InternalVersion; } }
         public const string SoftwareNameConst = "&dPatty&eKaki";
         public static string SoftwareName { get { return SoftwareNameConst; } }

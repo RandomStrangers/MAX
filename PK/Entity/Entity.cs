@@ -40,12 +40,13 @@ namespace PattyKaki
             get { return Orientation.Unpack(_rot); }
             set { _rot = value.Pack(); OnSetRot(); }
         }
-        
-        public Position Pos {
-            get { return Position.Unpack((int)Interlocked.Read(ref _pos)); }
+
+        public Position Pos
+        {
+            get { return Position.Unpack(Interlocked.Read(ref _pos)); }
             set { Interlocked.Exchange(ref _pos, value.Pack()); OnSetPos(); }
         }
-        
+
         public void SetInitialPos(Position pos) {
             Pos = pos; _lastPos = pos;
         }

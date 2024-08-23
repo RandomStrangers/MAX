@@ -74,11 +74,11 @@ namespace PattyKaki
 
 
         public const int mask = 0x1FFFFF;
-        public int Pack() {
+        public long Pack() {
             return (X & mask) | ((Y & mask) << 21) | ((Z & mask) << 42);
         }
 
-        public static Position Unpack(int raw) {
+        public static Position Unpack(long raw) {
             Position pos;
             pos.X = SignExtend(raw);
             pos.Y = SignExtend(raw >> 21);
@@ -86,8 +86,8 @@ namespace PattyKaki
             return pos;
         }
 
-        public static int SignExtend(int parts) {
-            int value = (parts & mask);
+        public static int SignExtend(long parts) {
+            int value = (int)(parts & mask);
             value <<= (32 - 21);
             value >>= (32 - 21);
             return value;

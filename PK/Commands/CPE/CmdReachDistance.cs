@@ -35,8 +35,8 @@ namespace PattyKaki.Commands.CPE
             if (!CommandParser.GetReal(p, message, "Distance", ref dist, 0, 1024)) return;
             
             int packedDist = (int)(dist * 32);
-            if (packedDist > short.MaxValue) {
-                p.Message("\"{0}\", is too long a reach distance. PattyKaki is 1023 blocks.", message); return;
+            if (packedDist > 1023) {
+                p.Message("\"{0}\", is too long a reach distance. Max is 1023 blocks.", message); return;
             }
 
             if (p.Session.SendSetReach(dist)) {

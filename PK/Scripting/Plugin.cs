@@ -18,11 +18,11 @@
 using System;
 using System.Collections.Generic;
 using PattyKaki.Core;
-//using PattyKaki.Modules.Games.Countdown;
-//using PattyKaki.Modules.Games.CTF;
-//using PattyKaki.Modules.Games.LS;
-//using PattyKaki.Modules.Games.TW;
-//using PattyKaki.Modules.Games.ZS;
+/*using PattyKaki.Modules.Games.Countdown;
+using PattyKaki.Modules.Games.CTF;
+using PattyKaki.Modules.Games.LS;
+using PattyKaki.Modules.Games.TW;
+using PattyKaki.Modules.Games.ZS;*/
 using PattyKaki.Modules.Moderation.Notes;
 using PattyKaki.Modules.Relay.Discord;
 using PattyKaki.Modules.Relay.IRC;
@@ -51,17 +51,7 @@ namespace PattyKaki
         /// <summary> Name of the plugin. </summary>
         public abstract string name { get; }
         /// <summary> The oldest version of PattyKaki this plugin is compatible with. </summary>
-        public virtual string Flames_Version { get { return null; } }
-#if CORE
-        /// <summary> Work on backwards compatibility with other cores </summary>
-        public virtual string SuperNova_Version { get { return null; } }
-        /// <summary> Work on backwards compatibility with other cores </summary>
-        public virtual string DeadNova_Version { get { return null; } }
-        /// <summary> Work on backwards compatibility with other cores </summary>
-        public virtual string GoldenSparks_Version { get { return null; } }
-        /// <summary> Work on backwards compatibility with other cores </summary>
-        public virtual string RandomStrangers_Version { get { return null; } }
-#endif
+        public virtual string PK_Version { get { return null; } }
         /// <summary> Version of this plugin. </summary>
         public virtual int build { get { return 0; } }
         /// <summary> Message to display once this plugin is loaded. </summary>
@@ -86,7 +76,7 @@ namespace PattyKaki
         
         
         public static void Load(Plugin pl, bool auto) {
-            string ver = pl.Flames_Version;
+            string ver = pl.PK_Version;
             if (!string.IsNullOrEmpty(ver) && new Version(ver) > new Version(Server.Version)) {
                 string msg = string.Format("Plugin '{0}' requires a more recent version of {1}!", pl.name, Server.SoftwareName);
                 throw new InvalidOperationException(msg);
@@ -149,11 +139,11 @@ namespace PattyKaki
             LoadCorePlugin(new IRCPlugin());
             LoadCorePlugin(new IPThrottler());
             LoadCorePlugin(new ServerURLSender());
-            //LoadCorePlugin(new CountdownPlugin());
-            //LoadCorePlugin(new CTFPlugin());
-            //LoadCorePlugin(new LSPlugin());
-            //LoadCorePlugin(new TWPlugin());
-            //LoadCorePlugin(new ZSPlugin());
+            /*LoadCorePlugin(new CountdownPlugin());
+            LoadCorePlugin(new CTFPlugin());
+            LoadCorePlugin(new LSPlugin());
+            LoadCorePlugin(new TWPlugin());
+            LoadCorePlugin(new ZSPlugin());*/
             IScripting.AutoloadPlugins();
         }
         

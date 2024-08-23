@@ -51,7 +51,7 @@ namespace PattyKaki {
         
         // TODO: support loading other map files eventually
         public static string[] AllMapFiles() {
-            return Directory.GetFiles("levels", "");
+            return Directory.GetFiles("levels", "*.pklvl");
         }
         
         public static string[] AllMapNames() {
