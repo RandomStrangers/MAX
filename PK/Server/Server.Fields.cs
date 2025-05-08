@@ -53,8 +53,8 @@ namespace PattyKaki
         public static INetListen Listener = new TcpListen();
 
         //Other
-        public static bool SetupFinished, CLIMode;
-        
+        public static bool SetupFinished, TLIMode;
+        public static bool CLIMode = TLIMode;
         public static PlayerList whiteList, invalidIds;
         public static PlayerList ignored, hidden, agreed, vip, noEmotes, lockdown;
         public static PlayerExtList models, skins, reach, rotations, modelScales;

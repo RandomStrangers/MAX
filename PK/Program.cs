@@ -3,6 +3,11 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using PattyKaki.UI;
+using Terminal = System.Terminal;
+using TerminalColor = System.TerminalColor;
+using TerminalSpecialKey = System.TerminalSpecialKey;
+using Context = System.Context;
+using TerminalCancelEventArgs = System.TerminalCancelEventArgs;
 namespace PattyKaki
 {
     public static class Program
@@ -11,33 +16,33 @@ namespace PattyKaki
         public static void Main(string[] args)
         {
             SetCurrentDirectory();
-            EnableCLIMode();
-            StartCLI();
+            EnableTLIMode();
+            StartTLI();
         }
         public static void SetCurrentDirectory()
         {
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             try
             {
-                Environment.CurrentDirectory = path;
+                Context.CurrentDirectory = path;
             }
             catch
             {
-                Console.WriteLine("Failed to set working directory to '{0}', running in current directory..", path);
+                Terminal.WriteLine("Failed to set working directory to '{0}', running in current directory..", path);
             }
         }
-        public static void EnableCLIMode()
+        public static void EnableTLIMode()
         {
             try
             {
-                Server.CLIMode = true;
+                Server.TLIMode = true;
             }
             catch
             {
             }
             Server.RestartPath = Assembly.GetEntryAssembly().Location;
         }
-        public static void StartCLI()
+        public static void StartTLI()
         {
             FileLogger.Init();
             AppDomain.CurrentDomain.UnhandledException += GlobalExHandler;
@@ -47,10 +52,10 @@ namespace PattyKaki
                 Updater.NewerVersionDetected += LogNewerVersionDetected;
                 EnableCLIMode();
                 Server.Start();
-                Console.Title = Colors.Strip(Server.Config.Name) + " - " + Colors.Strip(Server.SoftwareNameVersioned);
-                Console.CancelKeyPress += OnCancelKeyPress;
+                Terminal.Title = Colors.Strip(Server.Config.Name) + " - " + Colors.Strip(Server.SoftwareNameVersioned);
+                Terminal.CancelKeyPress += OnCancelKeyPress;
                 CheckNameVerification();
-                ConsoleLoop();
+                TerminalLoop();
             }
             catch (Exception e)
             {
@@ -58,16 +63,16 @@ namespace PattyKaki
                 FileLogger.Flush(null);
             }
         }
-        public static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        public static void OnCancelKeyPress(object sender, TerminalCancelEventArgs e)
         {
             switch (e.SpecialKey)
             {
-                case ConsoleSpecialKey.ControlBreak:
+                case TerminalSpecialKey.ControlBreak:
                     Write("&d-- Server shutdown (Ctrl+Break) --");
                     Thread stopThread = Server.Stop(false, Server.Config.DefaultShutdownMessage);
                     stopThread.Join();
                     break;
-                case ConsoleSpecialKey.ControlC:
+                case TerminalSpecialKey.ControlC:
                     e.Cancel = true;
                     Write("&d-- Server shutdown (Ctrl+C) --");
                     Server.Stop(false, Server.Config.DefaultShutdownMessage);
@@ -112,13 +117,13 @@ namespace PattyKaki
                     break;
             }
         }
-        public static string msgPrefix = Environment.NewLine + "Message: ";
+        public static string msgPrefix = Context.NewLine + "Message: ";
         public static string ExtractErrorMessage(string raw)
         {
             int beg = raw.IndexOf(msgPrefix);
             if (beg == -1) return "";
             beg += msgPrefix.Length;
-            int end = raw.IndexOf(Environment.NewLine, beg);
+            int end = raw.IndexOf(Context.NewLine, beg);
             if (end == -1) return "";
             return " (" + raw.Substring(beg, end - beg) + ")";
         }
@@ -131,20 +136,20 @@ namespace PattyKaki
         {
             Write(Colors.Strip(Server.SoftwareName) + " &dupdate available! Update by replacing with the files from " + Updater.UploadsURL);
         }
-        public static void ConsoleLoop()
+        public static void TerminalLoop()
         {
             int eofs = 0;
             while (true)
             {
                 try
                 {
-                    string msg = Console.ReadLine();
+                    string msg = Terminal.ReadLine();
                     if (msg == null)
                     {
                         eofs++;
                         if (eofs >= 15) 
                         { 
-                            Write("&e** EOF, console no longer accepts input **"); 
+                            Write("&e** EOF, terminal no longer accepts input **"); 
                             break; 
                         }
                         continue;
@@ -179,46 +184,46 @@ namespace PattyKaki
                 char curCol = col;
                 string part = UIHelpers.OutputPart(ref col, ref index, message);
                 if (part.Length == 0) continue;
-                ConsoleColor color = GetConsoleColor(curCol);
-                if (color == ConsoleColor.White)
+                TerminalColor color = GetTerminalColor(curCol);
+                if (color == TerminalColor.White)
                 {
-                    Console.ResetColor();
+                    Terminal.ResetColor();
                 }
                 else
                 {
-                    Console.ForegroundColor = color;
+                    Terminal.ForegroundColor = color;
                 }
-                Console.Write(part);
+                Terminal.Write(part);
             }
-            Console.ResetColor();
-            Console.WriteLine();
+            Terminal.ResetColor();
+            Terminal.WriteLine();
         }
-        public static ConsoleColor GetConsoleColor(char c)
+        public static TerminalColor GetTerminalColor(char c)
         {
-            if (c == 'P') return ConsoleColor.Magenta;
-            if (c == 'S') return ConsoleColor.White;
+            if (c == 'P') return TerminalColor.Magenta;
+            if (c == 'S') return TerminalColor.White;
             Colors.Map(ref c);
             switch (c)
             {
-                case '0': return ConsoleColor.DarkGray;
-                case '1': return ConsoleColor.DarkBlue;
-                case '2': return ConsoleColor.DarkGreen;
-                case '3': return ConsoleColor.DarkCyan;
-                case '4': return ConsoleColor.DarkRed;
-                case '5': return ConsoleColor.DarkMagenta;
-                case '6': return ConsoleColor.DarkYellow;
-                case '7': return ConsoleColor.Gray;
-                case '8': return ConsoleColor.DarkGray;
-                case '9': return ConsoleColor.Blue;
-                case 'a': return ConsoleColor.Green;
-                case 'b': return ConsoleColor.Cyan;
-                case 'c': return ConsoleColor.Red;
-                case 'd': return ConsoleColor.Magenta;
-                case 'e': return ConsoleColor.Yellow;
-                case 'f': return ConsoleColor.White;
+                case '0': return TerminalColor.DarkGray;
+                case '1': return TerminalColor.DarkBlue;
+                case '2': return TerminalColor.DarkGreen;
+                case '3': return TerminalColor.DarkCyan;
+                case '4': return TerminalColor.DarkRed;
+                case '5': return TerminalColor.DarkMagenta;
+                case '6': return TerminalColor.DarkYellow;
+                case '7': return TerminalColor.Gray;
+                case '8': return TerminalColor.DarkGray;
+                case '9': return TerminalColor.Blue;
+                case 'a': return TerminalColor.Green;
+                case 'b': return TerminalColor.Cyan;
+                case 'c': return TerminalColor.Red;
+                case 'd': return TerminalColor.Magenta;
+                case 'e': return TerminalColor.Yellow;
+                case 'f': return TerminalColor.White;
                 default:
-                    if (!Colors.IsDefined(c)) return ConsoleColor.Magenta;
-                    return GetConsoleColor(Colors.Get(c).Fallback);
+                    if (!Colors.IsDefined(c)) return TerminalColor.Magenta;
+                    return GetTerminalColor(Colors.Get(c).Fallback);
             }
         }
     }
