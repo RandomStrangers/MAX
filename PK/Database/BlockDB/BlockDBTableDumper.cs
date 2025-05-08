@@ -64,7 +64,7 @@ namespace PattyKaki.DB
                 if (stream == null) {
                     stream = File.Create(BlockDBFile.DumpPath(mapName));
                     string lvlPath = LevelInfo.MapPath(mapName);
-                    dims = IMapImporter.Formats[0].ReadDimensions(lvlPath);
+                    dims = IMapImporter.GetFor(lvlPath).ReadDimensions(lvlPath);
                     BlockDBFile.WriteHeader(stream, dims);
                 }
                 

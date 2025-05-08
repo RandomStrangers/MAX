@@ -31,9 +31,6 @@ namespace PattyKaki
             return target != null ? target.group : Group.GroupIn(name);
         }
         
-        [Obsolete("Use p.FormatNick instead")]
-        public static string GetColoredName(Player p, string name) { return p.FormatNick(name); }
-        
         /// <summary> Calculates default color for the given player. </summary>
         public static string DefaultColor(Player p) {
             string col = PlayerDB.FindColor(p);
@@ -96,8 +93,8 @@ namespace PattyKaki
             return null;
         }
 
-        
-        static void ReadAccounts(ISqlRecord record, List<string> names) {
+
+        public static void ReadAccounts(ISqlRecord record, List<string> names) {
             string name = record.GetText(0);         
             if (!names.CaselessContains(name)) names.Add(name);
         }
@@ -151,8 +148,8 @@ namespace PattyKaki
             all.Reverse();
             return all;
         }
-           
-        static OnlineListEntry OnlineOfRank(Player p, LevelPermission plRank, Group group) {
+
+        public static OnlineListEntry OnlineOfRank(Player p, LevelPermission plRank, Group group) {
             OnlineListEntry entry = new OnlineListEntry();
             entry.group   = group;
             entry.players = new List<Player>();
@@ -181,7 +178,8 @@ namespace PattyKaki
     
     public class OnlineListEntry 
     {
-        public Group group; public List<Player> players;
+        public Group group; 
+        public List<Player> players;
         
         public static string GetFlags(Player p) {
             string flags = "";

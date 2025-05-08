@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Threading;
 using PattyKaki.Events.PlayerEvents;
 using PattyKaki.Events.ServerEvents;
+using PattyKaki.Maths;
 using BlockID = System.UInt16;
 
 namespace PattyKaki.Network
@@ -24,12 +25,12 @@ namespace PattyKaki.Network
     public class ClassicProtocol : IGameSession
     {
         // these are checked very frequently, so avoid overhead of .Supports(
-        bool hasEmoteFix, hasTwoWayPing, hasExtTexs, hasTextColors;
-        bool hasHeldBlock, hasLongerMessages;
+        public bool hasEmoteFix, hasTwoWayPing, hasExtTexs, hasTextColors;
+        public bool hasHeldBlock, hasLongerMessages;
 
-        bool finishedCpeLogin;
-        int extensionCount;
-        CpeExt[] extensions = CpeExtension.Empty;
+        public bool finishedCpeLogin;
+        public int extensionCount;
+        public CpeExt[] extensions = CpeExtension.Empty;
 
         public ClassicProtocol(INetSocket s)
         {
@@ -37,7 +38,7 @@ namespace PattyKaki.Network
             player = new Player(s, this);
         }
 
-        protected override int HandlePacket(byte[] buffer, int offset, int left)
+        public override int HandlePacket(byte[] buffer, int offset, int left)
         {
             switch (buffer[offset])
             {
@@ -60,7 +61,7 @@ namespace PattyKaki.Network
             }
         }
 
-        BlockID ReadBlock(byte[] buffer, int offset)
+        public BlockID ReadBlock(byte[] buffer, int offset)
         {
             BlockID block;
             if (hasExtBlocks)
@@ -79,7 +80,7 @@ namespace PattyKaki.Network
 
 
         #region Classic processing
-        int HandleLogin(byte[] buffer, int offset, int left)
+        public int HandleLogin(byte[] buffer, int offset, int left)
         {
             // protocol versions < 6 didn't have the usertype field,
             //  hence this two-packet-size-handling monstrosity
@@ -113,7 +114,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandleBlockchange(byte[] buffer, int offset, int left)
+        public int HandleBlockchange(byte[] buffer, int offset, int left)
         {
             int size = 1 + 6 + 1 + (hasExtBlocks ? 2 : 1);
             if (left < size) return 0;
@@ -134,7 +135,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandleMovement(byte[] buffer, int offset, int left)
+        public int HandleMovement(byte[] buffer, int offset, int left)
         {
             int size = 1 + 6 + 2 + (player.hasExtPositions ? 6 : 0) + (hasExtBlocks ? 2 : 1);
             if (left < size) return 0;
@@ -168,7 +169,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandleChat(byte[] buffer, int offset, int left)
+        public int HandleChat(byte[] buffer, int offset, int left)
         {
             const int size = 1 + 1 + 64;
             if (left < size) return 0;
@@ -192,7 +193,7 @@ namespace PattyKaki.Network
             return ext != null && ext.ClientVersion == version;
         }
 
-        CpeExt FindExtension(string extName)
+        public CpeExt FindExtension(string extName)
         {
             foreach (CpeExt ext in extensions)
             {
@@ -201,7 +202,7 @@ namespace PattyKaki.Network
             return null;
         }
 
-        void SendCpeExtensions()
+        public void SendCpeExtensions()
         {
             extensions = CpeExtension.GetAllEnabled();
             Send(Packet.ExtInfo((byte)(extensions.Length + 1)));
@@ -214,7 +215,7 @@ namespace PattyKaki.Network
             }
         }
 
-        void CheckReadAllExtensions()
+        public void CheckReadAllExtensions()
         {
             if (extensionCount <= 0 && !finishedCpeLogin)
             {
@@ -223,7 +224,7 @@ namespace PattyKaki.Network
             }
         }
 
-        int HandleExtInfo(byte[] buffer, int offset, int left)
+        public int HandleExtInfo(byte[] buffer, int offset, int left)
         {
             const int size = 1 + 64 + 2;
             if (left < size) return 0;
@@ -234,7 +235,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandleExtEntry(byte[] buffer, int offset, int left)
+        public int HandleExtEntry(byte[] buffer, int offset, int left)
         {
             const int size = 1 + 64 + 4;
             if (left < size) return 0;
@@ -255,7 +256,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandlePlayerClicked(byte[] buffer, int offset, int left)
+        public int HandlePlayerClicked(byte[] buffer, int offset, int left)
         {
             const int size = 1 + 1 + 1 + 2 + 2 + 1 + 2 + 2 + 2 + 1;
             if (left < size) return 0;
@@ -275,7 +276,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandleTwoWayPing(byte[] buffer, int offset, int left)
+        public int HandleTwoWayPing(byte[] buffer, int offset, int left)
         {
             const int size = 1 + 1 + 2;
             if (left < size) return 0;
@@ -296,7 +297,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        int HandlePluginMessage(byte[] buffer, int offset, int left)
+        public int HandlePluginMessage(byte[] buffer, int offset, int left)
         {
             const int size = 1 + 1 + Packet.PluginMessageDataLength;
             if (left < size) return 0;
@@ -309,7 +310,7 @@ namespace PattyKaki.Network
             return size;
         }
 
-        void AddExtension(string extName, int version)
+        public void AddExtension(string extName, int version)
         {
             Player p = player;
             CpeExt ext = FindExtension(extName);
@@ -381,7 +382,7 @@ namespace PattyKaki.Network
             }
         }
 
-        void SendGlobalColors()
+        public void SendGlobalColors()
         {
             for (int i = 0; i < Colors.List.Length; i++)
             {
@@ -591,6 +592,22 @@ namespace PattyKaki.Network
             Send(Packet.UndefineBlock(def, hasExtBlocks));
             return true;
         }
+        public override bool SendAddSelection(byte id, string label, Vec3U16 p1, Vec3U16 p2, ColorDesc color)
+        {
+            if (!Supports(CpeExt.SelectionCuboid)) return false;
+
+            Send(Packet.MakeSelection(id, label, p1, p2,
+                                      color.R, color.G, color.B, color.A, player.hasCP437));
+            return true;
+        }
+
+        public override bool SendRemoveSelection(byte id)
+        {
+            if (!Supports(CpeExt.SelectionCuboid)) return false;
+
+            Send(Packet.DeleteSelection(id));
+            return true;
+        }
         #endregion
 
 
@@ -696,7 +713,7 @@ namespace PattyKaki.Network
             Send(Packet.LevelFinalise(level.Width, level.Height, level.Length));
         }
 
-        void RemoveOldLevelCustomBlocks(Level oldLevel)
+        public void RemoveOldLevelCustomBlocks(Level oldLevel)
         {
             BlockDefinition[] defs = oldLevel.CustomBlockDefs;
             for (int i = 0; i < defs.Length; i++)
@@ -728,7 +745,7 @@ namespace PattyKaki.Network
             return buffer.MakeLimited(fallback);
         }
 
-        void UpdateFallbackTable()
+        public void UpdateFallbackTable()
         {
             for (byte b = 0; b <= Block.CPE_MAX_BLOCK; b++)
             {
@@ -737,7 +754,7 @@ namespace PattyKaki.Network
         }
 
 
-        string CleanupColors(string value)
+        public string CleanupColors(string value)
         {
             // Although ClassiCube in classic mode supports invalid colours,
             //  the original vanilla client crashes with invalid colour codes
@@ -793,7 +810,7 @@ namespace PattyKaki.Network
             dst.Send(packet);
         }
 
-        static byte FlippedPitch(byte pitch)
+        public static byte FlippedPitch(byte pitch)
         {
             if (pitch > 64 && pitch < 192) return pitch;
             else return 128;

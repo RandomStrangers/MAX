@@ -21,13 +21,13 @@ using PattyKaki.Tasks;
 
 namespace PattyKaki.Util 
 {
-    public sealed class ThreadSafeCache 
+    public class ThreadSafeCache 
     {
         public static ThreadSafeCache DBCache = new ThreadSafeCache();
-            
-        readonly object locker = new object();
-        readonly Dictionary<string, object> items    = new Dictionary<string, object>();
-        readonly Dictionary<string, DateTime> access = new Dictionary<string, DateTime>();
+
+        public object locker = new object();
+        public Dictionary<string, object> items    = new Dictionary<string, object>();
+        public Dictionary<string, DateTime> access = new Dictionary<string, DateTime>();
         
         public object GetLocker(string key) {
             lock (locker) {

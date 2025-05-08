@@ -18,7 +18,7 @@
 
 namespace PattyKaki.Modules.Awards
 {
-    public sealed class CmdAward : Command2 
+    public class CmdAward : Command2 
     {
         public override string name { get { return "Award"; } }
         public override string type { get { return CommandTypes.Economy; } }

@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-
 namespace PattyKaki.Scripting
 {
     /// <summary> Exception raised when attempting to load a new command/plugin 
@@ -48,12 +47,27 @@ namespace PattyKaki.Scripting
             Directory.CreateDirectory(PLUGINS_DLL_DIR);
             AppDomain.CurrentDomain.AssemblyResolve += ResolvePluginAssembly;
         }
+        public static class DotNetBackend
+        {
+            public static void Init() { }
 
+            public static string GetExePath(string path)
+            {
+                return path;
+            }
+
+            public static Assembly ResolvePluginReference(string name)
+            {
+                return null;
+            }
+        }
         // only used for resolving plugin DLLs depending on other plugin DLLs
         static Assembly ResolvePluginAssembly(object sender, ResolveEventArgs args) {
-            #if !NET_20
-            if (args.RequestingAssembly == null)       return null;
-            if (!IsPluginDLL(args.RequestingAssembly)) return null;
+            // This property only exists in .NET framework 4.0 and later
+            Assembly requestingAssembly = args.RequestingAssembly;
+            
+            if (requestingAssembly == null)       return null;
+            if (!IsPluginDLL(requestingAssembly)) return null;
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assem in assemblies)
@@ -62,10 +76,12 @@ namespace PattyKaki.Scripting
 
                 if (args.Name == assem.FullName) return assem;
             }
-            
+
+            Assembly coreRef = DotNetBackend.ResolvePluginReference(args.Name);
+            if (coreRef != null) return coreRef;
+
             Logger.Log(LogType.Warning, "Custom command/plugin [{0}] tried to load [{1}], but it could not be found",
-                       args.RequestingAssembly.FullName, args.Name);
-            #endif
+                       requestingAssembly.FullName, args.Name);
             return null;
         }
 
@@ -91,30 +107,12 @@ namespace PattyKaki.Scripting
             return instances;
         }
         
-        /// <summary> Loads the given assembly from disc (and associated .pdb debug data) </summary>
+        /// <summary> Loads the given assembly from disc </summary>
         public static Assembly LoadAssembly(string path) {
             byte[] data  = File.ReadAllBytes(path);
-            byte[] debug = GetDebugData(path);
-            return Assembly.Load(data, debug);
+            return Assembly.Load(data);
         }
         
-        static byte[] GetDebugData(string path) {
-            if (Server.RunningOnMono()) {
-                // Cmdtest.dll -> Cmdtest.dll.mdb
-                path += ".mdb";
-            } else {
-                // Cmdtest.dll -> Cmdtest.pdb
-                path = Path.ChangeExtension(path, ".pdb");
-            }
-            
-            if (!File.Exists(path)) return null;
-            try {
-                return File.ReadAllBytes(path);
-            } catch (Exception ex) {
-                Logger.LogError("Error loading .pdb " + path, ex);
-                return null;
-            }
-        }
         
         
         public static void AutoloadCommands() {

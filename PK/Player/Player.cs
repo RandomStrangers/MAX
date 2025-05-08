@@ -30,7 +30,7 @@ using PattyKaki.SQL;
 using BlockID = System.UInt16;
 
 namespace PattyKaki {
-    sealed class PKPlayer : Player
+    public class PKPlayer : Player
     {
         public PKPlayer() : base("&S(&dPatty&eKaki&S)")
         {
@@ -51,7 +51,7 @@ namespace PattyKaki {
     }
     public partial class Player : Entity, IDisposable {
 
-        static int sessionCounter;
+        public static int sessionCounter;
         public static Player PK = new PKPlayer();
         //This is so that plugin devs can declare a player without needing a socket..
         //They would still have to do p.Dispose()..
@@ -64,7 +64,7 @@ namespace PattyKaki {
             IsSuper   = true;
         }
 
-        const int SESSION_ID_MASK = (1 << 20) - 1;
+        public const int SESSION_ID_MASK = (1 << 20) - 1;
         public Player(INetSocket socket, IGameSession session) {
             Socket  = socket;
             Session = session;
@@ -143,7 +143,7 @@ namespace PattyKaki {
             prefix = prefixes.Join("");
         }
 
-        internal string MakeTitle(string title, string titleCol) {
+        public string MakeTitle(string title, string titleCol) {
              return color + "[" + titleCol + title + color + "] ";
         }
         
@@ -245,8 +245,8 @@ namespace PattyKaki {
             LeaveServer(msg, msg, false, sync);
         }
 
-        bool leftServer = false;
-        void LeaveServer(string chatMsg, string discMsg, bool isKick, bool sync = false) {
+        public bool leftServer = false;
+        public void LeaveServer(string chatMsg, string discMsg, bool isKick, bool sync = false) {
             if (leftServer || IsSuper) return;
             leftServer = true;
             CriticalTasks.Clear();
@@ -297,8 +297,8 @@ namespace PattyKaki {
                 Socket.Close();
             }
         }
-        
-        void ShowDisconnectInChat(string chatMsg, bool isKick) {
+
+        public void ShowDisconnectInChat(string chatMsg, bool isKick) {
             if (chatMsg == null) return;
             
             if (!isKick) {
@@ -331,8 +331,8 @@ namespace PattyKaki {
         #region == OTHER ==
 
         public const string USERNAME_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890._";
-        
-        internal byte UserType() { return group.Blocks[Block.Bedrock] ? (byte)100 : (byte)0; }
+
+        public byte UserType() { return group.Blocks[Block.Bedrock] ? (byte)100 : (byte)0; }
 
         #endregion
 
@@ -402,8 +402,8 @@ namespace PattyKaki {
             money = amount;
             OnMoneyChangedEvent.Call(this);
         }
-        
-        internal static bool CheckVote(string msg, Player p, string a, string b, ref int totalVotes) {
+
+        public static bool CheckVote(string msg, Player p, string a, string b, ref int totalVotes) {
             if (!(msg.CaselessEq(a) || msg.CaselessEq(b))) return false;
             
             if (p.voted) {
@@ -420,20 +420,20 @@ namespace PattyKaki {
             if (spamChecker != null) spamChecker.CheckChatSpam();
         }
 
-        internal void SetBaseTotalModified(long modified) {
+        public void SetBaseTotalModified(long modified) {
             long adjust    = modified - TotalModified;
             TotalModified  = modified;
             // adjust so that SessionModified is unaffected
             startModified += adjust;
         }
-        
-        string selTitle;
-        readonly object selLock = new object();
-        Vec3S32[] selMarks;
-        object selState;
-        SelectionHandler selCallback;
-        SelectionMarkHandler selMarkCallback;
-        int selIndex;
+
+        public string selTitle;
+        public object selLock = new object();
+        public Vec3S32[] selMarks;
+        public object selState;
+        public SelectionHandler selCallback;
+        public SelectionMarkHandler selMarkCallback;
+        public int selIndex;
 
         public void MakeSelection(int marks, string title, object state, 
                                   SelectionHandler callback, SelectionMarkHandler markCallback = null) {
@@ -465,8 +465,8 @@ namespace PattyKaki {
                 Blockchange = null;
             }
         }
-        
-        void SelectionBlockChange(Player p, ushort x, ushort y, ushort z, BlockID block) {
+
+        public void SelectionBlockChange(Player p, ushort x, ushort y, ushort z, BlockID block) {
             lock (selLock) {
                 Blockchange = SelectionBlockChange;
                 RevertBlock(x, y, z);
@@ -498,19 +498,19 @@ namespace PattyKaki {
                 }
             }
         }
-        
-        string FormatSelectionMark(Vec3S32 P) {
+
+        public string FormatSelectionMark(Vec3S32 P) {
             return ": &S(" + P.X + ", " + P.Y + ", " + P.Z + ")";
         }
-        
-        void InitSelectionHUD() {
+
+        public void InitSelectionHUD() {
             SendCpeMessage(CpeMessageType.BottomRight3, selTitle);
             SendCpeMessage(CpeMessageType.BottomRight2, "Mark #1: &S(Not yet set)");
             string mark2Msg = selMarks.Length >= 2 ? "Mark #2: &S(Not yet set)" : "";
             SendCpeMessage(CpeMessageType.BottomRight1, mark2Msg);
         }
-        
-        void ResetSelectionHUD() {
+
+        public void ResetSelectionHUD() {
             SendCpeMessage(CpeMessageType.BottomRight3, "");
             SendCpeMessage(CpeMessageType.BottomRight2, "");
             SendCpeMessage(CpeMessageType.BottomRight1, "");

@@ -61,7 +61,16 @@ namespace PattyKaki.Platform
         
         
         /// <summary> Measures CPU use by all processes in the system </summary>
-        public abstract CPUTime MeasureAllCPUTime();
+        public virtual CPUTime MeasureAllCPUTime()
+        {
+            CPUTime def = new CPUTime()
+            {
+                KernelTime = 1,
+                IdleTime = 1,
+                UserTime = 1,
+            };
+            return def;
+        }
         
         /// <summary> Measures resource usage by the current process </summary>
         public virtual ProcInfo MeasureResourceUsage(Process proc, bool all) {
@@ -113,16 +122,20 @@ namespace PattyKaki.Platform
         
         
         public override CPUTime MeasureAllCPUTime() {
-            CPUTime all = default;
+            CPUTime all = new CPUTime()
+            {
+                KernelTime = 1,
+                IdleTime = 1,
+                UserTime = 1,
+            }; 
             GetSystemTimes(out all.IdleTime, out all.KernelTime, out all.UserTime);
-
             // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes
             // lpKernelTime - "... This time value also includes the amount of time the system has been idle."
             all.KernelTime -= all.IdleTime;
             return all;
         }
 
-        [DllImport("kernel32.dll")]
+        [DllImport("Kernel32.dll")]
         public static extern int GetSystemTimes(out uint idleTime, out uint kernelTime, out uint userTime);
     }
 
@@ -154,7 +167,7 @@ namespace PattyKaki.Platform
             //     at System.TermInfoDriver.ReadUntilConditionInternal (System.Boolean haltOnNewLine) [0x0000e]
             //     at System.TermInfoDriver.ReadLine () [0x00000]
             //     at System.ConsoleDriver.ReadLine () [0x00000]
-            //     at System.PK.ReadLine () [0x00013]
+            //     at System.Console.ReadLine () [0x00013]
             //     at PattyKaki.ConsoleLoop () [0x00002]
             // (this errors multiple times a second and can quickly fill up tons of disk space)
             // And also causes console to be spammed with '1R3;1R3;1R3;' or '363;1R;363;1R;'

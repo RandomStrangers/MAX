@@ -4,7 +4,7 @@ using System;
 namespace PattyKaki.Generator.fCraft 
 {
     /// <summary> Contains parameters for advanced map generation. </summary>
-    public sealed class fCraftMapGenArgs 
+    public class fCraftMapGenArgs 
     {
         public string MapName;
         public MapGenBiomeName Biome = MapGenBiomeName.Forest;

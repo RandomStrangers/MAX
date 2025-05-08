@@ -31,13 +31,13 @@ namespace PattyKaki {
 
         public PlayerIgnores Ignores = new PlayerIgnores();
         public static string lastMSG = "";
-        internal PersistentMessages persistentMessages = new PersistentMessages();
+        public PersistentMessages persistentMessages = new PersistentMessages();
         public Zone ZoneIn;
-        
+
         //TpA
-        internal bool Request;
-        internal string senderName = "";
-        internal string currentTpa = "";
+        public bool Request;
+        public string senderName = "";
+        public string currentTpa = "";
 
         /// <summary> Account name of the user </summary>
         /// <remarks> Use 'truename' for displaying/logging, use 'name' for storing data </remarks>
@@ -86,7 +86,7 @@ namespace PattyKaki {
         /// <summary> Whether this player is a 'Super' player (PK, IRC, etc) </summary>
         public bool IsSuper;
         /// <summary> Whether this player is PK. </summary>
-        public bool IsPK { get { return this == Player.PK; } }
+        public bool IsPK { get { return this == PK; } }
 
         public virtual string FullName { get { return color + prefix + DisplayName; } }  
         public string ColoredName { get { return color + DisplayName; } }
@@ -100,11 +100,11 @@ namespace PattyKaki {
         public bool adminchat;
         public bool whisper;
         public string whisperTo = "";
-        string partialMessage = "";
+        public string partialMessage = "";
 
         public bool trainGrab;
         public bool onTrain, trainInvincible;
-        int mbRecursion;
+        public int mbRecursion;
 
         public bool frozen;
         public string following = "";
@@ -121,10 +121,10 @@ namespace PattyKaki {
         public int TimesVisited, TimesBeenKicked, TimesDied;
         public int TotalMessagesSent;
 
-        long startModified;
+        public long startModified;
         public long SessionModified { get { return TotalModified - startModified; } }
-        
-        DateTime startTime;
+
+        public DateTime startTime;
         public TimeSpan TotalTime {
             get { return DateTime.UtcNow - startTime; }
             set { startTime = DateTime.UtcNow.Subtract(value); }
@@ -133,13 +133,13 @@ namespace PattyKaki {
         public DateTime FirstLogin, LastLogin;
 
         public bool staticCommands;
-        internal DateTime lastAccessStatus;
+        public DateTime lastAccessStatus;
         public VolatileArray<SchedulerTask> CriticalTasks = new VolatileArray<SchedulerTask>();
 
         public bool isFlying;
         public bool aiming;
         public Weapon weapon;
-        internal BufferedBlockSender weaponBuffer;
+        public BufferedBlockSender weaponBuffer;
 
         public bool joker;
         public bool Unverified, verifiedPass;
@@ -172,21 +172,21 @@ namespace PattyKaki {
                 CopySlots[CurrentCopySlot] = value;
             }
         }
-        
+
         // BlockDefinitions
-        internal int gbStep = 0, lbStep = 0;
-        internal BlockDefinition gbBlock, lbBlock;
+        public int gbStep = 0, lbStep = 0;
+        public BlockDefinition gbBlock, lbBlock;
 
         //Undo
         public VolatileArray<UndoDrawOpEntry> DrawOps = new VolatileArray<UndoDrawOpEntry>();
-        internal readonly object pendingDrawOpsLock = new object();
-        internal List<PendingDrawOp> PendingDrawOps = new List<PendingDrawOp>();
+        public object pendingDrawOpsLock = new object();
+        public List<PendingDrawOp> PendingDrawOps = new List<PendingDrawOp>();
 
         public bool showPortals, showMBs;
         public string prevMsg = "";
 
         //Movement
-        internal int oldIndex = -1, lastWalkthrough = -1, startFallY = -1, lastFallY = -1;
+        public int oldIndex = -1, lastWalkthrough = -1, startFallY = -1, lastFallY = -1;
         public DateTime drownTime = DateTime.MaxValue;
 
         public DateTime deathCooldown;
@@ -204,7 +204,7 @@ namespace PattyKaki {
 
         public Level level;
         public bool Loading = true; //True if player is loading a map.
-        internal int UsingGoto = 0, GeneratingMap = 0, LoadingMuseum = 0;
+        public int UsingGoto = 0, GeneratingMap = 0, LoadingMuseum = 0;
         public Vec3U16 lastClick = Vec3U16.Zero;
         
         public Position PreTeleportPos;
@@ -216,10 +216,10 @@ namespace PattyKaki {
 
         // Extra storage for custom commands
         public ExtrasCollection Extras = new ExtrasCollection();
-        
-        SpamChecker spamChecker;
-        internal DateTime cmdUnblocked;
-        List<DateTime> partialLog;
+
+        public SpamChecker spamChecker;
+        public DateTime cmdUnblocked;
+        public List<DateTime> partialLog;
 
         public WarpList Waypoints = new WarpList();
         public DateTime LastPatrol;
@@ -231,15 +231,15 @@ namespace PattyKaki {
         /// <summary> The URL of the authentication service this player's name was verified via. Can be null </summary>
         /// <example> http://www.classicube.net/heartbeat.jsp </example>
         public string VerifiedVia;
-        bool gotSQLData;
+        public bool gotSQLData;
         
         
         public bool cancelcommand, cancelchat;
         public bool cancellogin, cancelconnecting;
-        
-        Queue<SerialCommand> serialCmds = new Queue<SerialCommand>();
-        object serialCmdsLock = new object();
-        struct SerialCommand { public Command cmd; public string args; public CommandData data; }
+
+        public Queue<SerialCommand> serialCmds = new Queue<SerialCommand>();
+        public object serialCmdsLock = new object();
+        public struct SerialCommand { public Command cmd; public string args; public CommandData data; }
       
         /// <summary> Called when a player removes or places a block.
         /// NOTE: Currently this prevents the OnBlockChange event from being called. </summary>

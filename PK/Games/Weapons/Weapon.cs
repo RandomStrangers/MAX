@@ -33,7 +33,7 @@ namespace PattyKaki.Games
         public static bool hookedEvents;
 
         public Player p;
-        AimBox aimer;
+        public AimBox aimer;
         
         /// <summary> Applies this weapon to the given player, and sets up necessary state. </summary>
         public virtual void Enable(Player p) {
@@ -178,7 +178,7 @@ namespace PattyKaki.Games
     }
 
     /// <summary> Manages the glass box around the player. Adjusts based on where player is looking. </summary>
-    public sealed class AimBox 
+    public class AimBox 
     {
         public Player player;
         public List<Vec3U16> lastGlass = new List<Vec3U16>();

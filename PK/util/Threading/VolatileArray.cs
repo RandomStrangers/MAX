@@ -18,7 +18,7 @@
 
 namespace PattyKaki 
 {
-    public sealed class VolatileArray<T> where T : class 
+    public class VolatileArray<T> where T : class 
     {
         /// <remarks> Note this field is highly volatile, you should cache references to it. </remarks>
         public volatile T[] Items = new T[0];
@@ -28,7 +28,7 @@ namespace PattyKaki
         /// <summary> Object used to sychronise Add/Remove calls to this array. </summary>
         /// <remarks> When locking on this object from external code, you should try
         /// to minimise the amount of time the object is locked for. </remarks>
-        public readonly object locker = new object();
+        public object locker = new object();
         
         public VolatileArray(bool ignored = false) { } // used to mean 'useList'
         

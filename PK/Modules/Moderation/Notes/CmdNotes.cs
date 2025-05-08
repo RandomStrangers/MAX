@@ -97,7 +97,7 @@ namespace PattyKaki.Modules.Moderation.Notes
         }
     }
 
-    public sealed class CmdMyNotes : CmdNotes
+    public class CmdMyNotes : CmdNotes
     {
         public override string name { get { return "MyNotes"; } }
         public override string type { get { return CommandTypes.Other; } }

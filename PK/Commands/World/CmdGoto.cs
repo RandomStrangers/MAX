@@ -41,7 +41,7 @@ namespace PattyKaki.Commands.World {
                 // randomly only visit certain number of maps
                 if (args.Length > 1) {
                     List<string> maps = Wildcard.Filter(files, args[1],
-                                                        mapFile => Path.GetFileNameWithoutExtension(mapFile));
+                                                        mapFile => LevelInfo.MapName_Ext(mapFile));
                     if (maps.Count == 0) {
                         p.Message("No maps found containing \"{0}\"", args[1]);
                         return;
@@ -49,7 +49,7 @@ namespace PattyKaki.Commands.World {
                     map = maps[new Random().Next(maps.Count)];
                 } else {
                     map = files[new Random().Next(files.Length)];
-                    map = Path.GetFileNameWithoutExtension(map);
+                    map = LevelInfo.MapName_Ext(map);
                 }
 
                 PlayerActions.ChangeMap(p, map);

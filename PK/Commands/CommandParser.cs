@@ -158,8 +158,8 @@ namespace PattyKaki.Commands
                 GetCoordInt(p, args[argsOffset + 1], "Y coordinate", ref P.Y) &&
                 GetCoordInt(p, args[argsOffset + 2], "Z coordinate", ref P.Z);
         }
-        
-        static bool ParseRelative(ref string arg) {
+
+        public static bool ParseRelative(ref string arg) {
             // ~ is preferred for compatibility with modern minecraft command syntax
             // # is also accepted since ~ cannot be typed in original minecraft classic
             bool relative = arg.Length > 0 && (arg[0] == '~' || arg[0] == '#');

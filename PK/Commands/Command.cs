@@ -90,7 +90,13 @@ namespace PattyKaki
             
             IScripting.AutoloadCommands();
         }
-        
+        public static void Register(params Command[] cmds)
+        {
+            foreach (Command cmd in cmds)
+            {
+                Register(cmd);
+            }
+        }
         public static void Register(Command cmd) {
             allCmds.Add(cmd);            
             cmd.Permissions = CommandPerms.GetOrAdd(cmd.name, cmd.defaultRank);
@@ -116,7 +122,6 @@ namespace PattyKaki
                 if (announce) Logger.Log(LogType.SystemActivity, "Command /{0} loaded", cmd.name);
             }
         }
-        
         public static bool Unregister(Command cmd) {
             bool removed = allCmds.Remove(cmd);
             

@@ -56,10 +56,10 @@ namespace PattyKaki
         public static string MapBlockDefs(string map) { return "blockdefs/lvl_" + map + ".json"; }
         
         /// <summary> Relative path of a deleted level's map file. </summary>
-        public static string DeletedMapFile(string map) { return "levels/deleted/" + map + ".pklvl"; }       
+        public static string DeletedMapFile(string map) { return "levels/deleted/" + LevelInfo.MapName_Ext(map); }       
         
         /// <summary> Relative path of a level's previous save map file. </summary>
-        public static string PrevMapFile(string map) { return "levels/prev/" + map.ToLower() + ".pklvl.prev"; }
+        public static string PrevMapFile(string map) { return "levels/prev/" + LevelInfo.MapName_Ext(map.ToLower()) + ".prev"; }
 
         /// <summary> Relative path of a block properties file. </summary>     
         public static string BlockPropsPath(string group) { return "blockprops/" + group + ".txt"; }

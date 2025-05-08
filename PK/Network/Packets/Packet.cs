@@ -143,7 +143,7 @@ namespace PattyKaki.Network
             byte[] buffer = new byte[67];
             buffer[0] = Opcode.CpeExtInfo;
             NetUtils.Write(Server.SoftwareNameVersioned, buffer, 1, false);
-            NetUtils.WriteI16((short)extsCount, buffer, 65);
+            NetUtils.WriteI16(extsCount, buffer, 65);
             return buffer;
         }
 
@@ -311,7 +311,7 @@ namespace PattyKaki.Network
             return buffer;
         }
 
-        static void WriteMapAppearance(byte[] buffer, string url, byte side, byte edge,
+        public static void WriteMapAppearance(byte[] buffer, string url, byte side, byte edge,
                                        int sideLevel, bool hasCP437)
         {
             buffer[0] = Opcode.CpeEnvSetMapApperance;
@@ -453,7 +453,7 @@ namespace PattyKaki.Network
         /// </summary>
         public static byte[] VelocityControl(float x, float y, float z, byte xMode, byte yMode, byte zMode)
         {
-            byte[] buffer = new Byte[16];
+            byte[] buffer = new byte[16];
             buffer[0] = Opcode.CpeVelocityControl;
             NetUtils.WriteI32((int)(x * 10000), buffer, 1);
             NetUtils.WriteI32((int)(y * 10000), buffer, 5);
@@ -775,7 +775,7 @@ namespace PattyKaki.Network
             return buffer;
         }
 
-        static void WriteTex(byte[] buffer, ref int i, ushort value, bool extTexs)
+        public static void WriteTex(byte[] buffer, ref int i, ushort value, bool extTexs)
         {
             if (extTexs)
             {
@@ -787,7 +787,7 @@ namespace PattyKaki.Network
             }
         }
 
-        static void MakeDefineBlockStart(BlockDefinition def, byte[] buffer, ref int i, bool uniqueSideTexs,
+        public static void MakeDefineBlockStart(BlockDefinition def, byte[] buffer, ref int i, bool uniqueSideTexs,
                                          bool hasCP437, bool extBlocks, bool extTexs)
         {
             // speed = 2^((raw - 128) / 64);
@@ -817,7 +817,7 @@ namespace PattyKaki.Network
             buffer[i++] = (byte)(def.FullBright ? 1 : 0);
         }
 
-        static void MakeDefineBlockEnd(BlockDefinition def, ref int i, byte[] buffer)
+        public static void MakeDefineBlockEnd(BlockDefinition def, ref int i, byte[] buffer)
         {
             buffer[i++] = def.BlockDraw;
             buffer[i++] = def.FogDensity;

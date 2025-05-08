@@ -17,36 +17,40 @@
  */
 using PattyKaki.Commands;
 
-namespace PattyKaki.Modules.Compiling
+namespace PattyKaki.Compiling
 {
-    public sealed class CmdCmdCreate : CmdCompile 
+    public class CmdCmdCreate : CmdCompile
     {
         public override string name { get { return "CmdCreate"; } }
         public override string shortcut { get { return ""; } }
-        public override CommandAlias[] Aliases {
-        	get { return new[] { new CommandAlias("PCreate", "plugin") }; }
+        public override CommandAlias[] Aliases
+        {
+            get { return new[] { new CommandAlias("PCreate", "plugin") }; }
         }
 
-        public override void CompileCommand(Player p, string[] paths, ICompiler compiler) {
+        public override void CompileCommand(Player p, string[] paths, ICompiler compiler)
+        {
             foreach (string cmd in paths)
             {
                 CompilerOperations.CreateCommand(p, cmd, compiler);
             }
         }
 
-        public override void CompilePlugin(Player p, string[] paths, ICompiler compiler) {
+        public override void CompilePlugin(Player p, string[] paths, ICompiler compiler)
+        {
             foreach (string cmd in paths)
             {
                 CompilerOperations.CreatePlugin(p, cmd, compiler);
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/CmdCreate [name]");
             p.Message("&HCreates an example C# command named Cmd[name]");
             p.Message("&H  This can be used as the basis for creating a new command");
             p.Message("&T/CmdCreate plugin [name]");
-            p.Message("&HCreate a example C# plugin named [name]");
+            p.Message("&HCreate an example C# plugin named [name]");
         }
     }
 }

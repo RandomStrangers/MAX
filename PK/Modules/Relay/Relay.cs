@@ -1,17 +1,12 @@
-﻿//reference System.dll
-//reference System.Net.dll
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using PattyKaki.DB;
 using PattyKaki.Events.ServerEvents;
 using PattyKaki.Events;
-using PattyKaki.SQL;
 
 namespace PattyKaki.Relay
 {
@@ -122,7 +117,7 @@ namespace PattyKaki.Relay
 
     public delegate void OnDirectMessage(RelayBot bot, string channel, RelayUser user, string message, ref bool cancel);
     /// <summary> Called when an external communication service user sends a message directly to the relay bot </summary>
-    public sealed class OnDirectMessageEvent : IEvent<OnDirectMessage>
+    public class OnDirectMessageEvent : IEvent<OnDirectMessage>
     {
         public static void Call(RelayBot bot, string channel, RelayUser user, string message, ref bool cancel)
         {
@@ -143,7 +138,7 @@ namespace PattyKaki.Relay
 
     public delegate void OnChannelMessage(RelayBot bot, string channel, RelayUser user, string message, ref bool cancel);
     /// <summary> Called when an external communication service user sends a message to the given channel </summary>
-    public sealed class OnChannelMessageEvent : IEvent<OnChannelMessage>
+    public class OnChannelMessageEvent : IEvent<OnChannelMessage>
     {
         public static void Call(RelayBot bot, string channel, RelayUser user, string message, ref bool cancel)
         {
@@ -177,13 +172,13 @@ namespace PattyKaki.Relay
         /// <summary> List of user IDs that all chat from is ignored </summary>
         public string[] IgnoredUsers;
 
-        public readonly Player fakeGuest = new Player("RelayBot");
-        public readonly Player fakeStaff = new Player("RelayBot");
-        DateTime lastWho, lastOpWho, lastWarn;
+        public Player fakeGuest = new Player("RelayBot");
+        public Player fakeStaff = new Player("RelayBot");
+        public DateTime lastWho, lastOpWho, lastWarn;
 
         public bool canReconnect;
         public byte retries;
-        volatile Thread worker;
+        public volatile Thread worker;
         /// <summary> Whether this relay bot can automatically reconnect </summary>
         public abstract bool CanReconnect { get; }
 
@@ -358,7 +353,7 @@ namespace PattyKaki.Relay
         }
 
         /// <summary> Starts the read loop in a background thread </summary>
-        void RunAsync()
+        public void RunAsync()
         {
             worker = new Thread(IOThread)
             {
@@ -527,8 +522,6 @@ namespace PattyKaki.Relay
 
             if (HandleListPlayers(user, channel, cmdName, false)) return;
             Command.Search(ref cmdName, ref cmdArgs);
-            if (HandleLogo(user, channel, cmdName)) return;
-            Command.Search(ref cmdName, ref cmdArgs);
             if (HandleURL(user, channel, cmdName)) return;
             Command.Search(ref cmdName, ref cmdArgs);
             if (!CanUseCommand(user, cmdName, out string error))
@@ -558,7 +551,6 @@ namespace PattyKaki.Relay
 
             // Only reply to .who on channels configured to listen on
             if ((chat || opchat) && HandleListPlayers(user, channel, rawCmd, opchat)) return;
-            if ((chat || opchat) && HandleLogo(user, channel, rawCmd)) return;
             if ((chat || opchat) && HandleURL(user, channel, rawCmd)) return;
 
             if (rawCmd.CaselessEq(Server.Config.IRCCommandPrefix))
@@ -604,24 +596,6 @@ namespace PattyKaki.Relay
             else lastWho = DateTime.UtcNow;
             return true;
         }
-        public bool HandleLogo(RelayUser user, string channel, string cmd)
-        {
-            bool isLogo = cmd.ToLower() == ".serverlogo" || cmd.ToLower() == ".logo";
-            if (!isLogo) return false;
-            try
-            {
-                RelayPlayer p = new RelayPlayer(channel, user, this)
-                {
-                    group = Group.DefaultRank
-                };
-                MessageLogo(p);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
-            }
-            return true;
-        }
         public bool HandleURL(RelayUser user, string channel, string cmd)
         {
             bool isURL = cmd.ToLower() == ".serverurl" || cmd.ToLower() == ".url";
@@ -645,10 +619,6 @@ namespace PattyKaki.Relay
         public virtual void MessagePlayers(RelayPlayer p)
         {
             Command.Find("Players").Use(p, "", p.DefaultCmdData);
-        }
-        public virtual void MessageLogo(RelayPlayer p)
-        {
-            Command.Find("ServerLogo").Use(p, "", p.DefaultCmdData);
         }
         public virtual void MessageURL(RelayPlayer p)
         {
@@ -744,11 +714,11 @@ namespace PattyKaki.Relay
             return Group.DefaultRank;
         }
 
-        public sealed class RelayPlayer : Player
+        public class RelayPlayer : Player
         {
-            public readonly string ChannelID;
-            public readonly RelayUser User;
-            public readonly RelayBot Bot;
+            public string ChannelID;
+            public RelayUser User;
+            public RelayBot Bot;
 
             public RelayPlayer(string channel, RelayUser user, RelayBot bot) : base(bot.RelayName)
             {

@@ -39,7 +39,7 @@ namespace PattyKaki.Commands {
         /// Args passed to behavior through SubCommandGroup.Use are guaranteed to be the length specified by argCount
         /// </summary>
         public SubCommand(string name, int argCount, Behavior behavior, string[] help, bool mapOnly = true, string[] aliases = null) {
-            if (argCount < 1) { throw new System.ArgumentException("argCount must be greater than or equal to 1."); }
+            if (argCount < 1) { throw new ArgumentException("argCount must be greater than or equal to 1."); }
             Name = name;
             ArgCount = argCount;
             this.behavior = behavior;
@@ -89,7 +89,7 @@ namespace PattyKaki.Commands {
         public enum UsageResult { NoneFound, Success, Disallowed }
 
         public string parentCommandName;
-        List<SubCommand> subCommands;
+        public List<SubCommand> subCommands;
 
         public SubCommandGroup(string parentCmd, List<SubCommand> initialCmds) {
             parentCommandName = parentCmd;

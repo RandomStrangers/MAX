@@ -1,7 +1,5 @@
 ﻿/*
-    Copyright 2010 MCLawl Team - Written by Valek (Modified by MCGalaxy)
-
-    Edited for use with MCGalaxy
+    Copyright 2015 MCGalaxy
  
     Dual-licensed under the Educational Community License, Version 2.0 and
     the GNU General Public License, Version 3 (the "Licenses"); you may
@@ -29,58 +27,197 @@
 // 
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.CodeDom.Compiler;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 
-
-namespace PattyKaki.Modules.Compiling
+namespace PattyKaki.Compiling
 {
-    /// <summary> Compiles source code files from a particular language, using a CodeDomProvider for the compiler </summary>
-    public static class ICodeDomCompiler
-    {   
-        public static CompilerParameters PrepareInput(string[] srcPaths, string dstPath, string commentPrefix) {
-            CompilerParameters args = new CompilerParameters();
-            args.GenerateExecutable      = false;
-            args.IncludeDebugInformation = true;
-            args.OutputAssembly          = dstPath;
-
-            List<string> referenced = ICompiler.ProcessInput(srcPaths, commentPrefix);
-            foreach (string assembly in referenced)
+    /// <summary> Compiles C# source files into a .dll by invoking a compiler executable directly </summary>
+    public abstract class CommandLineCompiler
+    {
+        public ICompilerErrors Compile(string[] srcPaths, string dstPath, List<string> referenced)
+        {
+            string args = GetCommandLineArguments(srcPaths, dstPath, referenced);
+            string exe = GetExecutable();
+            ICompilerErrors errors = new ICompilerErrors();
+            List<string> output = new List<string>();
+            int retValue = Compile(exe, GetCompilerArgs(exe, args), output);
+            // Only look for errors/warnings if the compile failed
+            // TODO still log warnings anyways error when success?
+            if (retValue != 0)
             {
-                args.ReferencedAssemblies.Add(assembly);
-            }
-            return args;
-        }
-
-        // Lazy init compiler when it's actually needed
-        public static void InitCompiler(ICompiler c, string language, ref CodeDomProvider compiler) {
-            if (compiler != null) return;
-            compiler = CodeDomProvider.CreateProvider(language);
-            if (compiler != null) return;
-                
-            Logger.Log(LogType.Warning,
-                       "WARNING: {0} compiler is missing, you will be unable to compile {1} files.",
-                       c.FullName, c.FileExtension);
-                // TODO: Should we log "You must have .net developer tools. (You need a visual studio)" ?
-        }
-
-        public static ICompilerErrors Compile(CompilerParameters args, string[] srcPaths, CodeDomProvider compiler) {
-            CompilerResults results = compiler.CompileAssemblyFromFile(args, srcPaths);
-            ICompilerErrors errors  = new ICompilerErrors();
-
-            foreach (CompilerError error in results.Errors)
-            {
-                ICompilerError ce = new ICompilerError();
-                ce.Line        = error.Line;
-                ce.Column      = error.Column;
-                ce.ErrorNumber = error.ErrorNumber;
-                ce.ErrorText   = error.ErrorText;
-                ce.IsWarning   = error.IsWarning;
-                ce.FileName    = error.FileName;
-
-                errors.Add(ce);
+                foreach (string line in output)
+                {
+                    ProcessCompilerOutputLine(errors, line);
+                }
             }
             return errors;
+        }
+        public virtual string GetCommandLineArguments(string[] srcPaths, string dstPath,
+                                                         List<string> referencedAssemblies)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("/t:library ");
+            sb.Append("/utf8output /noconfig /fullpaths ");
+            AddCoreAssembly(sb);
+            AddReferencedAssemblies(sb, referencedAssemblies);
+            sb.AppendFormat("/out:{0} ", Quote(dstPath));
+            sb.Append("/optimize- ");
+            sb.Append("/warnaserror- /unsafe ");
+            foreach (string path in srcPaths)
+            {
+                sb.AppendFormat("{0} ", Quote(path));
+            }
+            return sb.ToString();
+        }
+        public virtual void AddCoreAssembly(StringBuilder sb)
+        {
+            string coreAssemblyFileName = typeof(object).Assembly.Location;
+            if (!string.IsNullOrEmpty(coreAssemblyFileName))
+            {
+                sb.Append("/nostdlib+ ");
+                sb.AppendFormat("/R:{0} ", Quote(coreAssemblyFileName));
+            }
+        }
+        public abstract void AddReferencedAssemblies(StringBuilder sb, List<string> referenced);
+        public static string Quote(string value) 
+        { 
+            return "\"" + value.Trim() + "\""; 
+        }
+        public abstract string GetExecutable();
+        public abstract string GetCompilerArgs(string exe, string args);
+        public static int Compile(string path, string args, List<string> output)
+        {
+            // https://stackoverflow.com/questions/285760/how-to-spawn-a-process-and-capture-its-stdout-in-net
+            ProcessStartInfo psi = CreateStartInfo(path, args);
+
+            using (Process p = new Process())
+            {
+                p.OutputDataReceived += (s, e) => { if (e.Data != null) output.Add(e.Data); }; // csc errors
+                p.ErrorDataReceived += (s, e) => { if (e.Data != null) output.Add(e.Data); }; // mcs errors
+
+                p.StartInfo = psi;
+                p.Start();
+
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+
+                if (!p.WaitForExit(120 * 1000))
+                    throw new InvalidOperationException("C# compiler ran for over two minutes! Giving up..");
+
+                return p.ExitCode;
+            }
+        }
+        public static int ParseInt32(string s)
+        {
+            return int.Parse(s, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+        }
+        public static ProcessStartInfo CreateStartInfo(string path, string args)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo(path, args);
+            psi.WorkingDirectory = Environment.CurrentDirectory;
+            psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            return psi;
+        }
+
+
+        public static Regex outputRegWithFileAndLine;
+        public static Regex outputRegSimple;
+
+        public static void ProcessCompilerOutputLine(ICompilerErrors errors, string line)
+        {
+            if (outputRegSimple == null)
+            {
+                outputRegWithFileAndLine =
+                    new Regex(@"(^(.*)(\(([0-9]+),([0-9]+)\)): )(error|warning) ([A-Z]+[0-9]+) ?: (.*)");
+                outputRegSimple =
+                    new Regex(@"(error|warning) ([A-Z]+[0-9]+) ?: (.*)");
+            }
+
+            //First look for full file info
+            Match m = outputRegWithFileAndLine.Match(line);
+            bool full;
+            if (m.Success)
+            {
+                full = true;
+            }
+            else
+            {
+                m = outputRegSimple.Match(line);
+                full = false;
+            }
+
+            if (!m.Success) return;
+            ICompilerError ce = new ICompilerError();
+
+            if (full)
+            {
+                ce.FileName = m.Groups[2].Value;
+                ce.Line = ParseInt32(m.Groups[4].Value);
+                ce.Column = ParseInt32(m.Groups[5].Value);
+            }
+
+            ce.IsWarning = m.Groups[full ? 6 : 1].Value.CaselessEq("warning");
+            ce.ErrorNumber = m.Groups[full ? 7 : 2].Value;
+            ce.ErrorText = m.Groups[full ? 8 : 3].Value;
+            errors.Add(ce);
+        }
+    }
+
+    public class ClassicCSharpCompiler : CommandLineCompiler
+    {
+        public override void AddCoreAssembly(StringBuilder sb)
+        {
+            string coreAssemblyFileName = typeof(object).Assembly.Location;
+
+            if (!string.IsNullOrEmpty(coreAssemblyFileName))
+            {
+                sb.Append("/nostdlib+ ");
+                sb.AppendFormat("/R:{0} ", Quote(coreAssemblyFileName));
+            }
+        }
+
+        public override void AddReferencedAssemblies(StringBuilder sb, List<string> referenced)
+        {
+            foreach (string path in referenced)
+            {
+                sb.AppendFormat("/R:{0} ", Quote(path));
+            }
+        }
+
+
+        public override string GetExecutable()
+        {
+            string root = RuntimeEnvironment.GetRuntimeDirectory();
+
+            string[] paths = new string[] {
+                // First try new C# compiler
+                Path.Combine(root, "csc.exe"),
+                // Then fallback to old Mono C# compiler
+                Path.Combine(root, @"../../../bin/mcs"),
+                Path.Combine(root, "mcs.exe"),
+                "/usr/bin/mcs",
+            };
+
+            foreach (string path in paths)
+            {
+                if (File.Exists(path)) return path;
+            }
+            return paths[0];
+        }
+
+        public override string GetCompilerArgs(string exe, string args)
+        {
+            return args;
         }
     }
 }

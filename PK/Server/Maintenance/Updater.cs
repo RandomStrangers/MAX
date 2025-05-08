@@ -27,10 +27,10 @@ namespace PattyKaki
     public static class Updater
     {
 
-        public static string SourceURL = "https://github.com/RandomStrangers/PK";
-        public const string UploadsURL = "https://github.com/RandomStrangers/PK/tree/master/Uploads";
-        public const string UpdatesURL = "https://github.com/RandomStrangers/PK/raw/master/Uploads/";
-        public static string WikiURL = "https://github.com/UnknownShadow200/MCGalaxy";
+        public static string SourceURL = "https://github.com/SuperNova-DeadNova/PK";
+        public const string UploadsURL = "https://github.com/SuperNova-DeadNova/PK/tree/master/Uploads";
+        public const string UpdatesURL = "https://github.com/SuperNova-DeadNova/PK/raw/master/Uploads/";
+        public static string WikiURL = "https://github.com/ClassiCube/MCGalaxy";
         public const string CurrentVersionURL = UpdatesURL + "current.txt";
         public const string URL = UpdatesURL + "PattyKaki.exe";
 
@@ -42,7 +42,7 @@ namespace PattyKaki
             task.Delay = TimeSpan.FromHours(2);
         }
 
-        static void UpdateCheck()
+        public static void UpdateCheck()
         {
             if (!Server.Config.CheckForUpdates) return;
             WebClient client = HttpUtil.CreateWebClient();
@@ -102,7 +102,7 @@ namespace PattyKaki
                 Logger.LogError("Error performing update", ex);
             }
         }
-        static void DeleteFiles(params string[] paths)
+        public static void DeleteFiles(params string[] paths)
         {
             foreach (string path in paths) { AtomicIO.TryDelete(path); }
         }

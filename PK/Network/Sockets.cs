@@ -33,8 +33,8 @@ namespace PattyKaki.Network
         public INetProtocol protocol;        
         /// <summary> Whether the socket has been closed/disconnected </summary>
         public bool Disconnected;
-        byte[] leftData;
-        int leftLen;
+        public byte[] leftData;
+        public int leftLen;
         
         /// <summary> Gets the IP address of the remote end (i.e. client) of the socket </summary>
         public abstract IPAddress IP { get; }      
@@ -47,8 +47,8 @@ namespace PattyKaki.Network
         public abstract void Send(byte[] buffer, SendFlags flags);      
         /// <summary> Closes this network socket </summary>
         public abstract void Close();
-        
-        protected void HandleReceived(byte[] data, int len) {
+
+        public void HandleReceived(byte[] data, int len) {
             // Identify the protocol user is connecting with
             // It could be ClassiCube, Minecraft Modern, WebSocket, etc
             if (protocol == null) {
@@ -83,12 +83,12 @@ namespace PattyKaki.Network
                 leftData[i] = src[processedLen + i];
             }
         }
-        
-        
-        internal static VolatileArray<INetSocket> pending = new VolatileArray<INetSocket>();
+
+
+        public static VolatileArray<INetSocket> pending = new VolatileArray<INetSocket>();
         public static ProtocolConstructor[] Protocols     = new ProtocolConstructor[256];
-        
-        void IdentifyProtocol(byte opcode) {
+
+        public void IdentifyProtocol(byte opcode) {
             ProtocolConstructor cons   = Protocols[opcode];
             if (cons != null) protocol = cons(this);
             if (protocol != null) return;
@@ -101,12 +101,12 @@ namespace PattyKaki.Network
             Protocols[Opcode.Handshake] = ConstructClassic;
             Protocols['G']              = ConstructWebsocket;
         }
-        
-        static INetProtocol ConstructClassic(INetSocket socket) {
+
+        public static INetProtocol ConstructClassic(INetSocket socket) {
             return new ClassicProtocol(socket);
         }
-        
-        static INetProtocol ConstructWebsocket(INetSocket socket) {
+
+        public static INetProtocol ConstructWebsocket(INetSocket socket) {
             if (!Server.Config.WebClient) return null;
             return new WebSocket(socket);
         }
@@ -120,17 +120,17 @@ namespace PattyKaki.Network
     }
     
     /// <summary> Abstracts sending to/receiving from a TCP socket </summary>
-    public sealed class TcpSocket : INetSocket 
+    public class TcpSocket : INetSocket 
     {
-        readonly Socket socket;        
-        byte[] recvBuffer = new byte[256];
-        readonly SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
-        
-        byte[] sendBuffer = new byte[4096];
-        readonly object sendLock = new object();
-        readonly Queue<byte[]> sendQueue = new Queue<byte[]>(64);
-        volatile bool sendInProgress;
-        readonly SocketAsyncEventArgs sendArgs = new SocketAsyncEventArgs();
+        public Socket socket;
+        public byte[] recvBuffer = new byte[256];
+        public SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
+
+        public byte[] sendBuffer = new byte[4096];
+        public object sendLock = new object();
+        public Queue<byte[]> sendQueue = new Queue<byte[]>(64);
+        public volatile bool sendInProgress;
+        public SocketAsyncEventArgs sendArgs = new SocketAsyncEventArgs();
         
         public TcpSocket(Socket s) {
             socket = s;
@@ -150,15 +150,15 @@ namespace PattyKaki.Network
             get { return SocketUtil.GetIP(socket); }
         }
         public override bool LowLatency { set { socket.NoDelay = value; } }
-        
-        
-        static EventHandler<SocketAsyncEventArgs> recvCallback = RecvCallback;
-        void ReceiveNextAsync() {
+
+
+        public static EventHandler<SocketAsyncEventArgs> recvCallback = RecvCallback;
+        public void ReceiveNextAsync() {
             // ReceiveAsync returns false if completed sync
             if (!socket.ReceiveAsync(recvArgs)) RecvCallback(null, recvArgs);
         }
-        
-        static void RecvCallback(object sender, SocketAsyncEventArgs e) {
+
+        public static void RecvCallback(object sender, SocketAsyncEventArgs e) {
             TcpSocket s = (TcpSocket)e.UserToken;
             if (s.Disconnected) return;
             
@@ -178,9 +178,9 @@ namespace PattyKaki.Network
                 s.Disconnect();
             }
         }
-        
-        
-        static EventHandler<SocketAsyncEventArgs> sendCallback = SendCallback;
+
+
+        public static EventHandler<SocketAsyncEventArgs> sendCallback = SendCallback;
         public override void Send(byte[] buffer, SendFlags flags) {
             if (Disconnected || !socket.Connected) return;
 
@@ -204,8 +204,8 @@ namespace PattyKaki.Network
                 // Socket was already closed by another thread
             }
         }
-        
-        bool TrySendAsync(byte[] buffer) {
+
+        public bool TrySendAsync(byte[] buffer) {
             // BlockCopy has some overhead, not worth it for very small data
             if (buffer.Length <= 16) {
                 for (int i = 0; i < buffer.Length; i++) {
@@ -219,8 +219,8 @@ namespace PattyKaki.Network
             // SendAsync returns false if completed sync
             return socket.SendAsync(sendArgs);
         }
-        
-        static void SendCallback(object sender, SocketAsyncEventArgs e) {
+
+        public static void SendCallback(object sender, SocketAsyncEventArgs e) {
             TcpSocket s = (TcpSocket)e.UserToken;
             try {
                 lock (s.sendLock) {
@@ -254,9 +254,9 @@ namespace PattyKaki.Network
                 Logger.LogError(ex);
             }
         }
-        
+
         // Close while also notifying higher level (i.e. show 'X disconnected' in chat)
-        void Disconnect() {
+        public void Disconnect() {
             if (protocol != null) protocol.Disconnect();
             Close();
         }
@@ -276,11 +276,11 @@ namespace PattyKaki.Network
     }
     
     /// <summary> Abstracts a WebSocket on top of a socket </summary>
-    public sealed class WebSocket : ServerWebSocket 
+    public class WebSocket : ServerWebSocket 
     {
-        readonly INetSocket s;
+        public INetSocket s;
         // websocket connection may be a proxied connection
-        IPAddress clientIP;      
+        public IPAddress clientIP;      
         
         public WebSocket(INetSocket socket) { s  = socket; }
         
@@ -289,18 +289,18 @@ namespace PattyKaki.Network
         public override IPAddress IP { get { return clientIP ?? s.IP; } }
         public override bool LowLatency { set { s.LowLatency = value; } }
 
-        protected override void SendRaw(byte[] data, SendFlags flags) {
+        public override void SendRaw(byte[] data, SendFlags flags) {
             s.Send(data, flags);
         } 
         public override void Send(byte[] buffer, SendFlags flags) {
             s.Send(WrapData(buffer), flags);
         }
-        
-        protected override void HandleData(byte[] data, int len) {
+
+        public override void HandleData(byte[] data, int len) {
             HandleReceived(data, len);
         }
-        
-        protected override void OnDisconnected(int reason) {
+
+        public override void OnDisconnected(int reason) {
             if (protocol != null) protocol.Disconnect();
             s.Close();
         }
@@ -309,7 +309,7 @@ namespace PattyKaki.Network
 
 
         // Websocket proxying support
-        protected override void OnGotHeader(string name, string value) {
+        public override void OnGotHeader(string name, string value) {
             base.OnGotHeader(name, value);
 
             if (name == "X-Real-IP" && Server.Config.AllowIPForwarding && IsTrustedForwarderIP()) {
@@ -321,8 +321,8 @@ namespace PattyKaki.Network
         // by default the following IPs are trusted for proxying/forwarding connections
         //  1) loopback (assumed to be a reverse proxy running on the same machine as the server)
         //  2) classicube.net's websocket proxy IP (used as a fallback for https only connections)
-        static IPAddress ccnetIP = new IPAddress(0xFA05DF22); // 34.223.5.250
-        bool IsTrustedForwarderIP() {
+        public static IPAddress ccnetIP = new IPAddress(0xFA05DF22); // 34.223.5.250
+        public bool IsTrustedForwarderIP() {
             IPAddress ip = IP;
             return IPAddress.IsLoopback(ip) || ip.Equals(ccnetIP);
         }

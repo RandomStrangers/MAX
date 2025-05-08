@@ -17,29 +17,27 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.CodeDom.Compiler;
-
-namespace PattyKaki.Modules.Compiling
+using System.Collections.Generic;
+namespace PattyKaki.Compiling
 {
-    public sealed class CSCompiler : ICompiler 
+    public class CSCompiler : ICompiler
     {
         public override string FileExtension { get { return ".cs"; } }
-        public override string ShortName     { get { return "C#"; } }  
-        public override string FullName      { get { return "CSharp"; } }
+        public override string ShortName { get { return "C#"; } }
+        public override string FullName { get { return "CSharp"; } }
 
-        CodeDomProvider compiler;
+        public override ICompilerErrors DoCompile(string[] srcPaths, string dstPath)
+        {
+            List<string> referenced = ProcessInput(srcPaths, "//");
 
-        public override ICompilerErrors DoCompile(string[] srcPaths, string dstPath) {
-            CompilerParameters args = ICodeDomCompiler.PrepareInput(srcPaths, dstPath, "//");
-            args.CompilerOptions   += " /unsafe";
-            // NOTE: Make sure to keep CompilerOptions in sync with RoslynCSharpCompiler
-
-            ICodeDomCompiler.InitCompiler(this, "CSharp", ref compiler);
-            return ICodeDomCompiler.Compile(args, srcPaths, compiler);
+            CommandLineCompiler compiler = new ClassicCSharpCompiler();
+            return compiler.Compile(srcPaths, dstPath, referenced);
         }
 
-        public override string CommandSkeleton {
-            get {
+        public override string CommandSkeleton
+        {
+            get
+            {
                 return @"//\tAuto-generated command skeleton class
 //\tUse this as a basis for custom PattyKaki commands
 //\tNaming should be kept consistent (e.g. /update command should have a class name of 'CmdUpdate' and a filename of 'CmdUpdate.cs')
@@ -87,9 +85,11 @@ public class Cmd{0} : Command
 }}";
             }
         }
-        
-        public override string PluginSkeleton {
-            get {
+
+        public override string PluginSkeleton
+        {
+            get
+            {
                 return @"//\tAuto-generated plugin skeleton class
 //\tUse this as a basis for custom PattyKaki plugins
 
@@ -110,10 +110,10 @@ namespace PattyKaki
 \t\tpublic override string PK_Version {{ get {{ return ""{2}""; }} }}
 
 \t\t// Message displayed in server logs when this plugin is loaded
-\t\tpublic override string Welcome {{ get {{ return ""Loaded Message!""; }} }}
+\t\tpublic override string welcome {{ get {{ return ""Loaded Message!""; }} }}
 
 \t\t// Who created/authored this plugin
-\t\tpublic override string Creator {{ get {{ return ""{1}""; }} }}
+\t\tpublic override string creator {{ get {{ return ""{1}""; }} }}
 
 \t\t// Called when this plugin is being loaded (e.g. on server startup)
 \t\tpublic override void Load(bool startup)

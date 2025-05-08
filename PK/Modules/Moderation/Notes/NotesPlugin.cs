@@ -20,17 +20,16 @@ using PattyKaki.Events;
 
 namespace PattyKaki.Modules.Moderation.Notes 
 {
-    public sealed class NotesPlugin : Plugin_Simple 
+    public class NotesPlugin : Plugin
     {
         public override string name { get { return "Notes"; } }
 
-        Command cmdNotes   = new CmdNotes();
-        Command cmdMyNotes = new CmdMyNotes();
+        public Command cmdNotes   = new CmdNotes();
+        public Command cmdMyNotes = new CmdMyNotes();
 
         public override void Load(bool startup) {
             OnModActionEvent.Register(HandleModerationAction, Priority.Low);
-            Command.Register(cmdNotes);
-            Command.Register(cmdMyNotes);
+            Command.Register(cmdNotes, cmdMyNotes);
         }
         
         public override void Unload(bool shutdown) {

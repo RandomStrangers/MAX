@@ -79,7 +79,6 @@ namespace PattyKaki.Commands.Info
             Thread.Sleep(1000);
             ProcInfo endUsg = os.MeasureResourceUsage(proc, true);
             CPUTime allEnd  = os.MeasureAllCPUTime();
-
             p.Message("&a{0}% &SCPU usage now, &a{1}% &Soverall",
                 MeasureCPU(begUsg.ProcessorTime,   endUsg.ProcessorTime, TimeSpan.FromSeconds(1)),
                 MeasureCPU(startUsg.ProcessorTime, endUsg.ProcessorTime, DateTime.UtcNow - startTime));

@@ -310,7 +310,7 @@ namespace PattyKaki.SQL
 
         internal SQLiteStatement NextStatement() {
             if (stmt != null) DisposeStatement();
-            if (String.IsNullOrEmpty(sqlCmd)) return null;
+            if (string.IsNullOrEmpty(sqlCmd)) return null;
             
             try {
                 stmt = conn.Prepare(sqlCmd, ref sqlCmd);

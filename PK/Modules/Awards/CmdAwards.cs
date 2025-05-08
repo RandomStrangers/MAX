@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace PattyKaki.Modules.Awards
 {
-    public sealed class CmdAwards : Command2 
+    public class CmdAwards : Command2 
     {
         public override string name { get { return "Awards"; } }
         public override string type { get { return CommandTypes.Economy; } }

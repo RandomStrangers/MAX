@@ -22,8 +22,8 @@ namespace PattyKaki.UI
 {
     /// <summary> Common functionality for a CLI or GUI server console </summary>
     public static class UIHelpers 
-    {        
-        static string lastCMD = "";
+    {
+        public static string lastCMD = "";
         public static void HandleChat(string text) {
             if (text != null) text = text.Trim();
             if (string.IsNullOrEmpty(text)) return;
@@ -88,7 +88,7 @@ namespace PattyKaki.UI
                     }
                 })
             {
-                Name = "MAXCMD_" + name,
+                Name = "PKCMD_" + name,
                 IsBackground = false
             };
             thread.Start();
@@ -113,8 +113,8 @@ namespace PattyKaki.UI
             }
             return part;
         }
-        
-        static int NextPart(int start, string message) {
+
+        public static int NextPart(int start, string message) {
             for (int i = start; i < message.Length; i++) {
                 if (message[i] != '&') continue;
                 // No colour code follows this

@@ -104,7 +104,7 @@ namespace PattyKaki
         }
     }
     
-    public sealed class CommandTypes 
+    public class CommandTypes 
     {
         public const string Building = "Building";
         public const string Chat = "Chat";

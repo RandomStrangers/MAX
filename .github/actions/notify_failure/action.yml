@@ -8,7 +8,7 @@ inputs:
     type: string
   BOT_AVATAR:
     description: 'URL to use for the avatar of the discord bot message'
-    default: 'https://cdn.discordapp.com/attachments/1169445073159725081/1202006104314499143/PK.png'
+    default: 'https://raw.githubusercontent.com/SuperNova-DeadNova/PK/master/PattyKaki.png'
     required: false
     type: string
   NOTIFY_MESSAGE:

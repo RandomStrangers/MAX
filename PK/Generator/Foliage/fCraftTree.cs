@@ -4,7 +4,7 @@ using PattyKaki.Generator.Foliage;
 
 namespace PattyKaki.Generator.fCraft
 {
-    public sealed class fCraftTree : Tree
+    public class fCraftTree : Tree
     {
         // 66 = max number of leaves possible
         public override int EstimateBlocksAffected() { return height + 66; }

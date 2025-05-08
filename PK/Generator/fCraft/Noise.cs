@@ -15,7 +15,7 @@ namespace PattyKaki.Generator.fCraft
 
 
     /// <summary> Class for generating and filtering 2D and 3D noise, extensively used by MapGenerator and Cloudy brush. </summary>
-    public sealed class Noise 
+    public class Noise 
     {
         public int Seed;
         public NoiseInterpolationMode InterpolationMode;

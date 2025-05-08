@@ -26,10 +26,10 @@ namespace PattyKaki {
     public class PlayerExtList {
         public char Separator = ' ';
         public string Path;
-        
-        List<string> names = new List<string>(), lines = new List<string>();
-        internal readonly object locker = new object();
-        readonly object saveLocker = new object();
+
+        public List<string> names = new List<string>(), lines = new List<string>();
+        public object locker = new object();
+        public object saveLocker = new object();
 
         public List<string> AllNames() {
             lock (locker) return new List<string>(names);
@@ -72,19 +72,6 @@ namespace PattyKaki {
             lock (locker) return names.CaselessContains(name);
         }
 
-        /// <summary> Retrieves the data associated with the given name. </summary>
-        /// <remarks> Returns null if there is no data associated. </remarks>
-        [Obsolete("Use Get() instead")]
-        public string FindData(string name) {
-            lock (locker) {
-                int idx = names.CaselessIndexOf(name);
-                if (idx == -1) return null;
-                
-                string line = lines[idx];
-                idx = line.IndexOf(Separator);
-                return idx == -1 ? null : line.Substring(idx + 1);
-            }
-        }
         
         /// <summary> Retrieves the data associated with the given name </summary>
         /// <remarks> Returns "" if the data associated with the given name is missing </remarks>
@@ -109,8 +96,8 @@ namespace PattyKaki {
             }
             if (log) Logger.Log(LogType.BackgroundActivity, "SAVED: " + Path);
         }
-        
-        void SaveEntries(StreamWriter w) {
+
+        public void SaveEntries(StreamWriter w) {
             lock (locker) {
                 foreach (string line in lines) w.WriteLine(line);
             }

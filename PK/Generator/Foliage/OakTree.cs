@@ -21,7 +21,7 @@ using PattyKaki.Drawing.Ops;
 using PattyKaki.Maths;
 
 namespace PattyKaki.Generator.Foliage {
-    public sealed class OakTree : Tree {
+    public class OakTree : Tree {
 
         public int numBranches, maxExtent, maxBranchHeight, trunkHeight;
         public List<Vec3S32> branch = new List<Vec3S32>();

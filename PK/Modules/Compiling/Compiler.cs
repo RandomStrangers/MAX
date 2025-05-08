@@ -22,7 +22,7 @@ using System.IO;
 using System.Text;
 using PattyKaki.Scripting;
 
-namespace PattyKaki.Modules.Compiling 
+namespace PattyKaki.Compiling 
 {
     /// <summary> Compiles source code files for a particular programming language into a .dll </summary>
     public abstract class ICompiler 
@@ -68,7 +68,7 @@ namespace PattyKaki.Modules.Compiling
         }
         
         /// <summary> Generates source code for an example plugin, 
-        /// preformatted with the given name and Creator </summary>
+        /// preformatted with the given name and creator </summary>
         public string GenExamplePlugin(string plugin, string creator) {
             return FormatSource(PluginSkeleton, plugin, creator, Server.Version);
         }
@@ -124,7 +124,7 @@ namespace PattyKaki.Modules.Compiling
 
         /// <summary> Converts source file paths to full paths, 
         /// then returns list of parsed referenced assemblies </summary>
-        public static List<string> ProcessInput(string[] srcPaths, string commentPrefix) {
+        public List<string> ProcessInput(string[] srcPaths, string commentPrefix) {
             List<string> referenced = new List<string>();
             
             for (int i = 0; i < srcPaths.Length; i++) 
@@ -140,9 +140,9 @@ namespace PattyKaki.Modules.Compiling
             return referenced;
         }
 
-        public static void AddReferences(string path, string commentPrefix, List<string> referenced) {
+        public void AddReferences(string path, string commentPrefix, List<string> referenced) {
             // Allow referencing other assemblies using '//reference [assembly name]' at top of the file
-            using (StreamReader r = new StreamReader(path)) {               
+            using (StreamReader r = new StreamReader(path)) {
                 string refPrefix = commentPrefix + "reference ";
                 string plgPrefix = commentPrefix + "pluginref ";
                 string line;
@@ -155,11 +155,13 @@ namespace PattyKaki.Modules.Compiling
                         path = Path.Combine(IScripting.PLUGINS_DLL_DIR, GetDLL(line));
                         referenced.Add(Path.GetFullPath(path));
                     } else {
-                        continue;
+                        ProcessInputLine(line, referenced);
                     }
                 }
             }
         }
+
+        public virtual void ProcessInputLine(string line, List<string> referenced) { }
 
         public static string GetDLL(string line) {
             int index = line.IndexOf(' ') + 1;

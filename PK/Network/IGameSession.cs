@@ -15,6 +15,7 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using PattyKaki.Maths;
 using System;
 using BlockID = System.UInt16;
 
@@ -33,8 +34,8 @@ namespace PattyKaki.Network
 
         // these are checked very frequently, so avoid overhead of .Supports(
         public bool hasCustomBlocks, hasExtBlocks, hasBlockDefs, hasBulkBlockUpdate;
-        protected INetSocket socket;
-        protected Player player;
+        public INetSocket socket;
+        public Player player;
         /// <summary> Temporary unique ID for this network session </summary>
         public int ID;
 
@@ -67,7 +68,7 @@ namespace PattyKaki.Network
         /// <summary> Attempts to process the next packet received from the client </summary>
         /// <returns> 0 if insufficient data left to fully process the next packet,
         /// otherwise returns the number of bytes processed </returns>
-        protected abstract int HandlePacket(byte[] buffer, int offset, int left);
+        public abstract int HandlePacket(byte[] buffer, int offset, int left);
         
         /// <summary> Sends a ping packet to the client </summary>
         public abstract void SendPing();
@@ -109,6 +110,8 @@ namespace PattyKaki.Network
         public abstract bool SendDefineBlock(BlockDefinition def);
         /// <summary> Sends an undefine custom block packet to the client </summary>
         public abstract bool SendUndefineBlock(BlockDefinition def);
+        public abstract bool SendAddSelection(byte id, string label, Vec3U16 p1, Vec3U16 p2, ColorDesc color);
+        public abstract bool SendRemoveSelection(byte id);
 
         /// <summary> Sends a level to the client </summary>
         public abstract void SendLevel(Level prev, Level level);

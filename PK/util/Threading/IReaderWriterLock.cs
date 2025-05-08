@@ -21,7 +21,7 @@ using System.Threading;
 #if !NET_20
 namespace PattyKaki.Util {
 
-    public sealed class IReaderWriterLock {
+    public class IReaderWriterLock {
         
         ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
 
@@ -37,11 +37,11 @@ namespace PattyKaki.Util {
             if (!locker.TryEnterWriteLock(msTimeout)) return null;
             return new SlimLock(locker, true);
         }
-        
-        
-        class SlimLock : IDisposable {
-            ReaderWriterLockSlim locker;
-            bool writeMode;
+
+
+        public class SlimLock : IDisposable {
+            public ReaderWriterLockSlim locker;
+            public bool writeMode;
             
             public SlimLock(ReaderWriterLockSlim locker, bool writeMode) {
                 this.locker = locker;

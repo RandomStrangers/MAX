@@ -5,7 +5,7 @@ using PattyKaki.Generator.Foliage;
 
 namespace PattyKaki.Generator.Classic
 {    
-    public sealed partial class ClassicGenerator 
+    public partial class ClassicGenerator 
     {
         public int waterLevel, oneY, Width, Length, Height;
         public byte[] blocks;

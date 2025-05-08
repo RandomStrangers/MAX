@@ -20,10 +20,10 @@ namespace PattyKaki.Util {
     /// <summary> Sparsely represents 1 bit of data per voxel for a 3D volume. </summary>
     /// <remarks> Typically this means 1 bit per block for a level. </remarks>
     /// <remarks> Does NOT perform any bounds checking. </remarks>
-    public sealed class SparseBitSet {
-        
-        int chunksX, chunksY, chunksZ;
-        byte[][] bits;
+    public class SparseBitSet {
+
+        public int chunksX, chunksY, chunksZ;
+        public byte[][] bits;
         
         /// <summary> Initialises a sparse bit set for the given 3D volume. </summary>
         public SparseBitSet(int width, int height, int length) {

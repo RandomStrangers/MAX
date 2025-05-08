@@ -13,7 +13,7 @@ namespace PattyKaki.Relay.IRC
     public enum IRCControllerVerify { None, HalfOp, OpChannel };
 
     /// <summary> Manages a connection to an IRC server, and handles associated events. </summary>
-    public sealed class IRCBot : RelayBot
+    public class IRCBot : RelayBot
     {
         public Connection conn;
         public string botNick;
@@ -125,20 +125,20 @@ namespace PattyKaki.Relay.IRC
         }
 
 
-        public static readonly string[] ircColors = new string[] {
+        public static string[] ircColors = new string[] {
             "\u000300", "\u000301", "\u000302", "\u000303", "\u000304", "\u000305",
             "\u000306", "\u000307", "\u000308", "\u000309", "\u000310", "\u000311",
             "\u000312", "\u000313", "\u000314", "\u000315",
         };
-        public static readonly string[] ircSingle = new string[] {
+        public static string[] ircSingle = new string[] {
             "\u00030", "\u00031", "\u00032", "\u00033", "\u00034", "\u00035",
             "\u00036", "\u00037", "\u00038", "\u00039",
         };
-        public static readonly string[] ircReplacements = new string[] {
+        public static string[] ircReplacements = new string[] {
             "&f", "&0", "&1", "&2", "&c", "&4", "&5", "&6",
             "&e", "&a", "&3", "&b", "&9", "&d", "&8", "&7",
         };
-        public static readonly Regex IrcColorCode = new Regex("(\x03\\d{1,2}),\\d{1,2}");
+        public static Regex IrcColorCode = new Regex("(\x03\\d{1,2}),\\d{1,2}");
 
         public override string ParseMessage(string input)
         {
@@ -412,9 +412,9 @@ namespace PattyKaki.Relay.IRC
         public const string UNDERLINE = "\x1F";
     }
     /// <summary> Manages a list of IRC nicks and asssociated permissions </summary>
-    public sealed class IRCNickList
+    public class IRCNickList
     {
-        public readonly Dictionary<string, List<string>> userMap = new Dictionary<string, List<string>>();
+        public Dictionary<string, List<string>> userMap = new Dictionary<string, List<string>>();
         public IRCBot bot;
 
         public void Clear() { userMap.Clear(); }
@@ -459,7 +459,7 @@ namespace PattyKaki.Relay.IRC
         }
 
 
-        List<string> GetNicks(string channel)
+        public List<string> GetNicks(string channel)
         {
             foreach (var chan in userMap)
             {
@@ -541,7 +541,7 @@ namespace PattyKaki.Relay.IRC
             if (index == -1) return false;
             foundAtAll = true;
 
-            IRCControllerVerify verify = (IRCControllerVerify)Server.Config.IRCVerify;
+            IRCControllerVerify verify = Server.Config.IRCVerify;
             if (verify == IRCControllerVerify.None) return true;
 
             if (verify == IRCControllerVerify.HalfOp)
@@ -567,7 +567,7 @@ namespace PattyKaki.Relay.IRC
             }
         }
     }
-    public sealed class IRCPlugin : Plugin_Simple
+    public class IRCPlugin : Plugin
     {
         public override string name { get { return "IRCRelay"; } }
         public override string PK_Version { get { return "0.0.0.1"; } }
@@ -577,8 +577,7 @@ namespace PattyKaki.Relay.IRC
         public override void Load(bool startup)
         {
             if (!Directory.Exists("text/irc")) Directory.CreateDirectory("text/irc");
-            Command.Register(new CmdIRCBot());
-            Command.Register(new CmdIrcControllers());
+            Command.Register(new CmdIRCBot(), new CmdIrcControllers());
             Bot.ReloadConfig();
             Bot.Connect();
             OnConfigUpdatedEvent.Register(OnConfigUpdated, Priority.Low);
@@ -588,14 +587,13 @@ namespace PattyKaki.Relay.IRC
         {
             OnConfigUpdatedEvent.Unregister(OnConfigUpdated);
             Bot.Disconnect("Disconnecting IRC bot");
-            Command.Unregister(Command.Find("IRCBot"));
-            Command.Unregister(Command.Find("IRCControllers"));
+            Command.Unregister(Command.Find("IRCBot"), Command.Find("IRCControllers"));
         }
 
         public void OnConfigUpdated() { Bot.ReloadConfig(); }
     }
 
-    public sealed class CmdIRCBot : RelayBotCmd
+    public class CmdIRCBot : RelayBotCmd
     {
         public override string name { get { return "IRCBot"; } }
         public override CommandAlias[] Aliases
@@ -605,7 +603,7 @@ namespace PattyKaki.Relay.IRC
         public override RelayBot Bot { get { return IRCPlugin.Bot; } }
     }
 
-    public sealed class CmdIrcControllers : BotControllersCmd
+    public class CmdIrcControllers : BotControllersCmd
     {
         public override string name { get { return "IRCControllers"; } }
         public override string shortcut { get { return "IRCCtrl"; } }

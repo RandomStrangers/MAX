@@ -22,7 +22,7 @@ using PattyKaki.Drawing.Ops;
 using PattyKaki.Maths;
 
 namespace PattyKaki.Generator.Foliage {
-    public sealed class AshTree : Tree {
+    public class AshTree : Tree {
 
         public int branchBaseHeight, branchAmount;
         public const int maxExtent = 5, maxBranchHeight = 10, maxCluster = 3;

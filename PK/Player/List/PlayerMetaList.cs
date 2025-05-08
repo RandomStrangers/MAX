@@ -22,10 +22,10 @@ namespace PattyKaki {
     
     /// <summary> Represents a list of metadata about players. (such as rank info, ban info, notes). </summary>
     /// <remarks> Unlike other player lists, this list is NOT kept in memory. </remarks>
-    public sealed class PlayerMetaList {
+    public class PlayerMetaList {
         
-        public readonly string file;
-        readonly object locker;
+        public string file;
+        public object locker;
         
         public PlayerMetaList(string file) {
             this.file = file;

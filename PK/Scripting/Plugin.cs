@@ -19,46 +19,46 @@ using System;
 using System.Collections.Generic;
 using PattyKaki.Core;
 using PattyKaki.Modules.Moderation.Notes;
-using PattyKaki.Relay.IRC;
-using PattyKaki.Relay.Discord;
 using PattyKaki.Modules.Security;
+using PattyKaki.Relay.Discord;
+using PattyKaki.Relay.IRC;
 using PattyKaki.Scripting;
 
-namespace PattyKaki 
+namespace PattyKaki
 {
     /// <summary> This class provides for more advanced modification to PattyKaki </summary>
     public abstract partial class Plugin 
     {
         /// <summary> Hooks into events and initalises states/resources etc </summary>
         /// <param name="auto"> True if plugin is being automatically loaded (e.g. on server startup), false if manually. </param>
-        public abstract override void Load(bool auto);
+        public abstract void Load(bool auto);
         
         /// <summary> Unhooks from events and disposes of state/resources etc </summary>
         /// <param name="auto"> True if plugin is being auto unloaded (e.g. on server shutdown), false if manually. </param>
-        public abstract override void Unload(bool auto);
+        public abstract void Unload(bool auto);
         
         /// <summary> Called when a player does /Help on the plugin. Typically tells the player what this plugin is about. </summary>
         /// <param name="p"> Player who is doing /Help. </param>
-        public virtual new void Help(Player p) {
+        public virtual void Help(Player p) {
             p.Message("No help is available for this plugin.");
         }
         
         /// <summary> Name of the plugin. </summary>
-        public abstract override string name { get; }
+        public abstract string name { get; }
         /// <summary> The oldest version of PattyKaki this plugin is compatible with. </summary>
-        public virtual new string PK_Version { get { return null; } }
+        public virtual string PK_Version { get { return null; } }
         /// <summary> Version of this plugin. </summary>
-        public virtual int Build { get { return 0; } }
+        public virtual int build { get { return 0; } }
         /// <summary> Message to display once this plugin is loaded. </summary>
-        public virtual string Welcome { get { return ""; } }
+        public virtual string welcome { get { return ""; } }
         /// <summary> The creator/author of this plugin. (Your name) </summary>
-        public virtual new string Creator { get { return ""; } }
+        public virtual string creator { get { return ""; } }
         /// <summary> Whether or not to auto load this plugin on server startup. </summary>
-        public virtual new bool LoadAtStartup { get { return true; } }
+        public virtual bool LoadAtStartup { get { return true; } }
         
         
         /// <summary> List of plugins/modules included in the server software </summary>
-        public static new List<Plugin> core   = new List<Plugin>();
+        public static List<Plugin> core   = new List<Plugin>();
         public static List<Plugin> custom = new List<Plugin>();
         
         public static Plugin FindCustom(string name) {
@@ -82,14 +82,14 @@ namespace PattyKaki
                 
                 if (pl.LoadAtStartup || !auto) {
                     pl.Load(auto);
-                    Logger.Log(LogType.SystemActivity, "Plugin {0} loaded...Build: {1}", pl.name, pl.Build);
+                    Logger.Log(LogType.SystemActivity, "Plugin {0} loaded...build: {1}", pl.name, pl.build);
                 } else {
                     Logger.Log(LogType.SystemActivity, "Plugin {0} was not loaded, you can load it with /pload", pl.name);
                 }
                 
-                if (!string.IsNullOrEmpty(pl.Welcome)) Logger.Log(LogType.SystemActivity, pl.Welcome);
+                if (!string.IsNullOrEmpty(pl.welcome)) Logger.Log(LogType.SystemActivity, pl.welcome);
             } catch {           
-                if (!string.IsNullOrEmpty(pl.Creator)) Logger.Log(LogType.Warning, "You can go bug {0} about {1} failing to load.", pl.Creator, pl.name);
+                if (!string.IsNullOrEmpty(pl.creator)) Logger.Log(LogType.Warning, "You can go bug {0} about {1} failing to load.", pl.creator, pl.name);
                 throw;
             }
         }
@@ -114,7 +114,7 @@ namespace PattyKaki
         }
 
         
-        public static new void UnloadAll() {
+        public static void UnloadAll() {
             for (int i = 0; i < custom.Count; i++) 
             {
                 UnloadPlugin(custom[i], true);
@@ -127,8 +127,23 @@ namespace PattyKaki
             }
         }
 
-        public static new void LoadAll() {
+        public static void LoadAll() {
+            LoadCorePlugin(new Compiling.CompilerPlugin());
+            LoadCorePlugin(new CorePlugin());
+            LoadCorePlugin(new ServerURLSender());
+            LoadCorePlugin(new NotesPlugin());
+            LoadCorePlugin(new DiscordPlugin());
+            LoadCorePlugin(new IRCPlugin());
+            LoadCorePlugin(new IPThrottler());
             IScripting.AutoloadPlugins();
+        }
+        
+        static void LoadCorePlugin(Plugin plugin) {
+            List<string> disabled = Server.Config.DisabledModules;
+            if (disabled.CaselessContains(plugin.name)) return;
+            
+            plugin.Load(true);
+            core.Add(plugin);
         }
     }
 }

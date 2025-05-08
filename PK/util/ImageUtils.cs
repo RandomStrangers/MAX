@@ -67,7 +67,7 @@ namespace PattyKaki.Util
             }
         }
 
-        static void OnDecodeError(Player p, IBitmap2D bmp) {
+        public static void OnDecodeError(Player p, IBitmap2D bmp) {
             if (bmp != null) bmp.Dispose();
             // TODO failed to decode the image. make sure you are using the URL of the image directly, not just the webpage it is hosted on              
             p.Message("&WThere was an error reading the downloaded image.");
@@ -76,13 +76,13 @@ namespace PattyKaki.Util
     }
 
 
-    unsafe sealed class GDIPlusBitmap : IBitmap2D
+    public unsafe class GDIPlusBitmap : IBitmap2D
     {
-        Image img;
-        Bitmap bmp;
-        BitmapData data;
-        byte* scan0;
-        int stride;
+        public Image img;
+        public Bitmap bmp;
+        public BitmapData data;
+        public byte* scan0;
+        public int stride;
 
         public override void Decode(byte[] data) {
             Image tmp = Image.FromStream(new MemoryStream(data));
@@ -102,7 +102,7 @@ namespace PattyKaki.Util
             SetBitmap(resized);
         }
 
-        void SetBitmap(Image src) {
+        public void SetBitmap(Image src) {
             img = src;
             // although rare, possible src might actually be a Metafile instead
             bmp = (Bitmap)src;
@@ -140,8 +140,8 @@ namespace PattyKaki.Util
                 Get = Get32BppPixel;
             }
         }
-        
-        Pixel GetGenericPixel(int x, int y) {
+
+        public Pixel GetGenericPixel(int x, int y) {
             Pixel pixel;
             int argb = bmp.GetPixel(x, y).ToArgb(); // R/G/B properties incur overhead            
             pixel.A = (byte)(argb >> 24);
@@ -150,15 +150,15 @@ namespace PattyKaki.Util
             pixel.B = (byte)argb;
             return pixel;
         }
-        
-        Pixel Get24BppPixel(int x, int y) {
+
+        public Pixel Get24BppPixel(int x, int y) {
             Pixel pixel;
             byte* ptr = (scan0 + y * stride) + (x * 3);
             pixel.B = ptr[0]; pixel.G = ptr[1]; pixel.R = ptr[2]; pixel.A = 255;
             return pixel;
         }
-        
-        Pixel Get32BppPixel(int x, int y) {
+
+        public Pixel Get32BppPixel(int x, int y) {
             Pixel pixel;
             byte* ptr = (scan0 + y * stride) + (x * 4);            
             pixel.B = ptr[0]; pixel.G = ptr[1]; pixel.R = ptr[2]; pixel.A = ptr[3];

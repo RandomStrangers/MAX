@@ -39,52 +39,63 @@ using PattyKaki.Tasks;
 using PattyKaki.Util;
 using PattyKaki.Modules.Awards;
 
-namespace PattyKaki 
+namespace PattyKaki
 {
-    public sealed partial class Server 
+    public partial class Server
     {
         public Server() { s = this; }
-        
+        public static void StartThread(out Thread thread, string name, ThreadStart threadFunc)
+        {
+            thread = new Thread(threadFunc);
+
+            try
+            {
+                thread.Name = name;
+            }
+            catch
+            {
+            }
+            thread.Start();
+        }
         //True = cancel event
         //Fale = dont cacnel event
-        public static bool Check(string cmd, string message) {
+        public static bool Check(string cmd, string message)
+        {
             PKCommand?.Invoke(cmd, message);
             return cancelcommand;
         }
-        
-        [Obsolete("Use Logger.Log(LogType, String)")]
-        public void Log(string message) { Logger.Log(LogType.SystemActivity, message); }
-        
-        [Obsolete("Use Logger.Log(LogType, String)")]
-        public void Log(string message, bool systemMsg = false) {
-            LogType type = systemMsg ? LogType.BackgroundActivity : LogType.SystemActivity;
-            Logger.Log(type, message);
-        }
-        
-        public static void CheckFile(string file) {
+
+        public static void CheckFile(string file)
+        {
             if (File.Exists(file)) return;
-            
+
             Logger.Log(LogType.SystemActivity, file + " doesn't exist, Downloading..");
-            try {
-                using (WebClient client = HttpUtil.CreateWebClient()) {
+            try
+            {
+                using (WebClient client = HttpUtil.CreateWebClient())
+                {
                     client.DownloadFile(Updater.UpdatesURL + file, file);
                 }
-                if (File.Exists(file)) {
+                if (File.Exists(file))
+                {
                     Logger.Log(LogType.SystemActivity, file + " download succesful!");
                 }
-            } catch (Exception ex) {
-                Logger.LogError("Downloading " + file +" failed, try again later", ex);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Downloading " + file + " failed, try again later", ex);
             }
         }
-        
-        internal static ConfigElement[] serverConfig, levelConfig, zoneConfig;
-        public static void Start() {
+
+        public static ConfigElement[] serverConfig, levelConfig, zoneConfig;
+        public static void Start()
+        {
             serverConfig = ConfigElement.GetAll(typeof(ServerConfig));
-            levelConfig  = ConfigElement.GetAll(typeof(LevelConfig));
-            zoneConfig   = ConfigElement.GetAll(typeof(ZoneConfig));
+            levelConfig = ConfigElement.GetAll(typeof(LevelConfig));
+            zoneConfig = ConfigElement.GetAll(typeof(ZoneConfig));
 
             IOperatingSystem.DetectOS().Init();
-            
+
             StartTime = DateTime.UtcNow;
             Logger.Log(LogType.SystemActivity, "Starting Server");
             ServicePointManager.Expect100Continue = false;
@@ -101,12 +112,11 @@ namespace PattyKaki
 
             Background.QueueOnce(LoadMainLevel);
             Background.QueueOnce(LoadAllPlugins);
-            Background.QueueOnce(LoadAllSimplePlugins);
             Background.QueueOnce(LoadAutoloadMaps);
             Background.QueueOnce(UpgradeTasks.UpgradeOldTempranks);
             Background.QueueOnce(UpgradeTasks.UpgradeDBTimeSpent);
             Background.QueueOnce(InitPlayerLists);
-            
+
             Background.QueueOnce(SetupSocket);
             Background.QueueOnce(InitTimers);
             Background.QueueOnce(InitRest);
@@ -116,14 +126,16 @@ namespace PattyKaki
                                    null, TimeSpan.FromMinutes(5));
 
         }
-        
 
-    static void ForceEnableTLS() {
+
+        public static void ForceEnableTLS()
+        {
             // Force enable TLS 1.1/1.2, otherwise checking for updates on Github doesn't work
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0x300; } catch { }
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0xC00; } catch { }
         }
-        static void EnsureFilesExist() {
+        public static void EnsureFilesExist()
+        {
             EnsureDirectoryExists("properties");
             EnsureDirectoryExists("levels");
             EnsureDirectoryExists("bots");
@@ -138,18 +150,22 @@ namespace PattyKaki
             EnsureDirectoryExists("extra/bots");
             EnsureDirectoryExists(Paths.ImportsDir);
             EnsureDirectoryExists("blockdefs");
-            EnsureDirectoryExists(Modules.Compiling.ICompiler.COMMANDS_SOURCE_DIR); // TODO move to compiling module
             EnsureDirectoryExists("text/discord"); // TODO move to discord plugin
         }
-        
-        static void EnsureDirectoryExists(string dir) {
+
+        public static void EnsureDirectoryExists(string dir)
+        {
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
         }
- 
-        public static void LoadAllSettings() { LoadAllSettings(false); }
-        
+
+        public static void LoadAllSettings() 
+        { 
+            LoadAllSettings(false); 
+        }
+
         // TODO rethink this
-        static void LoadAllSettings(bool commands) {
+        public static void LoadAllSettings(bool commands)
+        {
             Colors.Load();
             Alias.LoadCustom();
             BlockDefinition.LoadGlobal();
@@ -172,46 +188,69 @@ namespace PattyKaki
             ChatTokens.LoadCustom();
             SrvProperties.FixupOldPerms();
             CpeExtension.LoadDisabledList();
-            
+
             TextFile announcementsFile = TextFile.Files["Announcements"];
             announcementsFile.EnsureExists();
             announcements = announcementsFile.GetText();
-            
+
             OnConfigUpdatedEvent.Call();
         }
-        
 
-        static readonly object stopLock = new object();
-        static volatile Thread stopThread;
-        public static Thread Stop(bool restart, string msg) {
+
+        public static object stopLock = new object();
+        public static volatile Thread stopThread;
+        public static Thread Stop(bool restart, string msg)
+        {
             Command.Find("say").Use(Player.PK, "Goodbye Cruel World!");
             Logger.Log(LogType.Warning, "&fServer is shutting down!");
             shuttingDown = true;
-            lock (stopLock) {
+            lock (stopLock)
+            {
                 if (stopThread != null) return stopThread;
                 stopThread = new Thread(() => ShutdownThread(restart, msg));
                 stopThread.Start();
                 return stopThread;
             }
         }
-        
-        static void ShutdownThread(bool restarting, string msg) {
-            try {
+
+        public static void ShutdownThread(bool restarting, string msg)
+        {
+            try
+            {
                 Logger.Log(LogType.SystemActivity, "Server shutting down ({0})", msg);
-            } catch { }
-            
+            }
+            catch 
+            { 
+            }
+
             // Stop accepting new connections and disconnect existing sessions
-            Listener.Close();            
-            try {
+            Listener.Close();
+            try
+            {
                 Player[] players = PlayerInfo.Online.Items;
-                foreach (Player p in players) { p.Leave(msg); }
-            } catch (Exception ex) { Logger.LogError(ex); }
-            
+                foreach (Player p in players) 
+                { 
+                    p.Leave(msg); 
+                }
+            }
+            catch (Exception ex) 
+            { 
+                Logger.LogError(ex); 
+            }
+
             byte[] kick = Packet.Kick(msg, false);
-            try {
+            try
+            {
                 INetSocket[] pending = INetSocket.pending.Items;
-                foreach (INetSocket p in pending) { p.Send(kick, SendFlags.None); }
-            } catch (Exception ex) { Logger.LogError(ex); }
+                foreach (INetSocket p in pending) 
+                { 
+                    p.Send(kick, SendFlags.None); 
+                }
+            }
+            catch (Exception ex) 
+            { 
+                Logger.LogError(ex); 
+            }
 
             OnShuttingDownEvent.Call(restarting, msg);
             Plugin.UnloadAll();
@@ -221,31 +260,49 @@ namespace PattyKaki
             try
             {
                 string autoload = SaveAllLevels();
-                if (SetupFinished && !Config.AutoLoadMaps) {
+                if (SetupFinished && !Config.AutoLoadMaps)
+                {
                     File.WriteAllText("text/autoload.txt", autoload);
                 }
-            } catch (Exception ex) { Logger.LogError(ex); }
-            
-            try {
+            }
+            catch (Exception ex) 
+            { 
+                Logger.LogError(ex); 
+            }
+
+            try
+            {
                 Logger.Log(LogType.SystemActivity, "Server shutdown completed");
-            } catch { }
-            
-            try { FileLogger.Flush(null); } catch { }
-            
-            if (restarting) {
+            }
+            catch 
+            { 
+            }
+
+            try 
+            { 
+                FileLogger.Flush(null); 
+            } 
+            catch 
+            { 
+            }
+
+            if (restarting)
+            {
                 IOperatingSystem.DetectOS().RestartProcess();
                 // TODO: FileLogger.Flush again maybe for if execvp fails?
             }
             Environment.Exit(0);
         }
 
-            public static string SaveAllLevels() {
+        public static string SaveAllLevels()
+        {
             string autoload = null;
-            Level[] loaded  = LevelInfo.Loaded.Items;
+            Level[] loaded = LevelInfo.Loaded.Items;
 
             foreach (Level lvl in loaded)
             {
-                if (!lvl.SaveChanges) {
+                if (!lvl.SaveChanges)
+                {
                     Logger.Log(LogType.SystemActivity, "Skipping save for level {0}", lvl.ColoredName);
                     continue;
                 }
@@ -258,17 +315,21 @@ namespace PattyKaki
         }
 
 
-        public static string GetServerDLLPath() {
+        public static string GetServerDLLPath()
+        {
             return Assembly.GetExecutingAssembly().Location;
         }
 
-        public static string GetRestartPath() {
+        public static string GetRestartPath()
+        {
             return RestartPath;
         }
 
-        static bool checkedOnMono, runningOnMono;
-        public static bool RunningOnMono() {
-            if (!checkedOnMono) {
+        public static bool checkedOnMono, runningOnMono;
+        public static bool RunningOnMono()
+        {
+            if (!checkedOnMono)
+            {
                 runningOnMono = Type.GetType("Mono.Runtime") != null;
                 checkedOnMono = true;
             }
@@ -276,88 +337,100 @@ namespace PattyKaki
         }
 
 
-        public static void UpdateUrl(string url) {
+        public static void UpdateUrl(string url)
+        {
             OnURLChange?.Invoke(url);
         }
 
-        static void RandomMessage(SchedulerTask task) {
-            if (PlayerInfo.Online.Count > 0 && announcements.Length > 0) {
+        public static void RandomMessage(SchedulerTask task)
+        {
+            if (PlayerInfo.Online.Count > 0 && announcements.Length > 0)
+            {
                 Chat.MessageGlobal(announcements[new Random().Next(0, announcements.Length)]);
             }
         }
 
-        internal static void SettingsUpdate() {
+        public static void SettingsUpdate()
+        {
             OnSettingsUpdate?.Invoke();
         }
-        
-        public static bool SetMainLevel(string map) {
+
+        public static bool SetMainLevel(string map)
+        {
             OnMainLevelChangingEvent.Call(ref map);
             string main = mainLevel != null ? mainLevel.name : Config.MainLevel;
             if (map.CaselessEq(main)) return false;
-            
+
             Level lvl = LevelInfo.FindExact(map) ?? LevelActions.Load(Player.PK, map, false);
             if (lvl == null) return false;
-            
-            SetMainLevel(lvl); 
+
+            SetMainLevel(lvl);
             return true;
         }
-        
-        public static void SetMainLevel(Level lvl) {
-            Level oldMain = mainLevel;            
+
+        public static void SetMainLevel(Level lvl)
+        {
+            Level oldMain = mainLevel;
             mainLevel = lvl;
             oldMain.AutoUnload();
         }
-        
-        public static void DoGC() {
+
+        public static void DoGC()
+        {
             var sw = Stopwatch.StartNew();
             long start = GC.GetTotalMemory(false);
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            
+
             long end = GC.GetTotalMemory(false);
             double deltaKB = (start - end) / 1024.0;
             if (deltaKB < 100.0) return;
-            
+
             Logger.Log(LogType.BackgroundActivity, "GC performed in {0:F2} ms (tracking {1:F2} KB, freed {2:F2} KB)",
                        sw.Elapsed.TotalMilliseconds, end / 1024.0, deltaKB);
         }
-        
-        
+
+
         // only want ASCII alphanumerical characters for salt
-        static bool AcceptableSaltChar(char c) {
-            return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') 
+        public static bool AcceptableSaltChar(char c)
+        {
+            return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
                 || (c >= '0' && c <= '9');
         }
-        
+
         /// <summary> Generates a random salt that is used for calculating mppasses. </summary>
-        public static string GenerateSalt() {
+        public static string GenerateSalt()
+        {
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             char[] str = new char[32];
             byte[] one = new byte[1];
-            
-            for (ulong i = 0; i < (ulong)str.Length; ) {
+
+            for (ulong i = 0; i < (ulong)str.Length;)
+            {
                 rng.GetBytes(one);
                 if (!AcceptableSaltChar((char)one[0])) continue;
-                
+
                 str[i] = (char)one[0]; i++;
             }
             return new string(str);
         }
 
-        readonly static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
-        readonly static MD5CryptoServiceProvider md5  = new MD5CryptoServiceProvider();
-        readonly static object md5Lock = new object();
-        
+        public static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+        public static MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+        public static object md5Lock = new object();
+
         /// <summary> Calculates mppass (verification token) for the given username. </summary>
-        public static string CalcMppass(string name, string salt) {
+        public static string CalcMppass(string name, string salt)
+        {
             byte[] hash = null;
             lock (md5Lock) hash = md5.ComputeHash(enc.GetBytes(salt + name));
             return Utils.ToHexString(hash);
         }
-        
+
         /// <summary> Converts a formatted username into its original username </summary>
         /// <remarks> If ClassiCubeAccountPlus option is set, removes + </remarks>
-        public static string ToRawUsername(string name) {
+        public static string ToRawUsername(string name)
+        {
             if (Config.ClassicubeAccountPlus)
                 return name.Replace("+", "");
             return name;
@@ -365,7 +438,8 @@ namespace PattyKaki
 
         /// <summary> Converts a username into its formatted username </summary>
         /// <remarks> If ClassiCubeAccountPlus option is set, adds trailing + </remarks>
-        public static string FromRawUsername(string name) {
+        public static string FromRawUsername(string name)
+        {
             if (!Config.ClassicubeAccountPlus) return name;
 
             // NOTE:

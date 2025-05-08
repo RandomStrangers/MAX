@@ -36,8 +36,8 @@ namespace PattyKaki.Relay.Discord
     /// <summary> Message for sending text to a channel </summary>
     public class ChannelSendMessage : DiscordApiMessage
     {
-        static JsonArray default_allowed = new JsonArray() { "users", "roles" };
-        StringBuilder content;
+        public static JsonArray default_allowed = new JsonArray() { "users", "roles" };
+        public StringBuilder content;
         public JsonArray Allowed;
 
         public ChannelSendMessage(string channelID, string message)
@@ -87,7 +87,7 @@ namespace PattyKaki.Relay.Discord
             Path = "/channels/" + channelID + "/messages";
         }
 
-        JsonArray GetFields()
+        public JsonArray GetFields()
         {
             JsonArray arr = new JsonArray();
             foreach (var raw in Fields)
@@ -129,12 +129,12 @@ namespace PattyKaki.Relay.Discord
     /// <summary> Implements a basic web client for sending messages to the Discord API </summary>
     /// <remarks> https://discord.com/developers/docs/reference </remarks>
     /// <remarks> https://discord.com/developers/docs/resources/channel#create-message </remarks>
-    public sealed class DiscordApiClient : AsyncWorker<DiscordApiMessage>
+    public class DiscordApiClient : AsyncWorker<DiscordApiMessage>
     {
         public string Token;
         public const string host = "https://discord.com/api/v10";
 
-        DiscordApiMessage GetNextRequest()
+        public DiscordApiMessage GetNextRequest()
         {
             if (queue.Count == 0) return null;
             DiscordApiMessage first = queue.Dequeue();
@@ -228,24 +228,24 @@ namespace PattyKaki.Relay.Discord
         }
 
 
-        static HttpStatusCode GetStatus(WebException ex)
+        public static HttpStatusCode GetStatus(WebException ex)
         {
             if (ex.Response == null) return 0;
             return ((HttpWebResponse)ex.Response).StatusCode;
         }
 
-        static void LogError(Exception ex, DiscordApiMessage msg)
+        public static void LogError(Exception ex, DiscordApiMessage msg)
         {
             string target = "(" + msg.Method + " " + msg.Path + ")";
             Logger.LogError("Error sending request to Discord API " + target, ex);
         }
 
-        static void LogWarning(Exception ex)
+        public static void LogWarning(Exception ex)
         {
             Logger.Log(LogType.Warning, "Error sending request to Discord API - " + ex.Message);
         }
 
-        static void LogResponse(string err)
+        public static void LogResponse(string err)
         {
             if (string.IsNullOrEmpty(err)) return;
 
@@ -255,7 +255,7 @@ namespace PattyKaki.Relay.Discord
 
             Logger.Log(LogType.Warning, "Discord API returned: " + err);
         }
-        static void SleepForRetryPeriod(WebResponse res)
+        public static void SleepForRetryPeriod(WebResponse res)
         {
             string resetAfter = res.Headers["X-RateLimit-Reset-After"];
             string retryAfter = res.Headers["Retry-After"];
@@ -279,27 +279,27 @@ namespace PattyKaki.Relay.Discord
             Thread.Sleep(TimeSpan.FromSeconds(delay + 0.5f));
         }
     }
-    public sealed class DiscordBot : RelayBot
+    public class DiscordBot : RelayBot
     {
-        DiscordApiClient api;
-        DiscordWebsocket socket;
-        DiscordSession session;
-        string botUserID;
+        public DiscordApiClient api;
+        public DiscordWebsocket socket;
+        public DiscordSession session;
+        public string botUserID;
 
-        Dictionary<string, byte> channelTypes = new Dictionary<string, byte>();
-        const byte CHANNEL_DIRECT = 0;
-        const byte CHANNEL_TEXT = 1;
+        public Dictionary<string, byte> channelTypes = new Dictionary<string, byte>();
+        public const byte CHANNEL_DIRECT = 0;
+        public const byte CHANNEL_TEXT = 1;
 
-        List<string> filter_triggers = new List<string>();
-        List<string> filter_replacements = new List<string>();
-        JsonArray allowed;
+        public List<string> filter_triggers = new List<string>();
+        public List<string> filter_replacements = new List<string>();
+        public JsonArray allowed;
 
         public override string RelayName { get { return "Discord"; } }
         public override bool Enabled { get { return Config.Enabled; } }
         public override string UserID { get { return botUserID; } }
         public DiscordConfig Config;
 
-        TextFile replacementsFile = new TextFile("text/discord/replacements.txt",
+        public TextFile replacementsFile = new TextFile("text/discord/replacements.txt",
                                         "// This file is used to replace words/phrases sent to Discord",
                                         "// Lines starting with // are ignored",
                                         "// Lines should be formatted like this:",
@@ -335,7 +335,7 @@ namespace PattyKaki.Relay.Discord
         // .NET sometimes wraps exceptions from reading in an IOException, e.g.:
         //   * IOException - The read operation failed, see inner exception.
         //      * ObjectDisposedException - Cannot access a disposed object.
-        static Exception UnpackError(Exception ex)
+        public static Exception UnpackError(Exception ex)
         {
             if (ex.InnerException is ObjectDisposedException)
                 return ex.InnerException;
@@ -398,7 +398,7 @@ namespace PattyKaki.Relay.Discord
             LoadBannedCommands();
         }
 
-        void UpdateAllowed()
+        public void UpdateAllowed()
         {
             JsonArray mentions = new JsonArray();
             if (Config.CanMentionUsers) mentions.Add("users");
@@ -407,7 +407,7 @@ namespace PattyKaki.Relay.Discord
             allowed = mentions;
         }
 
-        void LoadReplacements()
+        public void LoadReplacements()
         {
             replacementsFile.EnsureExists();
             string[] lines = replacementsFile.GetText();
@@ -428,7 +428,7 @@ namespace PattyKaki.Relay.Discord
         }
 
 
-        string GetNick(JsonObject data)
+        public string GetNick(JsonObject data)
         {
             if (!Config.UseNicks) return null;
             object raw;
@@ -442,7 +442,7 @@ namespace PattyKaki.Relay.Discord
             return raw as string;
         }
 
-        string GetUser(JsonObject author)
+        public string GetUser(JsonObject author)
         {
             // User's chosen display name (configurable)
             object name = null;
@@ -452,7 +452,7 @@ namespace PattyKaki.Relay.Discord
             return (string)author["username"];
         }
 
-        RelayUser ExtractUser(JsonObject data)
+        public RelayUser ExtractUser(JsonObject data)
         {
             JsonObject author = (JsonObject)data["author"];
 
@@ -463,14 +463,14 @@ namespace PattyKaki.Relay.Discord
         }
 
 
-        void HandleReadyEvent(JsonObject data)
+        public void HandleReadyEvent(JsonObject data)
         {
             JsonObject user = (JsonObject)data["user"];
             botUserID = (string)user["id"];
             HandleResumedEvent(data);
         }
 
-        void HandleResumedEvent(JsonObject data)
+        public void HandleResumedEvent(JsonObject data)
         {
             // May not be null when reconnecting
             if (api == null)
@@ -482,7 +482,7 @@ namespace PattyKaki.Relay.Discord
             OnReady();
         }
 
-        void PrintAttachments(RelayUser user, JsonObject data, string channel)
+        public void PrintAttachments(RelayUser user, JsonObject data, string channel)
         {
             object raw;
             if (!data.TryGetValue("attachments", out raw)) return;
@@ -500,7 +500,7 @@ namespace PattyKaki.Relay.Discord
             }
         }
 
-        void HandleMessageEvent(JsonObject data)
+        public void HandleMessageEvent(JsonObject data)
         {
             RelayUser user = ExtractUser(data);
 
@@ -542,7 +542,7 @@ namespace PattyKaki.Relay.Discord
                 PrintAttachments(user, data, channel);
             }
         }
-        bool IsProxy(string message)
+        public bool IsProxy(string message)
         {
             foreach (char letter in message)
             {
@@ -558,7 +558,7 @@ namespace PattyKaki.Relay.Discord
             return false;
         }
 
-        void HandleChannelEvent(JsonObject data)
+        public void HandleChannelEvent(JsonObject data)
         {
             string channel = (string)data["id"];
             string type = (string)data["type"];
@@ -567,7 +567,7 @@ namespace PattyKaki.Relay.Discord
             if (type == "1") channelTypes[channel] = CHANNEL_DIRECT;
         }
 
-        byte GuessChannelType(JsonObject data)
+        public byte GuessChannelType(JsonObject data)
         {
             // As per discord's documentation:
             //  "The member object exists in MESSAGE_CREATE and MESSAGE_UPDATE
@@ -585,7 +585,7 @@ namespace PattyKaki.Relay.Discord
         }
 
 
-        static bool IsEscaped(char c)
+        public static bool IsEscaped(char c)
         {
             // To match Discord: \a --> \a, \* --> *
             return (c > ' ' && c <= '/') || (c >= ':' && c <= '@')
@@ -614,16 +614,16 @@ namespace PattyKaki.Relay.Discord
             return sb.ToString();
         }
 
-        static void StripMarkdown(StringBuilder sb)
+        public static void StripMarkdown(StringBuilder sb)
         {
             // TODO proper markdown parsing
             sb.Replace("**", "");
         }
 
 
-        readonly object updateLocker = new object();
-        volatile bool updateScheduled;
-        DateTime nextUpdate;
+        public object updateLocker = new object();
+        public volatile bool updateScheduled;
+        public DateTime nextUpdate;
 
         public void UpdateDiscordStatus()
         {
@@ -644,7 +644,7 @@ namespace PattyKaki.Relay.Discord
             Server.MainScheduler.QueueOnce(DoUpdateStatus, null, delay);
         }
 
-        void DoUpdateStatus(SchedulerTask task)
+        public void DoUpdateStatus(SchedulerTask task)
         {
             DateTime now = DateTime.UtcNow;
             // OK to queue next status update now
@@ -663,7 +663,7 @@ namespace PattyKaki.Relay.Discord
             try { s.UpdateStatus(); } catch { }
         }
 
-        string GetStatusMessage()
+        public string GetStatusMessage()
         {
             fakeGuest.group = Group.DefaultRank;
             List<Player> online = PlayerInfo.GetOnlineCanSee(fakeGuest, fakeGuest.Rank);
@@ -698,10 +698,10 @@ namespace PattyKaki.Relay.Discord
             OnPlayerActionEvent.Unregister(HandlePlayerAction);
         }
 
-        void HandlePlayerConnect(Player p) { UpdateDiscordStatus(); }
-        void HandlePlayerDisconnect(Player p, string reason) { UpdateDiscordStatus(); }
+        public void HandlePlayerConnect(Player p) { UpdateDiscordStatus(); }
+        public void HandlePlayerDisconnect(Player p, string reason) { UpdateDiscordStatus(); }
 
-        void HandlePlayerAction(Player p, PlayerAction action, string message, bool stealth)
+        public void HandlePlayerAction(Player p, PlayerAction action, string message, bool stealth)
         {
             if (action != PlayerAction.Hide && action != PlayerAction.Unhide) return;
             UpdateDiscordStatus();
@@ -736,7 +736,7 @@ namespace PattyKaki.Relay.Discord
 
         /// <summary> Formats a message for displaying on Discord </summary>
         /// <example> Escapes markdown characters such as _ and * </example>
-        string ConvertMessage(string message)
+        public string ConvertMessage(string message)
         {
             message = ConvertMessageCommon(message);
             message = Colors.StripUsed(message);
@@ -745,9 +745,9 @@ namespace PattyKaki.Relay.Discord
             return message;
         }
 
-        static readonly string[] markdown_special = { @"\", @"*", @"_", @"~", @"`", @"|", @"-", @"#" };
-        static readonly string[] markdown_escaped = { @"\\", @"\*", @"\_", @"\~", @"\`", @"\|", @"\-", @"\#" };
-        static string EscapeMarkdown(string message)
+        public static string[] markdown_special = { @"\", @"*", @"_", @"~", @"`", @"|", @"-", @"#" };
+        public static string[] markdown_escaped = { @"\\", @"\*", @"\_", @"\~", @"\`", @"\|", @"\-", @"\#" };
+        public static string EscapeMarkdown(string message)
         {
             // don't let user use bold/italic etc markdown
             for (int i = 0; i < markdown_special.Length; i++)
@@ -800,21 +800,21 @@ namespace PattyKaki.Relay.Discord
                 );
             }
             AddGameStatus(embed);
-            if (p.ChannelID == "1162608621566304287") { Send(embed); }
+            Send(embed); 
         }
 
-        static string FormatPlayers(Player p, OnlineListEntry e)
+        public static string FormatPlayers(Player p, OnlineListEntry e)
         {
             return e.players.Join(pl => FormatNick(p, pl), ", ");
         }
 
-        static string FormatRank(OnlineListEntry e)
+        public static string FormatRank(OnlineListEntry e)
         {
             return string.Format(UNDERLINE + "{0}" + UNDERLINE + " (" + CODE + "{1}" + CODE + ")",
                                  e.group.GetFormattedName(), e.players.Count);
         }
 
-        static string FormatNick(Player p, Player pl)
+        public static string FormatNick(Player p, Player pl)
         {
             string flags = OnlineListEntry.GetFlags(pl);
             string format;
@@ -834,7 +834,7 @@ namespace PattyKaki.Relay.Discord
                                  flags);
         }
 
-        void AddGameStatus(ChannelSendEmbed embed)
+        public void AddGameStatus(ChannelSendEmbed embed)
         {
             if (!Config.EmbedGameStatuses) return;
 
@@ -856,11 +856,11 @@ namespace PattyKaki.Relay.Discord
         // these characters are chosen specifically to lie within the unspecified unicode range,
         //  as those characters are "application defined" (EDCX = Escaped Discord Character #X)
         //  https://en.wikipedia.org/wiki/Private_Use_Areas
-        const char UNDERSCORE = '\uEDC1'; // _
-        const char TILDE = '\uEDC2'; // ~
-        const char STAR = '\uEDC3'; // *
-        const char GRAVE = '\uEDC4'; // `
-        const char BAR = '\uEDC5'; // |
+        public const char UNDERSCORE = '\uEDC1'; // _
+        public const char TILDE = '\uEDC2'; // ~
+        public const char STAR = '\uEDC3'; // *
+        public const char GRAVE = '\uEDC4'; // `
+        public const char BAR = '\uEDC5'; // |
 
         public const string UNDERLINE = "\uEDC1\uEDC1"; // __
         public const string BOLD = "\uEDC3\uEDC3"; // **
@@ -869,7 +869,7 @@ namespace PattyKaki.Relay.Discord
         public const string SPOILER = "\uEDC5\uEDC5"; // ||
         public const string STRIKETHROUGH = "\uEDC2\uEDC2"; // ~~
 
-        static string MarkdownToSpecial(string input)
+        public static string MarkdownToSpecial(string input)
         {
             return input
                 .Replace('_', UNDERSCORE)
@@ -879,7 +879,7 @@ namespace PattyKaki.Relay.Discord
                 .Replace('|', BAR);
         }
 
-        static string SpecialToMarkdown(string input)
+        public static string SpecialToMarkdown(string input)
         {
             return input
                 .Replace(UNDERSCORE, '_')
@@ -890,7 +890,7 @@ namespace PattyKaki.Relay.Discord
         }
     }
 
-    public sealed class DiscordConfig
+    public class DiscordConfig
     {
         [ConfigBool("enabled", "General", false)]
         public bool Enabled;
@@ -928,7 +928,7 @@ namespace PattyKaki.Relay.Discord
         public bool EmbedGameStatuses = true;
 
         public const string PROPS_PATH = "properties/discordbot.properties";
-        static ConfigElement[] cfg;
+        public static ConfigElement[] cfg;
 
         public void Load()
         {
@@ -955,7 +955,7 @@ namespace PattyKaki.Relay.Discord
     public enum PresenceStatus { online, dnd, idle, invisible }
     public enum PresenceActivity { Playing = 0, Listening = 2, Watching = 3, Competing = 5, Empty = 6 }
 
-    public sealed class DiscordPlugin : Plugin_Simple
+    public class DiscordPlugin : Plugin
     {
         public override string name { get { return "Discord"; } }
         public override string PK_Version { get { return "0.0.0.1"; } }
@@ -964,8 +964,7 @@ namespace PattyKaki.Relay.Discord
         public override void Load(bool startup)
         {
             if (!Directory.Exists("text/discord")) Directory.CreateDirectory("text/discord");
-            Command.Register(new CmdDiscordBot());
-            Command.Register(new CmdDiscordControllers());
+            Command.Register(new CmdDiscordBot(), new CmdDiscordControllers());
             Bot.Config = Config;
             Bot.ReloadConfig();
             Bot.Connect();
@@ -976,25 +975,24 @@ namespace PattyKaki.Relay.Discord
         {
             OnConfigUpdatedEvent.Unregister(OnConfigUpdated);
             Bot.Disconnect("Disconnecting Discord bot");
-            Command.Unregister(Command.Find("DiscordBot"));
-            Command.Unregister(Command.Find("DiscordControllers"));
+            Command.Unregister(Command.Find("DiscordBot"), Command.Find("DiscordControllers"));
         }
 
-        void OnConfigUpdated() { Bot.ReloadConfig(); }
+        public void OnConfigUpdated() { Bot.ReloadConfig(); }
     }
 
-    public sealed class CmdDiscordBot : RelayBotCmd
+    public class CmdDiscordBot : RelayBotCmd
     {
         public override string name { get { return "DiscordBot"; } }
         public override RelayBot Bot { get { return DiscordPlugin.Bot; } }
     }
 
-    public sealed class CmdDiscordControllers : BotControllersCmd
+    public class CmdDiscordControllers : BotControllersCmd
     {
         public override string name { get { return "DiscordControllers"; } }
         public override RelayBot Bot { get { return DiscordPlugin.Bot; } }
     }
-    public sealed class DiscordSession
+    public class DiscordSession
     {
         public string ID, LastSeq;
         public int Intents = DiscordWebsocket.DEFAULT_INTENTS;
@@ -1004,7 +1002,7 @@ namespace PattyKaki.Relay.Discord
     /// <summary> Implements a basic websocket for communicating with Discord's gateway </summary>
     /// <remarks> https://discord.com/developers/docs/topics/gateway </remarks>
     /// <remarks> https://i.imgur.com/Lwc5Wde.png </remarks>
-    public sealed class DiscordWebsocket : ClientWebSocket
+    public class DiscordWebsocket : ClientWebSocket
     {
         /// <summary> Authorisation token for the bot account </summary>
         public string Token;
@@ -1029,27 +1027,27 @@ namespace PattyKaki.Relay.Discord
         /// <summary> Callback invoked when a channel created event has been received </summary>
         public Action<JsonObject> OnChannelCreate;
 
-        readonly object sendLock = new object();
-        SchedulerTask heartbeat;
-        TcpClient client;
-        SslStream stream;
-        bool readable;
+        public object sendLock = new object();
+        public SchedulerTask heartbeat;
+        public TcpClient client;
+        public SslStream stream;
+        public bool readable;
 
         public const int DEFAULT_INTENTS = INTENT_GUILD_MESSAGES | INTENT_DIRECT_MESSAGES | INTENT_MESSAGE_CONTENT;
-        const int INTENT_GUILD_MESSAGES = 1 << 9;
-        const int INTENT_DIRECT_MESSAGES = 1 << 12;
-        const int INTENT_MESSAGE_CONTENT = 1 << 15;
+        public const int INTENT_GUILD_MESSAGES = 1 << 9;
+        public const int INTENT_DIRECT_MESSAGES = 1 << 12;
+        public const int INTENT_MESSAGE_CONTENT = 1 << 15;
 
-        const int OPCODE_DISPATCH = 0;
-        const int OPCODE_HEARTBEAT = 1;
-        const int OPCODE_IDENTIFY = 2;
-        const int OPCODE_STATUS_UPDATE = 3;
-        // const int OPCODE_VOICE_STATE_UPDATE = 4; //Unused
-        const int OPCODE_RESUME = 6;
-        // const int OPCODE_REQUEST_SERVER_MEMBERS = 8; //Unused
-        const int OPCODE_INVALID_SESSION = 9;
-        const int OPCODE_HELLO = 10;
-        // const int OPCODE_HEARTBEAT_ACK   = 11; //Unused
+        public const int OPCODE_DISPATCH = 0;
+        public const int OPCODE_HEARTBEAT = 1;
+        public const int OPCODE_IDENTIFY = 2;
+        public const int OPCODE_STATUS_UPDATE = 3;
+        //public const int OPCODE_VOICE_STATE_UPDATE = 4; //Unused
+        public const int OPCODE_RESUME = 6;
+        //public const int OPCODE_REQUEST_SERVER_MEMBERS = 8; //Unused
+        public const int OPCODE_INVALID_SESSION = 9;
+        public const int OPCODE_HELLO = 10;
+        //public const int OPCODE_HEARTBEAT_ACK   = 11; //Unused
 
 
         public DiscordWebsocket()
@@ -1057,7 +1055,7 @@ namespace PattyKaki.Relay.Discord
             path = "/?v=10&encoding=json";
         }
 
-        const string host = "gateway.discord.gg";
+        public const string host = "gateway.discord.gg";
         // stubs
         public override bool LowLatency { set { } }
         public override IPAddress IP { get { return null; } }
@@ -1073,7 +1071,7 @@ namespace PattyKaki.Relay.Discord
             Init();
         }
 
-        protected override void WriteCustomHeaders()
+        public override void WriteCustomHeaders()
         {
             WriteHeader("Authorization: Bot " + Token);
             WriteHeader("Host: " + host);
@@ -1093,10 +1091,10 @@ namespace PattyKaki.Relay.Discord
             }
         }
 
-        const int REASON_INVALID_TOKEN = 4004;
-        const int REASON_DENIED_INTENT = 4014;
+        public const int REASON_INVALID_TOKEN = 4004;
+        public const int REASON_DENIED_INTENT = 4014;
 
-        protected override void OnDisconnected(int reason)
+        public override void OnDisconnected(int reason)
         {
             SentIdentify = false;
             if (readable) Logger.Log(LogType.SystemActivity, "Discord relay bot closing: " + reason);
@@ -1131,7 +1129,7 @@ namespace PattyKaki.Relay.Discord
             }
         }
 
-        protected override void HandleData(byte[] data, int len)
+        public override void HandleData(byte[] data, int len)
         {
             string value = Encoding.UTF8.GetString(data, 0, len);
             JsonReader ctx = new JsonReader(value);
@@ -1142,7 +1140,7 @@ namespace PattyKaki.Relay.Discord
             DispatchPacket(opcode, obj);
         }
 
-        void DispatchPacket(int opcode, JsonObject obj)
+        public void DispatchPacket(int opcode, JsonObject obj)
         {
             if (opcode == OPCODE_DISPATCH)
             {
@@ -1167,7 +1165,7 @@ namespace PattyKaki.Relay.Discord
         }
 
 
-        void HandleHello(JsonObject obj)
+        public void HandleHello(JsonObject obj)
         {
             JsonObject data = (JsonObject)obj["d"];
             string interval = (string)data["heartbeat_interval"];
@@ -1178,7 +1176,7 @@ namespace PattyKaki.Relay.Discord
             Identify();
         }
 
-        void HandleDispatch(JsonObject obj)
+        public void HandleDispatch(JsonObject obj)
         {
             // update last sequence number
             object sequence;
@@ -1211,7 +1209,7 @@ namespace PattyKaki.Relay.Discord
             }
         }
 
-        void HandleReady(JsonObject data)
+        public void HandleReady(JsonObject data)
         {
             object session;
             if (data.TryGetValue("session_id", out session))
@@ -1235,12 +1233,12 @@ namespace PattyKaki.Relay.Discord
             Send(Encoding.UTF8.GetBytes(str), SendFlags.None);
         }
 
-        protected override void SendRaw(byte[] data, SendFlags flags)
+        public override void SendRaw(byte[] data, SendFlags flags)
         {
             lock (sendLock) stream.Write(data);
         }
 
-        void SendHeartbeat(SchedulerTask task)
+        public void SendHeartbeat(SchedulerTask task)
         {
             JsonObject obj = new JsonObject();
             obj["op"] = OPCODE_HEARTBEAT;
@@ -1275,7 +1273,7 @@ namespace PattyKaki.Relay.Discord
             SendMessage(OPCODE_STATUS_UPDATE, data);
         }
 
-        JsonObject MakeResume()
+        public JsonObject MakeResume()
         {
             return new JsonObject()
             {
@@ -1285,7 +1283,7 @@ namespace PattyKaki.Relay.Discord
             };
         }
 
-        JsonObject MakeIdentify()
+        public JsonObject MakeIdentify()
         {
             JsonObject props = new JsonObject()
             {
@@ -1303,7 +1301,7 @@ namespace PattyKaki.Relay.Discord
             };
         }
 
-        JsonObject MakePresence()
+        public JsonObject MakePresence()
         {
             if (!Presence) return null;
 

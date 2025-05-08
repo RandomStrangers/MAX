@@ -20,7 +20,7 @@ using System.IO;
 
 namespace PattyKaki.Games {
 
-    public sealed class Team {
+    public class Team {
         
         public string Color, Name, Owner;
         public List<string> Members = new List<string>();

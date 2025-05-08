@@ -28,7 +28,7 @@ using System;
 
 namespace PattyKaki.Generator.Foliage 
 {
-    public sealed class CactusTree : Tree 
+    public class CactusTree : Tree 
     {
         public override int EstimateBlocksAffected() { return height + 3 * 2; }
         
@@ -58,7 +58,7 @@ namespace PattyKaki.Generator.Foliage
         }
     }
 
-    public sealed class NormalTree : Tree 
+    public class NormalTree : Tree 
     {
         public override int EstimateBlocksAffected() { return height + size * size * size; }
                 
@@ -89,7 +89,7 @@ namespace PattyKaki.Generator.Foliage
         }
     }
 
-    public sealed class SwampTree : Tree 
+    public class SwampTree : Tree 
     {        
         public override int EstimateBlocksAffected() { return height + 145; }
                 

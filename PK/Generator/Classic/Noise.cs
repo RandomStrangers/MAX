@@ -6,7 +6,7 @@
 
 namespace PattyKaki.Generator.Classic
 {
-    public sealed class ImprovedNoise 
+    public class ImprovedNoise 
     {      
         public ImprovedNoise(JavaRandom rnd) {
             // shuffle randomly using fisher-yates
@@ -50,11 +50,11 @@ namespace PattyKaki.Generator.Classic
             
             return c1 + v * (c2 - c1);
         }
-        
-        byte[] p = new byte[512];
+
+        public byte[] p = new byte[512];
     }
     
-    public sealed class OctaveNoise 
+    public class OctaveNoise 
     {
         public ImprovedNoise[] baseNoise;
         public OctaveNoise(int octaves, JavaRandom rnd) {
@@ -75,7 +75,7 @@ namespace PattyKaki.Generator.Classic
         }
     }
     
-    public sealed class CombinedNoise 
+    public class CombinedNoise 
     {
         public OctaveNoise noise1, noise2;
         public CombinedNoise(OctaveNoise noise1, OctaveNoise noise2) {

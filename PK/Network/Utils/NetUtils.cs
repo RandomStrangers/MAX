@@ -24,7 +24,25 @@ namespace PattyKaki
     public static class NetUtils
     {
         public const int StringSize = 64;
+        /// <summary> Reads a signed 8 bit big endian integer. </summary>
+        public static sbyte ReadI8(byte[] array, int offset)
+        {
+            return (sbyte)(array[offset] | array[offset + 1]);
+        }
 
+        /// <summary> Reads an unsigned 8 bit big endian integer. </summary>
+        public static byte ReadU8(byte[] array, int offset)
+        {
+            return (byte)(array[offset] | array[offset + 1]);
+        }
+        public static void WriteI8(sbyte value, byte[] array, int index)
+        {
+            array[index++] = (byte)value;
+        }
+        public static void WriteU8(byte value, byte[] array, int index)
+        {
+            array[index++] = (byte)(value);
+        }
         /// <summary> Reads a signed 16 bit big endian integer. </summary>
         public static short ReadI16(byte[] array, int offset)
         {
@@ -68,10 +86,10 @@ namespace PattyKaki
         public unsafe static void WriteF32(float value, byte[] buffer, int i)
         {
             int num = *(int*)&value;
-            NetUtils.WriteI32(num, buffer, i);
+            WriteI32(num, buffer, i);
         }
 
-        internal static int WritePos(Position pos, byte[] arr, int offset, bool extPos)
+        public static int WritePos(Position pos, byte[] arr, int offset, bool extPos)
         {
             if (!extPos)
             {
@@ -107,7 +125,7 @@ namespace PattyKaki
                 if (length == 0 && code != 0x20) { length = i + 1; }
                 characters[i] = ((char)code).Cp437ToUnicode();
             }
-            return new String(characters, 0, length);
+            return new string(characters, 0, length);
         }
 
         public static void Write(string str, byte[] array, int offset, bool hasCP437)
@@ -116,7 +134,7 @@ namespace PattyKaki
             else WriteAscii(str, array, offset);
         }
 
-        static void WriteAscii(string str, byte[] array, int offset)
+        public static void WriteAscii(string str, byte[] array, int offset)
         {
             int count = Math.Min(str.Length, StringSize);
             for (int i = 0; i < count; i++)
@@ -128,7 +146,7 @@ namespace PattyKaki
                 array[offset + i] = (byte)' ';
         }
 
-        static void WriteCP437(string str, byte[] array, int offset)
+        public static void WriteCP437(string str, byte[] array, int offset)
         {
             int count = Math.Min(str.Length, StringSize);
             for (int i = 0; i < count; i++)

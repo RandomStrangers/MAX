@@ -24,7 +24,7 @@ namespace PattyKaki.Levels.IO {
 
     //WARNING! DO NOT CHANGE THE WAY THE LEVEL IS SAVED/LOADED!
     //You MUST make it able to save and load as a new version other wise you will make old levels incompatible!
-    public unsafe sealed class PKLvlExporter : IMapExporter 
+    public unsafe class PKLvlExporter : IMapExporter 
     {
         public override string Extension { get { return ".pklvl"; } }
 

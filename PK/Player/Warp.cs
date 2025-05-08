@@ -30,7 +30,7 @@ namespace PattyKaki {
         public string Level;
     }
     
-    public sealed class WarpList {
+    public class WarpList {
         public static WarpList Global = new WarpList();
         public List<Warp> Items = new List<Warp>();
         public string Filename;
@@ -50,8 +50,8 @@ namespace PattyKaki {
             Items.Add(warp);
             Save();
         }
-        
-        void Make(Warp warp, string name, Player p) {
+
+        public void Make(Warp warp, string name, Player p) {
             warp.Pos = p.Pos; warp.Name = name;
             warp.Yaw = p.Rot.RotY; warp.Pitch = p.Rot.HeadX;            
             warp.Level = p.level.name;

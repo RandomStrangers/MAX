@@ -15,133 +15,22 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-using System;
-using System.Collections.Generic;
-using PattyKaki.Core;
-using PattyKaki.Modules.Moderation.Notes;
-using PattyKaki.Modules.Security;
-using PattyKaki.Relay.Discord;
-using PattyKaki.Relay.IRC;
-using PattyKaki.Scripting;
-
 namespace PattyKaki
 {
-    /// <summary> This class provides for simple modification to PattyKaki </summary>
-    public abstract class Plugin_Simple
+    public abstract class Plugin_Simple : Plugin
     {
-        /// <summary> Hooks into events and initalises states/resources etc </summary>
-        /// <param name="auto"> True if plugin is being automatically loaded (e.g. on server startup), false if manually. </param>
-        public abstract void Load(bool auto);
-
-        /// <summary> Unhooks from events and disposes of state/resources etc </summary>
-        /// <param name="auto"> True if plugin is being auto unloaded (e.g. on server shutdown), false if manually. </param>
-        public abstract void Unload(bool auto);
-
-        /// <summary> Called when a player does /Help on the plugin. Typically tells the player what this plugin is about. </summary>
-        /// <param name="p"> Player who is doing /Help. </param>
-        public virtual void Help(Player p)
+        public abstract override void Load(bool auto);
+        public abstract override void Unload(bool auto);
+        public override void Help(Player p)
         {
             p.Message("No help is available for this simple plugin.");
         }
-
-        /// <summary> Name of the plugin. </summary>
-        public abstract string name { get; }
-
-        /// <summary> Oldest version of PattyKaki this plugin is compatible with. </summary>
-        public virtual string PK_Version { get { return null; } }
-
-        /// <summary> The Creator/author of this plugin. (Your name) </summary>
+        public abstract override string name { get; }
+        public override string PK_Version { get { return Server.Version; } }
         public virtual string Creator { get { return ""; } }
-        public virtual string creator { get { return ""; } }
-
-        /// <summary> Whether or not to auto load this plugin on server startup. </summary>
-        public virtual bool LoadAtStartup { get { return true; } }
-
-
-        public static List<Plugin_Simple> core = new List<Plugin_Simple>();
-        public static List<Plugin_Simple> all = new List<Plugin_Simple>();
-        public static List<Plugin> New = new List<Plugin>();
-
-
-        public static bool Load(Plugin_Simple p, bool auto)
-        {
-            try
-            {
-                all.Add(p);
-
-                if (p.LoadAtStartup || !auto)
-                {
-                    p.Load(auto);
-                }
-                else
-                {
-                    Logger.Log(LogType.SystemActivity, "Simple plugin {0} was not loaded, you can load it with /psload", p.name);
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error loading simple plugin " + p.name, ex);
-                if (!string.IsNullOrEmpty(p.Creator)) Logger.Log(LogType.Warning, "You can go bug {0} about it.", p.Creator);
-                return false;
-            }
-        }
-
-        public static bool Unload(Plugin_Simple p, bool auto)
-        {
-            bool success = true;
-            try
-            {
-                p.Unload(auto);
-                Logger.Log(LogType.SystemActivity, "Simple plugin {0} was unloaded.", p.name);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error unloading simple plugin " + p.name, ex);
-                success = false;
-            }
-
-            all.Remove(p);
-            return success;
-        }
-
-        public static void UnloadAll()
-        {
-            for (int i = 0; i < all.Count; i++)
-            {
-                Unload(all[i], true); i--;
-            }
-        }
-        public static void LoadAll()
-        {
-            LoadCorePlugin(new CorePlugin());
-            LoadCorePlugin(new NotesPlugin());
-            LoadCorePlugin(new DiscordPlugin());
-            LoadCorePlugin(new IRCPlugin());
-            LoadCorePlugin(new IPThrottler());
-            LoadCorePlugin(new ServerURLSender());
-            IScripting_Simple.AutoloadSimplePlugins();
-        }
-        static void LoadCorePlugin(Plugin_Simple plugin)
-        {
-            List<string> disabled = Server.Config.DisabledModules;
-            if (disabled.CaselessContains(plugin.name)) return;
-
-            plugin.Load(true);
-            core.Add(plugin);
-        }
-        public static void LoadPlugin(Plugin plugin)
-        {
-            plugin.Load(true);
-            New.Add(plugin);
-        }
+        public override string creator { get { return Creator; } }
+        public override string welcome { get { return ""; } }
+        public override int build { get { return 1; } }
+        public override bool LoadAtStartup { get { return true; } }
     }
-
-    // This class is just kept around for backwards compatibility    
-    //   Plugin used to be completely abstract, with Plugin_Simple having virtual methods
-    //   However this is now obsolete as the virtual methods were moved into Plugin
-
-     [Obsolete("Derive from Plugin_Simple instead")]
-    public abstract partial class Plugin : Plugin_Simple { } 
 }

@@ -20,12 +20,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace PattyKaki
 {
     public static class Utils
     {
-
+        public static void SetBackgroundMode(Thread thread)
+        {
+            // Throws an exception when called on a dead thread,
+            //  which can very rarely happen
+            try
+            {
+                thread.IsBackground = true;
+            }
+            catch
+            {
+            }
+        }
         public static string Hex(byte r, byte g, byte b)
         {
             return "#" + r.ToString("X2") + g.ToString("X2") + b.ToString("X2");
@@ -77,7 +89,7 @@ namespace PattyKaki
         /// <summary> Divides by 16, rounding up if there is a remainder. </summary>
         public static int CeilDiv16(int x) { return (x + 15) / 16; }
 
-        const NumberStyles style = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
+        public const NumberStyles style = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
             | NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
 
         // Not all languages use . as their decimal point separator
@@ -135,7 +147,7 @@ namespace PattyKaki
             return new string(hex);
         }
 
-        static char HexEncode(int i)
+        public static char HexEncode(int i)
         {
             return i < 10 ? (char)(i + '0') : (char)((i - 10) + 'a');
         }

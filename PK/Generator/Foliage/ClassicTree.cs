@@ -5,7 +5,7 @@ using PattyKaki.Generator.Classic;
 
 namespace PattyKaki.Generator.Foliage 
 {
-    public sealed class ClassicTree : Tree 
+    public class ClassicTree : Tree 
     {
         public JavaRandom rng;
         // 61 = max number of leaves possible, +1 for extra log

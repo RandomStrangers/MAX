@@ -42,6 +42,8 @@ namespace PattyKaki.Commands.Info
 
         public static string FormatMap(Player p, string file) {
             string map = Path.GetFileNameWithoutExtension(file);
+            string ext = Path.GetExtension(file);
+            map = map + "(" + ext.Replace(".", "") + ")";
             RetrieveProps(map, out LevelPermission visitP, out LevelPermission buildP, out bool loadOnGoto);
             
             LevelPermission maxPerm = visitP;

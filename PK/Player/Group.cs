@@ -25,7 +25,7 @@ using PattyKaki.Events.GroupEvents;
 namespace PattyKaki
 {
     /// <summary> This is the group object, where ranks and their data are stored </summary>
-    public sealed class Group
+    public class Group
     {
         public static Group BannedRank { get { return Find(LevelPermission.Banned); } }
         public static Group GuestRank { get { return Find(LevelPermission.Guest); } }
@@ -36,11 +36,11 @@ namespace PattyKaki
 
         public static List<Group> GroupList = new List<Group>();
         public static List<Group> AllRanks = GroupList;
-        static bool reloading;
-        const int GEN_ADMIN = 225 * 1000 * 1000;
-        const int GEN_LIMIT = 30 * 1000 * 1000;
+        public static bool reloading;
+        public const int GEN_ADMIN = 225 * 1000 * 1000;
+        public const int GEN_LIMIT = 30 * 1000 * 1000;
         public string Name;
-        [ConfigPerm("Permission", null, LevelPermission.Owner)]
+        [ConfigPerm("Permission", null, LevelPermission.PattyKaki)]
         public LevelPermission Permission = LevelPermission.PattyKaki;
 
         [ConfigColor("Color", null, "&f")]
@@ -66,13 +66,13 @@ namespace PattyKaki
         [ConfigInt("CopySlots", null, 1, 1)]
         public int CopySlots = 1;
         [ConfigString("Filename", null, "", true, ".,_-+=")]
-        internal string filename;
+        public string filename;
 
         public PlayerList Players;
         public bool[] Blocks = new bool[Block.SUPPORTED_COUNT];
 
         public Group() { }
-        private Group(LevelPermission perm, int drawLimit, int undoMins, string name, string color, int volume, int realms)
+        public Group(LevelPermission perm, int drawLimit, int undoMins, string name, string color, int volume, int realms)
         {
             int afkMins = perm <= LevelPermission.AdvBuilder ? 45 : 60;
 
@@ -120,7 +120,7 @@ namespace PattyKaki
             return null;
         }
 
-        internal static void MapName(ref string name)
+        public static void MapName(ref string name)
         {
             if (name.CaselessEq("op")) name = "operator";
         }
@@ -175,7 +175,7 @@ namespace PattyKaki
             return grp != null ? grp.Permission : defPerm;
         }
 
-        static string GetPlural(string name)
+        public static string GetPlural(string name)
         {
             if (name.Length < 2) return name;
 
@@ -188,7 +188,7 @@ namespace PattyKaki
         public string GetFormattedName() { return Color + GetPlural(Name); }
 
 
-        static void Add(LevelPermission perm, int drawLimit, int undoMins, string name, string color, int volume, int realms)
+        public static void Add(LevelPermission perm, int drawLimit, int undoMins, string name, string color, int volume, int realms)
         {
             Register(new Group(perm, drawLimit, undoMins, name, color, volume, realms));
         }
@@ -230,8 +230,12 @@ namespace PattyKaki
             DefaultRank = Find(Server.Config.DefaultRankName);
             if (DefaultRank == null) DefaultRank = GuestRank;
             AllRanks.Clear();
+            if (!GroupList.Contains(PKRank))
+            {
+                GroupList.Add(PKRank);
+            }
             AllRanks.AddRange(GroupList);
-            AllRanks.Add(PKRank);
+            //AllRanks.Add(PKRank);
             OnGroupLoadEvent.Call();
             reloading = true;
             SaveAll(GroupList);
@@ -243,7 +247,7 @@ namespace PattyKaki
             }
         }
 
-        static void UpdateGroup(Player p)
+        public static void UpdateGroup(Player p)
         {
             Group grp = Find(p.group.Permission) ?? DefaultRank;
             p.group = grp;
@@ -251,7 +255,7 @@ namespace PattyKaki
             p.UpdateColor(PlayerInfo.DefaultColor(p));
         }
 
-        static readonly object saveLock = new object();
+        public static object saveLock = new object();
         public static void SaveAll(List<Group> givenList)
         {
             lock (saveLock)
@@ -262,7 +266,7 @@ namespace PattyKaki
         }
 
 
-        void LoadPlayers()
+        public void LoadPlayers()
         {
             string desired = (int)Permission + "_rank";
             // Try to use the auto filename format
@@ -272,7 +276,7 @@ namespace PattyKaki
             Players = PlayerList.Load("ranks/" + filename);
         }
 
-        void MoveToDesired(string desired)
+        public void MoveToDesired(string desired)
         {
             // rank doesn't exist to begin with
             if (filename == null || !File.Exists("ranks/" + filename))
@@ -294,7 +298,7 @@ namespace PattyKaki
             }
         }
 
-        bool MoveToFile(string newFile)
+        public bool MoveToFile(string newFile)
         {
             if (File.Exists("ranks/" + newFile)) return false;
 
@@ -312,8 +316,8 @@ namespace PattyKaki
         }
 
 
-        static ConfigElement[] cfg;
-        static void LoadFromDisc()
+        public static ConfigElement[] cfg;
+        public static void LoadFromDisc()
         {
             Group temp = null;
             if (cfg == null) cfg = ConfigElement.GetAll(typeof(Group));
@@ -322,7 +326,7 @@ namespace PattyKaki
             if (temp != null) AddGroup(temp);
         }
 
-        static void ParseProperty(string key, string value, ref Group temp)
+        public static void ParseProperty(string key, string value, ref Group temp)
         {
             if (key.CaselessEq("RankName"))
             {
@@ -350,7 +354,7 @@ namespace PattyKaki
             }
         }
 
-        static void AddGroup(Group temp)
+        public static void AddGroup(Group temp)
         {
             string name = temp.Name;
             // Try to rename conflicing ranks first
@@ -369,7 +373,7 @@ namespace PattyKaki
             {
                 Logger.Log(LogType.Warning, "Cannot add the rank {0} twice", temp.Name);
             }
-            else if (Find(temp.Permission) != null)
+            else if (Find(temp.Permission) != null && temp.Permission != LevelPermission.PattyKaki)
             {
                 Logger.Log(LogType.Warning, "Cannot have 2 ranks set at permission level " + (int)temp.Permission);
             }
@@ -384,7 +388,7 @@ namespace PattyKaki
             }
         }
 
-        static void SaveGroups(List<Group> givenList)
+        public static void SaveGroups(List<Group> givenList)
         {
             if (cfg == null) cfg = ConfigElement.GetAll(typeof(Group));
 

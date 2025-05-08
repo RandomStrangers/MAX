@@ -29,7 +29,7 @@ namespace PattyKaki.Events.PlayerEvents
     public delegate void OnPlayerChat(Player p, string message);
     /// <summary> Called whenever a player sends chat to the server </summary>
     /// <remarks> You must cancel this event to prevent the message being sent to the user (and others). </remarks>
-    public sealed class OnPlayerChatEvent : IEvent<OnPlayerChat> 
+    public class OnPlayerChatEvent : IEvent<OnPlayerChat> 
     {        
         public static void Call(Player p, string message) {
             IEvent<OnPlayerChat>[] items = handlers.Items;
@@ -45,7 +45,7 @@ namespace PattyKaki.Events.PlayerEvents
 
     public delegate void OnPlayerMove(Player p, Position next, byte yaw, byte pitch, ref bool cancel);
     /// <summary> Called whenever a player moves </summary>
-    public sealed class OnPlayerMoveEvent : IEvent<OnPlayerMove> 
+    public class OnPlayerMoveEvent : IEvent<OnPlayerMove> 
     {       
         public static void Call(Player p, Position next, byte yaw, byte pitch, ref bool cancel) {
             IEvent<OnPlayerMove>[] items = handlers.Items;

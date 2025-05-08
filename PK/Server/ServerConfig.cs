@@ -23,7 +23,7 @@ using PattyKaki.Relay.IRC;
 namespace PattyKaki 
 {
 
-    public sealed class ServerConfig : EnvConfig 
+    public class ServerConfig : EnvConfig 
     {
         [ConfigString("server-name", "Server", "[" + Server.SoftwareNameConst + "] Default", false, " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")]
         public string Name = "[" + Server.SoftwareNameConst + "] Default";
@@ -262,7 +262,7 @@ namespace PattyKaki
         [ConfigEnum("default-mapgen-biome", "Mapgen", MapGenBiomeName.Forest, typeof(MapGenBiomeName))]
         public MapGenBiomeName DefaultMapGenBiome = MapGenBiomeName.Forest;
 
-        static readonly bool[] defLogLevels = new bool[] { 
+        public static bool[] defLogLevels = new bool[] { 
             true,true,true,true,true,true, true,true,true, 
             true,true,true,true,true,true, true,true };
         [ConfigBool("log-notes", "Logging", true)]
@@ -303,7 +303,7 @@ namespace PattyKaki
         public TimeSpan IPSpamBlockTime = TimeSpan.FromSeconds(180);
         [ConfigTimespan("ip-spam-interval", "Spam control", 60, false)]
         public TimeSpan IPSpamInterval = TimeSpan.FromSeconds(60);
-        [ConfigReadOnlyBool("PattyKaki-logging", "Logging", true)]
-        public readonly bool PattyKakiLogging = true;
+        [ConfigBool("PattyKaki-logging", "Logging", true)]
+        public bool PattyKakiLogging = true;
     }
 }

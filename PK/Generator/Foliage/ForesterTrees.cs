@@ -440,7 +440,7 @@ namespace PattyKaki.Generator.Foliage {
     }
     
     
-    public sealed class BambooTree : Tree {
+    public class BambooTree : Tree {
         
         public override int EstimateBlocksAffected() { return height * 2; }
         
@@ -466,7 +466,7 @@ namespace PattyKaki.Generator.Foliage {
         }
     }
     
-    public sealed class PalmTree : Tree {
+    public class PalmTree : Tree {
         
         public override int EstimateBlocksAffected() { return height + 8; }
         

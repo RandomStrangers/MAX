@@ -61,7 +61,7 @@ namespace PattyKaki.Generator
     
     /// <summary> Map generators initialise the blocks in a level. </summary>
     /// <remarks> e.g. flatgrass generator, mountains theme generator, etc </remarks>
-    public sealed class MapGen 
+    public class MapGen 
     {
         public string Theme, Desc;
         public GenType Type;
@@ -132,7 +132,6 @@ namespace PattyKaki.Generator
         
         public static Level Generate(Player p, MapGen gen, string name, 
                                      ushort x, ushort y, ushort z, string seed) {
-            name = name.ToLower();
             if (gen == null) { PrintThemes(p); return null; }
             if (!Formatter.ValidMapName(p, name)) return null;
             
