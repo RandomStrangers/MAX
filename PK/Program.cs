@@ -3,11 +3,11 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using PattyKaki.UI;
-using Terminal = System.Terminal;
-using TerminalColor = System.TerminalColor;
-using TerminalSpecialKey = System.TerminalSpecialKey;
-using Context = System.Context;
-using TerminalCancelEventArgs = System.TerminalCancelEventArgs;
+using Terminal = System.Console;
+using TerminalColor = System.ConsoleColor;
+using TerminalSpecialKey = System.ConsoleSpecialKey;
+using Context = System.Environment;
+using TerminalCancelEventArgs = System.ConsoleCancelEventArgs;
 namespace PattyKaki
 {
     public static class Program
