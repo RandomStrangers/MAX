@@ -50,7 +50,7 @@ namespace PattyKaki
             {
                 Logger.LogHandler += LogMessage;
                 Updater.NewerVersionDetected += LogNewerVersionDetected;
-                EnableCLIMode();
+                EnableTLIMode();
                 Server.Start();
                 Terminal.Title = Colors.Strip(Server.Config.Name) + " - " + Colors.Strip(Server.SoftwareNameVersioned);
                 Terminal.CancelKeyPress += OnCancelKeyPress;
