@@ -3,12 +3,12 @@ description: Uploads a compiled binary
 inputs:
   BOT_USERNAME:
     description: 'Username to use for the discord bot message'
-    default: 'PattyKaki'
+    default: 'MAX'
     required: false
     type: string
   BOT_AVATAR:
     description: 'URL to use for the avatar of the discord bot message'
-    default: 'https://raw.githubusercontent.com/SuperNova-DeadNova/PK/master/PattyKaki.png'
+    default: 'https://raw.githubusercontent.com/RandomStrangers/MAX/master/MAX.png'
     required: false
     type: string
   NOTIFY_MESSAGE:

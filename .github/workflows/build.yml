@@ -1,4 +1,4 @@
-name: Build PK
+name: Build MAX
 on:
   push:
   workflow_dispatch:
@@ -15,24 +15,24 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Compile PattyKaki
+      - name: Compile MAX
         shell: bash
         id: compile
         run: |
-          msbuild PattyKaki.sln /p:Configuration=Release
-          rm bin/PattyKaki.exe bin/PattyKaki.pdb
-          msbuild PK/PattyKaki.csproj /p:Configuration=Release
+          msbuild MAX.sln /p:Configuration=Release
+          rm bin/MAX.exe bin/MAX.pdb
+          msbuild PK/MAX.csproj /p:Configuration=Release
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
         with:
-          NOTIFY_MESSAGE: 'Failed to compile PattyKaki! <@999409543001931788>'
+          NOTIFY_MESSAGE: 'Failed to compile MAX! <@999409543001931788>'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
           
       - uses: ./.github/actions/notify_success
         if: ${{ always() && steps.compile.outcome == 'success' }}
         with:
           SOURCE_FILE: 'bin'
-          DEST_NAME: 'PattyKaki'
-          NOTIFY_MESSAGE: 'Successfully compiled PattyKaki.'
+          DEST_NAME: 'MAX'
+          NOTIFY_MESSAGE: 'Successfully compiled MAX.'
           WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'

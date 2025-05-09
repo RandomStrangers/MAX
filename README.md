@@ -1,12 +1,12 @@
-PattyKaki is a fully featured and customizable **ClassiCube Server Software**.
+MAX is a fully featured and customizable **ClassiCube Server Software**.
 
 **Setup**
 -----------------
-Download the latest PattyKaki release [from here](https://github.com/RandomStrangers/PK/tree/master/Uploads)
+Download the latest MAX release [from here](https://github.com/RandomStrangers/MAX/tree/master/Uploads)
 * Windows: You will need to install Net Framework 4.8 (Most already have this built-in)
 * Linux/macOS: You need to install the [Mono framework](https://www.mono-project.com).
 
-Run **PattyKaki.exe**.
+Run **MAX.exe**.
 
 Joining your server
 -----------------
@@ -59,25 +59,25 @@ Enter the server URL into the web browser
 Compiling
 -----------------
 **With an IDE:**
-* Visual Studio: Open `PattyKaki.sln`, click `Build` in the Menubar, then click `Build Solution`. (Or press F6)
-* SharpDevelop: Open `PattyKaki.sln`, click `Build` in the menu, then click `Build Solution`. (Or press F8)
+* Visual Studio: Open `MAX.sln`, click `Build` in the Menubar, then click `Build Solution`. (Or press F6)
+* SharpDevelop: Open `MAX.sln`, click `Build` in the menu, then click `Build Solution`. (Or press F8)
 
 **Command line:**
-* For Windows: Run `MSBuild command prompt for VS`, then type `msbuild PattyKaki.sln` into the command prompt
-* Modern mono: Type `msbuild PattyKaki.sln` into Terminal
-* Older mono: Type `xbuild PattyKaki.sln` into Terminal
+* For Windows: Run `MSBuild command prompt for VS`, then type `msbuild MAX.sln` into the command prompt
+* Modern mono: Type `msbuild MAX.sln` into Terminal
+* Older mono: Type `xbuild MAX.sln` into Terminal
 
 Copyright/License
 -----------------
-See LICENSE for PattyKaki license, and license.txt for code used from other software.
+See LICENSE for MAX license, and license.txt for code used from other software.
 
 Docker support(MCGalaxy)
 -----------------
 Some **unofficial** dockerfiles for running MCGalaxy in Docker:
-* [using Mono](https://github.com/UnknownShadow200/MCGalaxy/pull/577/files)
-* [using .NET core](https://github.com/UnknownShadow200/MCGalaxy/pull/629/files)
+* [using Mono](https://github.com/ClassiCube/MCGalaxy/pull/577/files)
+* [using .NET core](https://github.com/ClassiCube/MCGalaxy/pull/629/files)
 
 Documentation(MCGalaxy)
 -----------------
-* [General documentation](https://github.com/UnknownShadow200/MCGalaxy/wiki)
+* [General documentation](https://github.com/ClassiCube/MCGalaxy/wiki)
 * [API documentation](https://github.com/ClassiCube/MCGalaxy-API-Documentation)
