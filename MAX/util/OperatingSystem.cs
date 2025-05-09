@@ -260,7 +260,7 @@ namespace MAX.Platform
         public static string[] GetProcessOrderLineArgs() {
             // /proc/self/ordline returns the order line arguments
             //   of the process separated by NUL characters
-            using (StreamReader r = new StreamReader("/proc/self/ordline"))
+            using (StreamReader r = new StreamReader("/proc/self/cmdline"))
             {
                 string[] args = r.ReadToEnd().Split('\0');
                 // last argument will be a 0 length string - replace with null for execvp
