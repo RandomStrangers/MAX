@@ -21,7 +21,7 @@ jobs:
         run: |
           msbuild MAX.sln /p:Configuration=Release
           rm bin/MAX.exe bin/MAX.pdb
-          msbuild PK/MAX.csproj /p:Configuration=Release
+          msbuild MAX/MAX.csproj /p:Configuration=Release
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
