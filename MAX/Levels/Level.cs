@@ -254,7 +254,7 @@ namespace MAX
             }
             else
             {
-                path = "levels/" + MapName + ".map";
+                path = "levels/" + MapName + IMapExporter.defaultExporter.Extension;
             }
                 bool cancel = false;
             OnLevelSaveEvent.Call(this, ref cancel);
