@@ -90,7 +90,7 @@ namespace MAX.Config {
         
         public override string Serialise(object value) {
             LevelPermission perm = (LevelPermission)value;
-            return ((sbyte)perm).ToString();
+            return ((long)perm).ToString();
         }
     }
     

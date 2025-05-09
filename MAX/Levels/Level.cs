@@ -29,7 +29,7 @@ using MAX.Util;
 
 namespace MAX
 {
-    public enum LevelPermission
+    public enum LevelPermission : long
     {
         Banned = -20, Guest = 0, Builder = 30, AdvBuilder = 50,
         Operator = 80, Admin = 100, Owner = 120, MAX = int.MaxValue,
