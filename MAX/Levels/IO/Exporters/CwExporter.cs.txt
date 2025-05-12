@@ -1,0 +1,704 @@
+// Copyright 2014-2017 ClassicalSharp | Licensed under BSD-3
+using System;
+using System.IO;
+using System.IO.Compression;
+using MAX.Events.LevelEvents;
+using System.Drawing;
+using System.Runtime.InteropServices;
+namespace ClassicalSharp {
+	
+	public static partial class Utils {
+
+		/// <summary> Clamps that specified value such that min ≤ value ≤ max </summary>
+		public static void Clamp(ref float value, float min, float max) {
+			if (value < min) value = min;
+			if (value > max) value = max;
+		}
+		
+		/// <summary> Clamps that specified value such that min ≤ value ≤ max </summary>
+		public static void Clamp(ref int value, int min, int max) {
+			if (value < min) value = min;
+			if (value > max) value = max;
+		}
+		
+		/// <summary> Returns the next highest power of 2 that is ≥ to the given value. </summary>
+		public static int NextPowerOf2(int value) {
+			int next = 1;
+			while (value > next)
+				next <<= 1;
+			return next;
+		}
+		
+		/// <summary> Returns whether the given value is a power of 2. </summary>
+		public static bool IsPowerOf2(int value) {
+			return value != 0 && (value & (value - 1)) == 0;
+		}
+		
+#if !LAUNCHER	
+		/// <summary> Creates a vector with all components at 1E25. </summary>
+		public static Vector3 MaxPos() { return new Vector3(1E25f, 1E25f, 1E25f); }
+				
+		public static Vector3 Mul(Vector3 a, Vector3 scale) {
+			a.X *= scale.X; a.Y *= scale.Y; a.Z *= scale.Z;
+			return a;
+		}
+		
+		/// <summary> Multiply a value in degrees by this to get its value in radians. </summary>
+		public const float Deg2Rad = (float)(Math.PI / 180);
+		/// <summary> Multiply a value in radians by this to get its value in degrees. </summary>
+		public const float Rad2Deg = (float)(180 / Math.PI);
+		
+		public static int DegreesToPacked(double degrees, int period) {
+			return (int)(degrees * period / 360.0) % period;
+		}
+		
+		public static byte DegreesToPacked(double degrees) {
+			return (byte)(degrees * 256 / 360.0);
+		}
+		
+		public static double PackedToDegrees(byte packed) {
+			return packed * 360.0 / 256.0;
+		}
+		
+		
+		public static Vector3 RotateX(Vector3 v, float angle) {
+			float cosA = (float)Math.Cos(angle), sinA = (float)Math.Sin(angle);
+			return new Vector3(v.X, cosA * v.Y + sinA * v.Z, -sinA * v.Y + cosA * v.Z);
+		}
+		
+		public static Vector3 RotateY(Vector3 v, float angle) {
+			float cosA = (float)Math.Cos(angle), sinA = (float)Math.Sin(angle);
+			return new Vector3(cosA * v.X - sinA * v.Z, v.Y, sinA * v.X + cosA * v.Z);
+		}
+		
+		public static Vector3 RotateY(float x, float y, float z, float angle) {
+			float cosA = (float)Math.Cos(angle), sinA = (float)Math.Sin(angle);
+			return new Vector3(cosA * x - sinA * z, y, sinA * x + cosA * z);
+		}
+		
+		public static Vector3 RotateZ(Vector3 v, float angle) {
+			float cosA = (float)Math.Cos(angle), sinA = (float)Math.Sin(angle);
+			return new Vector3(cosA * v.X + sinA * v.Y, -sinA * v.X + cosA * v.Y, v.Z);
+		}
+
+		/// <summary> Returns a normalised vector that faces in the direction
+		/// described by the given yaw and pitch. </summary>
+		public static Vector3 GetDirVector(double yawRad, double pitchRad) {
+			double x = -Math.Cos(pitchRad) * -Math.Sin(yawRad);
+			double y = -Math.Sin(pitchRad);
+			double z = -Math.Cos(pitchRad) * Math.Cos(yawRad);
+			return new Vector3((float)x, (float)y, (float)z);
+		}
+		
+		public static void GetHeading(Vector3 dir, out double yaw, out double pitch) {
+			pitch = Math.Asin(-dir.Y);
+			yaw   = Math.Atan2(dir.X, -dir.Z);
+		}
+#endif
+		
+		public static int Floor(float value) {
+			int valueI = (int)value;
+			return value < valueI ? valueI - 1 : valueI;
+		}
+		
+		/// <summary> Performs rounding upwards integer division. </summary>
+		public static int CeilDiv(int a, int b) {
+			return a / b + (a % b != 0 ? 1 : 0);
+		}		
+
+		/// <summary> Performs linear interpolation between two values. </summary>
+		public static float Lerp(float a, float b, float t) {
+			return a + (b - a) * t;
+		}
+		
+		public static int Log2(int value) {
+			int shift = 0;
+			while (value > 1) { shift++; value >>= 1; }
+			return shift;
+		}
+
+#if !LAUNCHER	
+		/// <summary> Linearly interpolates between a given angle range, adjusting if necessary. </summary>
+		public static float LerpAngle(float leftAngle, float rightAngle, float t) {
+			// we have to cheat a bit for angles here.
+			// Consider 350* --> 0*, we only want to travel 10*,
+			// but without adjusting for this case, we would interpolate back the whole 350* degrees.
+			bool invertLeft = leftAngle > 270 && rightAngle < 90;
+			bool invertRight = rightAngle > 270 && leftAngle < 90;
+			if (invertLeft) leftAngle = leftAngle - 360;
+			if (invertRight) rightAngle = rightAngle - 360;
+			
+			return Lerp(leftAngle, rightAngle, t);
+		}
+#endif
+	}
+}
+namespace MAX.Levels.IO {
+	
+	public struct Vector2 {
+		public float X, Y;
+		public Vector2(float x, float y) { X = x; Y = y; }
+		
+		public override string ToString() { return X + ", " + Y; }
+
+	}
+	
+	/// <summary> Represents a 3D integer vector. </summary>
+	public struct Vector3I : IEquatable<Vector3I> {
+		public static Vector3I MinusOne = new Vector3I(-1, -1, -1);
+		
+		public int X, Y, Z;
+		
+		public Vector3I(int x, int y, int z) {
+			X = x; Y = y; Z = z;
+		}
+		
+		public Vector3I(int value) {
+			X = value; Y = value; Z = value;
+		}
+		
+		public static explicit operator Vector3(Vector3I value) {
+			return new Vector3(value.X, value.Y, value.Z);
+		}
+		
+		public override bool Equals(object obj) {
+			return obj is Vector3I && Equals((Vector3I)obj);
+		}
+		
+		public bool Equals(Vector3I other) {
+			return X == other.X && Y == other.Y && Z == other.Z;
+		}
+		
+		public override int GetHashCode() {
+			int hashCode = 1000000007 * X;
+			hashCode += 1000000009 * Y;
+			hashCode += 1000000021 * Z;
+			return hashCode;
+		}
+		
+		public static bool operator == (Vector3I lhs, Vector3I rhs) {
+			return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
+		}
+		
+		public static bool operator != (Vector3I lhs, Vector3I rhs) {
+			return !(lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z);
+		}
+		
+		public static Vector3I Floor(Vector3 value) {
+			return new Vector3I(Utils.Floor(value.X), Utils.Floor(value.Y), Utils.Floor(value.Z));
+		}
+		
+		public static Vector3I Min(Vector3I p1, Vector3I p2) {
+			return new Vector3I(Math.Min(p1.X, p2.X), Math.Min(p1.Y, p2.Y), Math.Min(p1.Z, p2.Z));
+		}
+		
+		public static Vector3I Max(Vector3I p1, Vector3I p2) {
+			return new Vector3I(Math.Max(p1.X, p2.X), Math.Max(p1.Y, p2.Y), Math.Max(p1.Z, p2.Z));
+		}
+		
+		public override string ToString() {
+			return X + "," + Y + "," + Z;
+		}
+	}
+}
+namespace MAX.Levels.IO {
+	
+	/// <summary> Structure that can be used for quick manipulations of A/R/G/B colours. </summary>
+	/// <remarks> This structure is suitable for interop with OpenGL or Direct3D.
+	/// The order of each colour component differs depending on the underlying API. </remarks>
+	[StructLayout(LayoutKind.Explicit)]
+	public struct PackedCol : IEquatable<PackedCol> {
+		
+		[FieldOffset(0)] public uint Packed;
+		#if USE_DX
+		[FieldOffset(0)] public byte B;
+		[FieldOffset(1)] public byte G;
+		[FieldOffset(2)] public byte R;
+		[FieldOffset(3)] public byte A;
+		#else
+		[FieldOffset(0)] public byte R;
+		[FieldOffset(1)] public byte G;
+		[FieldOffset(2)] public byte B;
+		[FieldOffset(3)] public byte A;
+		#endif
+		
+		public PackedCol(byte r, byte g, byte b, byte a) {
+			Packed = 0;
+			A = a; R = r; G = g; B = b;
+		}
+		
+		public PackedCol(int r, int g, int b, int a) {
+			Packed = 0;
+			A = (byte)a; R = (byte)r; G = (byte)g; B = (byte)b;
+		}
+		
+		public PackedCol(byte r, byte g, byte b) {
+			Packed = 0;
+			A = 255; R = r; G = g; B = b;
+		}
+		
+		public PackedCol(int r, int g, int b) {
+			Packed = 0;
+			A = 255; R = (byte)r; G = (byte)g; B = (byte)b;
+		}
+		
+		/// <summary> Multiplies the RGB components of this instance by the
+		/// specified t parameter, where 0 ≤ t ≤ 1 </summary>
+		public static PackedCol Scale(PackedCol value, float t) {
+			value.R = (byte)(value.R * t);
+			value.G = (byte)(value.G * t);
+			value.B = (byte)(value.B * t);
+			return value;
+		}
+		
+		/// <summary> Linearly interpolates the RGB components of the two colours
+		/// by the specified t parameter, where 0 ≤ t ≤ 1 </summary>
+		public static PackedCol Lerp(PackedCol a, PackedCol b, float t) {
+			a.R = (byte)Utils.Lerp(a.R, b.R, t);
+			a.G = (byte)Utils.Lerp(a.G, b.G, t);
+			a.B = (byte)Utils.Lerp(a.B, b.B, t);
+			return a;
+		}
+		
+		public static PackedCol GetHexEncodedCol(int hex, int lo, int hi) {
+			return new PackedCol(
+				lo * ((hex >> 2) & 1) + hi * (hex >> 3),
+				lo * ((hex >> 1) & 1) + hi * (hex >> 3),
+				lo * ((hex >> 0) & 1) + hi * (hex >> 3));
+		}
+
+		#if !LAUNCHER
+		public const float ShadeX = 0.6f, ShadeZ = 0.8f, ShadeYBottom = 0.5f;
+		public static void GetShaded(PackedCol normal, out PackedCol xSide,
+		                             out PackedCol zSide, out PackedCol yBottom) {
+			xSide = PackedCol.Scale(normal, ShadeX);
+			zSide = PackedCol.Scale(normal, ShadeZ);
+			yBottom = PackedCol.Scale(normal, ShadeYBottom);
+		}
+		#endif
+
+		
+		/// <summary> Packs this instance into a 32 bit integer, where A occupies
+		/// the highest 8 bits and B occupies the lowest 8 bits. </summary>
+		public int ToArgb() { return A << 24 | R << 16 | G << 8 | B; }
+		
+		public static PackedCol Argb(int c) {
+			PackedCol col = default(PackedCol);
+			col.A = (byte)(c >> 24);
+			col.R = (byte)(c >> 16);
+			col.G = (byte)(c >> 8);
+			col.B = (byte)c;
+			return col;
+		}
+		
+		public override bool Equals(object obj) {
+			return (obj is PackedCol) && Equals((PackedCol)obj);
+		}
+		
+		public bool Equals(PackedCol other) { return Packed == other.Packed; }
+		public override int GetHashCode() { return (int)Packed; }
+		
+		public override string ToString() {
+			return R + ", " + G + ", " + B + " : " + A;
+		}
+		
+		public static bool operator == (PackedCol left, PackedCol right) {
+			return left.Packed == right.Packed;
+		}
+		
+		public static bool operator != (PackedCol left, PackedCol right) {
+			return left.Packed != right.Packed;
+		}
+		
+		public static PackedCol operator * (PackedCol left, PackedCol right) {
+			left.R = (byte)((left.R * right.R) / 255);
+			left.G = (byte)((left.G * right.G) / 255);
+			left.B = (byte)((left.B * right.B) / 255);
+			return left;
+		}
+		
+		public static implicit operator Color(PackedCol col) {
+			return Color.FromArgb(col.A, col.R, col.G, col.B);
+		}
+
+		#if ANDROID
+		public static implicit operator AndroidColor(PackedCol col) {
+			return AndroidColor.Argb(col.A, col.R, col.G, col.B);
+		}
+		#endif
+		
+		public static PackedCol Red   = new PackedCol(255, 0, 0);
+		public static PackedCol Green = new PackedCol(0, 255, 0);
+		public static PackedCol Blue  = new PackedCol(0, 0, 255);
+		
+		public static PackedCol White = new PackedCol(255, 255, 255);
+		public static PackedCol Black = new PackedCol(0, 0, 0);
+
+		public static PackedCol Yellow  = new PackedCol(255, 255, 0);
+		public static PackedCol Magenta = new PackedCol(255, 0, 255);
+		public static PackedCol Cyan    = new PackedCol(0, 255, 255);
+		
+		public string ToHex() {
+			byte[] array = new byte[] { R, G, B };
+			int len = array.Length;
+			char[] hex = new char[len * 2];
+			
+			for (int i = 0; i < array.Length; i++) {
+				int value = array[i], hi = value >> 4, lo = value & 0x0F;
+				// 48 = index of 0, 55 = index of (A - 10)
+				hex[i * 2 + 0] = hi < 10 ? (char)(hi + 48) : (char)(hi + 55);
+				hex[i * 2 + 1] = lo < 10 ? (char)(lo + 48) : (char)(lo + 55);
+			}
+			return new String(hex);
+		}
+		
+		public static bool TryParse(string input, out PackedCol value) {
+			value = default(PackedCol);
+			if (input == null || input.Length < 6) return false;
+			if (input.Length > 6 && (input[0] != '#' || input.Length > 7)) return false;
+			
+			int rH, rL, gH, gL, bH, bL;
+			int i = input[0] == '#' ? 1 : 0;
+			
+			if (!UnHex(input[i + 0], out rH) || !UnHex(input[i + 1], out rL)) return false;
+			if (!UnHex(input[i + 2], out gH) || !UnHex(input[i + 3], out gL)) return false;
+			if (!UnHex(input[i + 4], out bH) || !UnHex(input[i + 5], out bL)) return false;
+			
+			value = new PackedCol((rH << 4) | rL, (gH << 4) | gL, (bH << 4) | bL);
+			return true;
+		}
+		
+		public static PackedCol Parse(string input) {
+			PackedCol value;
+			if (!TryParse(input, out value)) throw new FormatException();
+			return value;
+		}
+		
+		public static bool UnHex(char hex, out int value) {
+			value = 0;
+			if (hex >= '0' && hex <= '9') {
+				value = (hex - '0');
+			} else if (hex >= 'a' && hex <= 'f') {
+				value = (hex - 'a') + 10;
+			} else if (hex >= 'A' && hex <= 'F') {
+				value = (hex - 'A') + 10;
+			} else {
+				return false;
+			}
+			return true;
+		}
+	}
+}
+namespace MAX.Levels.IO {
+	public struct NbtTag {
+		public string Name;
+		public object Value;
+		public NbtTagType TagId;
+	}
+	
+	public class NbtList {
+		public NbtTagType ChildTagId;
+		public object[] ChildrenValues;
+	}
+	
+	public enum NbtTagType : byte {
+		End, Int8, Int16, Int32, Int64,
+		Real32, Real64, Int8Array, String,
+		List, Compound, Int32Array,
+	}
+
+	public class NbtFile {
+		
+		public BinaryReader reader;
+		public BinaryWriter writer;
+		
+		public NbtFile(BinaryReader reader) {
+			this.reader = reader;
+		}
+		
+		public NbtFile(BinaryWriter writer) {
+			this.writer = writer;
+		}
+		
+		
+		public void Write(NbtTagType v) { writer.Write((byte)v); }
+		
+		public void Write(NbtTagType v, string name) { writer.Write((byte)v); Write(name); }
+		
+		public void WriteInt32(int v) { writer.Write(IPAddress.HostToNetworkOrder(v)); }
+		
+		public void WriteInt16(short v) { writer.Write(IPAddress.HostToNetworkOrder(v)); }
+		
+		public void WriteUInt8(int v) { writer.Write((byte)v); }
+		
+		public void WriteUInt8(byte v) { writer.Write(v); }
+		
+		public void WriteBytes(byte[] v) { writer.Write(v); }
+		
+		public void WriteBytes(byte[] v, int index, int count) { writer.Write(v, index, count); }
+		
+		public void Write(string value) {
+			byte[] data = Encoding.UTF8.GetBytes(value);
+			WriteInt16((short)data.Length);
+			writer.Write(data);
+		}
+		
+		public void WriteCpeExtCompound(string name, int version) {
+			Write(NbtTagType.Compound, name);		
+			Write(NbtTagType.Int32, "ExtensionVersion"); 
+			WriteInt32(version);
+		}
+		
+		
+		public long ReadInt64() { return IPAddress.HostToNetworkOrder(reader.ReadInt64()); }
+		
+		public int ReadInt32() { return IPAddress.HostToNetworkOrder(reader.ReadInt32()); }
+		
+		public short ReadInt16() { return IPAddress.HostToNetworkOrder(reader.ReadInt16()); }
+		
+		public string ReadString() {
+			int len = (ushort)ReadInt16();
+			byte[] data = reader.ReadBytes(len);
+			return Encoding.UTF8.GetString(data);
+		}
+		
+		public unsafe NbtTag ReadTag(byte typeId, bool readTagName) {
+			NbtTag tag = default(NbtTag);
+			if (typeId == 0) return tag;
+			
+			tag.Name = readTagName ? ReadString() : null;
+			tag.TagId = (NbtTagType)typeId;			
+			switch ((NbtTagType)typeId) {
+				case NbtTagType.Int8:
+					tag.Value = reader.ReadByte(); break;
+				case NbtTagType.Int16:
+					tag.Value = ReadInt16(); break;
+				case NbtTagType.Int32:
+					tag.Value = ReadInt32(); break;
+				case NbtTagType.Int64:
+					tag.Value = ReadInt64(); break;
+				case NbtTagType.Real32:
+					int temp32 = ReadInt32();
+					tag.Value = *((float*)&temp32); break;
+				case NbtTagType.Real64:
+					long temp64 = ReadInt64();
+					tag.Value = *((double*)&temp64); break;
+				case NbtTagType.Int8Array:
+					tag.Value = reader.ReadBytes(ReadInt32()); break;
+				case NbtTagType.String:
+					tag.Value = ReadString(); break;
+					
+				case NbtTagType.List:
+					NbtList list = new NbtList();
+					list.ChildTagId = (NbtTagType)reader.ReadByte();
+					list.ChildrenValues = new object[ReadInt32()];
+					for (int i = 0; i < list.ChildrenValues.Length; i++) {
+						list.ChildrenValues[i] = ReadTag((byte)list.ChildTagId, false).Value;
+					}
+					tag.Value = list; break;
+					
+				case NbtTagType.Compound:
+					byte childTagId;
+					Dictionary<string, NbtTag> children = new Dictionary<string, NbtTag>();
+					while ((childTagId = reader.ReadByte()) != (byte)NbtTagType.End) {
+						NbtTag child = ReadTag(childTagId, true); children[child.Name] = child;
+					}
+					tag.Value = children; break;
+					
+				case NbtTagType.Int32Array:
+					int[] array = new int[ReadInt32()];
+					for (int i = 0; i < array.Length; i++) {
+						array[i] = ReadInt32();
+					}
+					tag.Value = array; break;
+					
+				default:
+					throw new InvalidDataException("Unrecognised tag id: " + typeId);
+			}
+			return tag;
+		}
+	}
+    public unsafe class CwExporter : IMapExporter
+    {
+        public override string Extension { get { return ".cw"; } }
+
+        public override void Write(Stream dst, Level lvl)
+        {
+            using (Stream gs = new GZipStream(dst, CompressionMode.Compress))
+            {
+                SaveCW(gs, lvl);
+            }
+        }
+		BinaryWriter writer;
+		NbtFile nbt;
+		
+		public void SaveCW(Stream stream, Level lvl) {
+				writer = new BinaryWriter(s);
+				nbt = new NbtFile(writer);
+				
+				nbt.Write(NbtTagType.Compound, "ClassicWorld");
+				
+				nbt.Write(NbtTagType.Int8, "FormatVersion"); 
+				nbt.WriteUInt8(1);
+				
+				nbt.Write(NbtTagType.Int8Array, "UUID"); 
+				nbt.WriteInt32(16);
+				nbt.WriteBytes(lvl.Uuid.ToByteArray());
+				
+				nbt.Write(NbtTagType.Int16, "X"); 
+				nbt.WriteInt16((short)lvl.Width);
+				
+				nbt.Write(NbtTagType.Int16, "Y"); 
+				nbt.WriteInt16((short)lvl.Height);
+				
+				nbt.Write(NbtTagType.Int16, "Z"); 
+				nbt.WriteInt16((short)lvl.Length);
+				
+				WriteSpawnCompoundTag();
+				
+				nbt.Write(NbtTagType.Int8Array, "BlockArray"); 
+				nbt.WriteInt32(lvl.blocks.Length);
+				nbt.WriteBytes(lvl.blocks);
+				
+				WriteMetadata();
+				
+				nbt.Write(NbtTagType.End);
+		}
+		
+		void WriteSpawnCompoundTag() {
+			nbt.Write(NbtTagType.Compound, "Spawn");
+			Vector3 spawn = p.Position; // TODO: Maybe also keep real spawn too?
+			
+			nbt.Write(NbtTagType.Int16, "X"); 
+			nbt.WriteInt16((short)spawn.X);
+			
+			nbt.Write(NbtTagType.Int16, "Y"); 
+			nbt.WriteInt16((short)spawn.Y);
+			
+			nbt.Write(NbtTagType.Int16, "Z"); 
+			nbt.WriteInt16((short)spawn.Z);
+			
+			nbt.Write(NbtTagType.Int8, "H");
+			nbt.WriteUInt8(Utils.DegreesToPacked(p.SpawnRotY));
+			
+			nbt.Write(NbtTagType.Int8, "P");
+			nbt.WriteUInt8(Utils.DegreesToPacked(p.SpawnHeadX));
+			
+			nbt.Write(NbtTagType.End);
+		}
+		
+		void WriteMetadata() {
+			nbt.Write(NbtTagType.Compound, "Metadata");
+			nbt.Write(NbtTagType.Compound, "CPE");
+			LocalPlayer p = game.LocalPlayer;
+
+			nbt.WriteCpeExtCompound("ClickDistance", 1);
+			nbt.Write(NbtTagType.Int16, "Distance"); 
+			nbt.WriteInt16((short)(0);
+			nbt.Write(NbtTagType.End);
+			
+			nbt.WriteCpeExtCompound("EnvWeatherType", 1);
+			nbt.Write(NbtTagType.Int8, "WeatherType"); 
+			nbt.WriteUInt8((byte)lvl.Env.Weather);
+			nbt.Write(NbtTagType.End);
+			
+			nbt.WriteCpeExtCompound("EnvMapAppearance", 1);
+			nbt.Write(NbtTagType.Int8, "SideBlock"); 
+			nbt.WriteUInt8(lvl.Env.SidesBlock);
+			nbt.Write(NbtTagType.Int8, "EdgeBlock"); 
+			nbt.WriteUInt8(lvl.Env.EdgeBlock);
+			nbt.Write(NbtTagType.Int16, "SideLevel"); 
+			nbt.WriteInt16((short)lvl.Env.EdgeHeight);
+			nbt.Write(NbtTagType.String, "TextureURL");
+			string url = lvl.TextureUrl == null ? "" : lvl.TextureUrl;
+			nbt.Write(url);
+			nbt.Write(NbtTagType.End);
+			
+			nbt.WriteCpeExtCompound("EnvColors", 1);
+			WriteColCompound("Sky", lvl.Env.SkyCol);
+			WriteColCompound("Cloud", lvl.Env.CloudsCol);
+			WriteColCompound("Fog", lvl.Env.FogCol);
+			WriteColCompound("Ambient", lvl.Env.Shadow);
+			WriteColCompound("Sunlight", lvl.Env.Sun);
+			nbt.Write(NbtTagType.End);
+			
+			nbt.WriteCpeExtCompound("BlockDefinitions", 1);
+			for (int block = 1; block < 256; block++) {
+				if (BlockInfo.IsCustomDefined((byte)block)) {
+					WriteBlockDefinitionCompound((byte)block);
+				}
+			}
+			nbt.Write(NbtTagType.End);
+			
+			nbt.Write(NbtTagType.End);
+			nbt.Write(NbtTagType.End);
+		}
+		
+		void WriteColCompound(string name, PackedCol col) {
+			nbt.Write(NbtTagType.Compound, name);
+			
+			nbt.Write(NbtTagType.Int16, "R"); 
+			nbt.WriteInt16(col.R);
+			nbt.Write(NbtTagType.Int16, "G"); 
+			nbt.WriteInt16(col.G);
+			nbt.Write(NbtTagType.Int16, "B"); 
+			nbt.WriteInt16(col.B);
+			
+			nbt.Write(NbtTagType.End);
+		}
+		
+		unsafe void WriteBlockDefinitionCompound(byte id) {
+			nbt.Write(NbtTagType.Compound, "Block" + id);
+			bool sprite = BlockInfo.Draw[id] == DrawType.Sprite;
+			
+			nbt.Write(NbtTagType.Int8, "ID"); 
+			nbt.WriteUInt8(id);
+			nbt.Write(NbtTagType.String, "Name"); 
+			nbt.Write(BlockInfo.Name[id]);
+			nbt.Write(NbtTagType.Int8, "CollideType"); 
+			nbt.WriteUInt8((byte)BlockInfo.Collide[id]);
+			float speed = BlockInfo.SpeedMultiplier[id];
+			nbt.Write(NbtTagType.Real32, "Speed"); 
+			nbt.WriteInt32(*((int*)&speed));
+			
+			nbt.Write(NbtTagType.Int8Array, "Textures"); 
+			nbt.WriteInt32(6);
+			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Top));
+			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Bottom));
+			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Left));
+			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Right));
+			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Front));
+			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Back));
+			
+			nbt.Write(NbtTagType.Int8, "TransmitsLight"); 
+			nbt.WriteUInt8(BlockInfo.BlocksLight[id] ? 0 : 1);
+			nbt.Write(NbtTagType.Int8, "WalkSound"); 
+			nbt.WriteUInt8(BlockInfo.DigSounds[id]);
+			nbt.Write(NbtTagType.Int8, "FullBright"); 
+			nbt.WriteUInt8(BlockInfo.FullBright[id] ? 1 : 0);
+									
+			nbt.Write(NbtTagType.Int8, "Shape");
+			int shape = sprite ? 0 : (int)(BlockInfo.MaxBB[id].Y * 16);
+			nbt.WriteUInt8(shape);			
+			nbt.Write(NbtTagType.Int8, "BlockDraw");
+			byte draw = sprite ? BlockInfo.SpriteOffset[id] : BlockInfo.Draw[id];
+			nbt.WriteUInt8(draw);
+			
+			PackedCol col = BlockInfo.FogCol[id];
+			nbt.Write(NbtTagType.Int8Array, "Fog"); 
+			nbt.WriteInt32(4);
+			byte fog = (byte)(128 * BlockInfo.FogDensity[id] - 1);
+			nbt.WriteUInt8(BlockInfo.FogDensity[id] == 0 ? (byte)0 : fog);
+			nbt.WriteUInt8(col.R); nbt.WriteUInt8(col.G); nbt.WriteUInt8(col.B);
+			
+			Vector3 min = BlockInfo.MinBB[id], max = BlockInfo.MaxBB[id];
+			nbt.Write(NbtTagType.Int8Array, "Coords"); 
+			nbt.WriteInt32(6);
+			nbt.WriteUInt8((byte)(min.X * 16)); nbt.WriteUInt8((byte)(min.Y * 16)); 
+			nbt.WriteUInt8((byte)(min.Z * 16)); nbt.WriteUInt8((byte)(max.X * 16));
+			nbt.WriteUInt8((byte)(max.Y * 16)); nbt.WriteUInt8((byte)(max.Z * 16));
+			
+			nbt.Write(NbtTagType.End);
+		}
+	}
+}
