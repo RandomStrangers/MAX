@@ -1,4 +1,5 @@
-// Copyright 2014-2017 ClassicalSharp | Licensed under BSD-3
+//TODO: Update this for ClassiCube .cw file, 
+// Current code is from https://github.com/RandomStrangers/ClassicalSharp/tree/master/ClassicalSharp, which is severely outdated.
 using System;
 using System.IO;
 using System.IO.Compression;
