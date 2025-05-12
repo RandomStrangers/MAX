@@ -6,6 +6,7 @@ using MAX.Events.LevelEvents;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using fNbt;
+using System.Collections.Generic;
 namespace MAX.Levels.IO {
 	
 	/// <summary> Structure that can be used for quick manipulations of A/R/G/B colours. </summary>
@@ -247,7 +248,7 @@ namespace MAX.Levels.IO {
 			return Encoding.UTF8.GetString(data);
 		}
 		
-		public unsafe NbtTag ReadTag(byte typeId, bool readTagName) {
+		public unsafe NbtTag2 ReadTag(byte typeId, bool readTagName) {
 			NbtTag2 tag = default(NbtTag2);
 			if (typeId == 0) return tag;
 			
@@ -437,7 +438,7 @@ namespace MAX.Levels.IO {
 			nbt.Write(NbtTagType.String, "Name"); 
 			nbt.Write(def.Name);
 			nbt.Write(NbtTagType.Byte, "CollideType"); 
-			nbt.WriteUInt8((byte)def.Collide);
+			nbt.WriteUInt8((byte)def.CollideType);
 			float speed = def.Speed;
 			nbt.Write(NbtTagType.Float, "Speed"); 
 			nbt.WriteInt32(*((int*)&speed));
@@ -452,18 +453,28 @@ namespace MAX.Levels.IO {
 			nbt.WriteUInt8(def.BackTex);
 			
 			nbt.Write(NbtTagType.Byte, "TransmitsLight"); 
-			nbt.WriteUInt8(def.BlocksLight);
+      			byte light = 0;
+   			if (def.BlocksLight == true)
+      			{
+      				light = 1;
+	  		}
+			nbt.WriteUInt8(light);
 			nbt.Write(NbtTagType.Byte, "WalkSound"); 
 			nbt.WriteUInt8(def.WalkSound);
+   			byte bright = 0;
+   			if (def.FullBright == true)
+      			{
+      				bright = 1;
+	  		}
 			nbt.Write(NbtTagType.Byte, "FullBright"); 
-			nbt.WriteUInt8(def.FullBright);
+			nbt.WriteUInt8(bright);
 									
 			nbt.Write(NbtTagType.Byte, "Shape");
 			nbt.WriteUInt8(def.Shape);			
 			nbt.Write(NbtTagType.Byte, "BlockDraw");
 			nbt.WriteUInt8(def.BlockDraw);
 			
-			nbt.Write(NbtTagType.Byte8Array, "Fog"); 
+			nbt.Write(NbtTagType.ByteArray, "Fog"); 
 			nbt.WriteInt32(4);
 			nbt.WriteUInt8(def.FogDensity);
 			nbt.WriteUInt8(def.FogR); 
