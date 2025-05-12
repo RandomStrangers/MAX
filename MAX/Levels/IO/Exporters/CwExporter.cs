@@ -282,7 +282,7 @@ namespace MAX.Levels.IO {
 					
 				case NbtTagType.List:
 					NbtList2 list = new NbtList2();
-					list.ChildTagId = (NbtTagType2)reader.ReadByte();
+					list.ChildTagId = (NbtTagType)reader.ReadByte();
 					list.ChildrenValues = new object[ReadInt32()];
 					for (int i = 0; i < list.ChildrenValues.Length; i++) {
 						list.ChildrenValues[i] = ReadTag((byte)list.ChildTagId, false).Value;
