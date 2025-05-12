@@ -302,9 +302,9 @@ namespace MAX.Levels.IO {
 					break;
 				case NbtTagType.Compound:
 					byte childTagId;
-					Dictionary<string, NbtTag> children = new Dictionary<string, NbtTag>();
+					Dictionary<string, NbtTag2> children = new Dictionary<string, NbtTag2>();
 					while ((childTagId = reader.ReadByte()) != (byte)NbtTagType.End) {
-						NbtTag child = ReadTag(childTagId, true); children[child.Name] = child;
+						NbtTag2 child = ReadTag(childTagId, true); children[child.Name] = child;
 					}
 					tag.Value = children; break;
 					
