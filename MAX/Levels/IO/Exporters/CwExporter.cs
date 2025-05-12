@@ -501,7 +501,6 @@ namespace MAX.Levels.IO {
     public unsafe class CwExporter : IMapExporter
     {
         public override string Extension { get { return ".cw"; } }
-
         public override void Write(Stream dst, Level lvl)
         {
             using (Stream gs = new GZipStream(dst, CompressionMode.Compress))
@@ -512,7 +511,8 @@ namespace MAX.Levels.IO {
 		BinaryWriter writer;
 		NbtFile nbt;
 		
-		public void SaveCW(Stream s, Level lvl) {
+		public void SaveCW(Stream s, Level lvl) 
+  		{
 				writer = new BinaryWriter(s);
 				nbt = new NbtFile(writer);
 				
@@ -541,7 +541,8 @@ namespace MAX.Levels.IO {
 				nbt.Write(NbtTagType.End);
 		}
 		
-		void WriteSpawnCompoundTag(Level lvl) {
+		void WriteSpawnCompoundTag(Level lvl) 
+  		{
 			nbt.Write(NbtTagType.Compound, "Spawn");
 			
 			nbt.Write(NbtTagType.Int16, "X"); 
@@ -562,7 +563,8 @@ namespace MAX.Levels.IO {
 			nbt.Write(NbtTagType.End);
 		}
 		
-		void WriteMetadata(Level lvl) {
+		void WriteMetadata(Level lvl) 
+  		{
 			nbt.Write(NbtTagType.Compound, "Metadata");
 			nbt.Write(NbtTagType.Compound, "CPE");
 
@@ -605,9 +607,10 @@ namespace MAX.Levels.IO {
 			
 			nbt.Write(NbtTagType.End);
 			nbt.Write(NbtTagType.End);
-		}
+    		}
 		
-		void WriteColCompound(string name, PackedCol col) {
+		void WriteColCompound(string name, PackedCol col) 
+  		{
 			nbt.Write(NbtTagType.Compound, name);
 			
 			nbt.Write(NbtTagType.Int16, "R"); 
@@ -620,7 +623,8 @@ namespace MAX.Levels.IO {
 			nbt.Write(NbtTagType.End);
 		}
 		
-		unsafe void WriteBlockDefinitionCompound(Level lvl, byte id) {
+		unsafe void WriteBlockDefinitionCompound(Level lvl, byte id) 
+  		{
 			nbt.Write(NbtTagType.Compound, "Block" + id);
             		BlockDefinition def = lvl.GetBlockDef(id);
 			nbt.Write(NbtTagType.Int8, "ID"); 
@@ -669,5 +673,5 @@ namespace MAX.Levels.IO {
 			
 			nbt.Write(NbtTagType.End);
 		}
-	}
+  	}
 }
