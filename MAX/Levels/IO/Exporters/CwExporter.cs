@@ -7,6 +7,9 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using fNbt;
 using System.Collections.Generic;
+using System.Net;
+using System.Text;
+
 namespace MAX.Levels.IO {
 	
 	/// <summary> Structure that can be used for quick manipulations of A/R/G/B colours. </summary>
@@ -49,13 +52,16 @@ namespace MAX.Levels.IO {
 			value.B = (byte)(value.B * t);
 			return value;
 		}
-		
+		/// <summary> Performs linear interpolation between two values. </summary>
+		public static float LerpFloat(float a, float b, float t) {
+			return a + (b - a) * t;
+		}
 		/// <summary> Linearly interpolates the RGB components of the two colours
 		/// by the specified t parameter, where 0 ≤ t ≤ 1 </summary>
 		public static PackedCol Lerp(PackedCol a, PackedCol b, float t) {
-			a.R = (byte)Utils.Lerp(a.R, b.R, t);
-			a.G = (byte)Utils.Lerp(a.G, b.G, t);
-			a.B = (byte)Utils.Lerp(a.B, b.B, t);
+			a.R = (byte)LerpFloat(a.R, b.R, t);
+			a.G = (byte)LerpFloat(a.G, b.G, t);
+			a.B = (byte)LerpFloat(a.B, b.B, t);
 			return a;
 		}
 		
