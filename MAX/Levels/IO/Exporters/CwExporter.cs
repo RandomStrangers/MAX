@@ -296,7 +296,7 @@ namespace MAX.Levels.IO {
 					list.Tags.AddRange(tags);
 					for (int i = 0; i < list.Tags.COunt; i++) 
 					{
-						list.Tags[i] = ReadTag((byte)list.ListType, false).Value;
+						list.Tags[i] = (NbtTagType)ReadTag((byte)list.ListType, false).Value;
 					}
 					tag.Value = list; 
 					break;
