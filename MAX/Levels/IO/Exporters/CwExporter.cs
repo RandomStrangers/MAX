@@ -292,7 +292,7 @@ namespace MAX.Levels.IO {
 				case NbtTagType.List:
 					NbtList list = new NbtList();
 					list.ListType = (NbtTagType)reader.ReadByte();
-					var tags = new NbtTagType[ReadInt32()];
+					var tags = new NbtTag[ReadInt32()];
 					list.Tags.AddRange(tags);
 					for (int i = 0; i < list.Tags.Count; i++) 
 					{
