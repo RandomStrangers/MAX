@@ -5,6 +5,7 @@ using System.IO.Compression;
 using MAX.Events.LevelEvents;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using fNbt;
 namespace MAX.Levels.IO {
 	
 	/// <summary> Structure that can be used for quick manipulations of A/R/G/B colours. </summary>
