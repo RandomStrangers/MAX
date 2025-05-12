@@ -323,21 +323,21 @@ namespace MAX.Levels.IO {
 				
 				nbt.Write(NbtTagType.Compound, "ClassicWorld");
 				
-				nbt.Write(NbtTagType.Int8, "FormatVersion"); 
+				nbt.Write(NbtTagType.Byte, "FormatVersion"); 
 				nbt.WriteUInt8(1);
 				
-				nbt.Write(NbtTagType.Int16, "X"); 
+				nbt.Write(NbtTagType.Short, "X"); 
 				nbt.WriteInt16((short)lvl.Width);
 				
-				nbt.Write(NbtTagType.Int16, "Y"); 
+				nbt.Write(NbtTagType.Short, "Y"); 
 				nbt.WriteInt16((short)lvl.Height);
 				
-				nbt.Write(NbtTagType.Int16, "Z"); 
+				nbt.Write(NbtTagType.Short, "Z"); 
 				nbt.WriteInt16((short)lvl.Length);
 				
 				WriteSpawnCompoundTag(lvl);
 				
-				nbt.Write(NbtTagType.Int8Array, "BlockArray"); 
+				nbt.Write(NbtTagType.ByteArray, "BlockArray"); 
 				nbt.WriteInt32(lvl.blocks.Length);
 				nbt.WriteBytes(lvl.blocks);
 				
@@ -350,19 +350,19 @@ namespace MAX.Levels.IO {
   		{
 			nbt.Write(NbtTagType.Compound, "Spawn");
 			
-			nbt.Write(NbtTagType.Int16, "X"); 
+			nbt.Write(NbtTagType.Short, "X"); 
 			nbt.WriteInt16((short)lvl.spawnx);
 			
-			nbt.Write(NbtTagType.Int16, "Y"); 
+			nbt.Write(NbtTagType.Short, "Y"); 
 			nbt.WriteInt16((short)lvl.spawny);
 			
-			nbt.Write(NbtTagType.Int16, "Z"); 
+			nbt.Write(NbtTagType.Short, "Z"); 
 			nbt.WriteInt16((short)lvl.spawnz);
 			
-			nbt.Write(NbtTagType.Int8, "H");
+			nbt.Write(NbtTagType.Byte, "H");
 			nbt.WriteUInt8(lvl.roty);
 			
-			nbt.Write(NbtTagType.Int8, "P");
+			nbt.Write(NbtTagType.Byte, "P");
 			nbt.WriteUInt8(lvl.rotx);
 			
 			nbt.Write(NbtTagType.End);
@@ -374,21 +374,21 @@ namespace MAX.Levels.IO {
 			nbt.Write(NbtTagType.Compound, "CPE");
 
 			nbt.WriteCpeExtCompound("ClickDistance", 1);
-			nbt.Write(NbtTagType.Int16, "Distance"); 
+			nbt.Write(NbtTagType.Short, "Distance"); 
 			nbt.WriteInt16((short)(0));
 			nbt.Write(NbtTagType.End);
 			
 			nbt.WriteCpeExtCompound("EnvWeatherType", 1);
-			nbt.Write(NbtTagType.Int8, "WeatherType"); 
+			nbt.Write(NbtTagType.Byte, "WeatherType"); 
 			nbt.WriteUInt8((byte)lvl.Config.Weather);
 			nbt.Write(NbtTagType.End);
 			
 			nbt.WriteCpeExtCompound("EnvMapAppearance", 1);
-			nbt.Write(NbtTagType.Int8, "SideBlock"); 
+			nbt.Write(NbtTagType.Byte, "SideBlock"); 
 			nbt.WriteUInt8(lvl.Config.EdgeBlock);
-			nbt.Write(NbtTagType.Int8, "EdgeBlock"); 
+			nbt.Write(NbtTagType.Byte, "EdgeBlock"); 
 			nbt.WriteUInt8(lvl.Config.HorizonBlock);
-			nbt.Write(NbtTagType.Int16, "SideLevel"); 
+			nbt.Write(NbtTagType.Short, "SideLevel"); 
 			nbt.WriteInt16((short)lvl.Config.EdgeLevel);
 			nbt.Write(NbtTagType.String, "TextureURL");
 			string url = lvl.Config.TexturePack == null ? "" : lvl.Config.TexturePack;
@@ -418,11 +418,11 @@ namespace MAX.Levels.IO {
   		{
 			nbt.Write(NbtTagType.Compound, name);
 			
-			nbt.Write(NbtTagType.Int16, "R"); 
+			nbt.Write(NbtTagType.Short, "R"); 
 			nbt.WriteInt16(col.R);
-			nbt.Write(NbtTagType.Int16, "G"); 
+			nbt.Write(NbtTagType.Short, "G"); 
 			nbt.WriteInt16(col.G);
-			nbt.Write(NbtTagType.Int16, "B"); 
+			nbt.Write(NbtTagType.Short, "B"); 
 			nbt.WriteInt16(col.B);
 			
 			nbt.Write(NbtTagType.End);
@@ -432,17 +432,17 @@ namespace MAX.Levels.IO {
   		{
 			nbt.Write(NbtTagType.Compound, "Block" + id);
             		BlockDefinition def = lvl.GetBlockDef(id);
-			nbt.Write(NbtTagType.Int8, "ID"); 
+			nbt.Write(NbtTagType.Byte, "ID"); 
 			nbt.WriteUInt8(id);
 			nbt.Write(NbtTagType.String, "Name"); 
 			nbt.Write(def.Name);
-			nbt.Write(NbtTagType.Int8, "CollideType"); 
+			nbt.Write(NbtTagType.Byte, "CollideType"); 
 			nbt.WriteUInt8((byte)def.Collide);
 			float speed = def.Speed;
-			nbt.Write(NbtTagType.Real32, "Speed"); 
+			nbt.Write(NbtTagType.Float, "Speed"); 
 			nbt.WriteInt32(*((int*)&speed));
 			
-			nbt.Write(NbtTagType.Int8Array, "Textures"); 
+			nbt.Write(NbtTagType.ByteArray, "Textures"); 
 			nbt.WriteInt32(6);
 			nbt.WriteUInt8(def.TopTex);
 			nbt.WriteUInt8(def.BottomTex);
@@ -451,26 +451,26 @@ namespace MAX.Levels.IO {
 			nbt.WriteUInt8(def.FrontTex);
 			nbt.WriteUInt8(def.BackTex);
 			
-			nbt.Write(NbtTagType.Int8, "TransmitsLight"); 
+			nbt.Write(NbtTagType.Byte, "TransmitsLight"); 
 			nbt.WriteUInt8(def.BlocksLight);
-			nbt.Write(NbtTagType.Int8, "WalkSound"); 
+			nbt.Write(NbtTagType.Byte, "WalkSound"); 
 			nbt.WriteUInt8(def.WalkSound);
-			nbt.Write(NbtTagType.Int8, "FullBright"); 
+			nbt.Write(NbtTagType.Byte, "FullBright"); 
 			nbt.WriteUInt8(def.FullBright);
 									
-			nbt.Write(NbtTagType.Int8, "Shape");
+			nbt.Write(NbtTagType.Byte, "Shape");
 			nbt.WriteUInt8(def.Shape);			
-			nbt.Write(NbtTagType.Int8, "BlockDraw");
+			nbt.Write(NbtTagType.Byte, "BlockDraw");
 			nbt.WriteUInt8(def.BlockDraw);
 			
-			nbt.Write(NbtTagType.Int8Array, "Fog"); 
+			nbt.Write(NbtTagType.Byte8Array, "Fog"); 
 			nbt.WriteInt32(4);
 			nbt.WriteUInt8(def.FogDensity);
 			nbt.WriteUInt8(def.FogR); 
    			nbt.WriteUInt8(def.FogG); 
       			nbt.WriteUInt8(def.FogB);
 			
-			nbt.Write(NbtTagType.Int8Array, "Coords"); 
+			nbt.Write(NbtTagType.ByteArray, "Coords"); 
 			nbt.WriteInt32(6);
 			nbt.WriteUInt8((byte)(def.MinX * 16)); nbt.WriteUInt8((byte)(def.MinY * 16)); 
 			nbt.WriteUInt8((byte)(def.MinZ * 16)); nbt.WriteUInt8((byte)(def.MaxX * 16));
