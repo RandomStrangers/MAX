@@ -294,9 +294,9 @@ namespace MAX.Levels.IO {
 					list.ListType = (NbtTagType)reader.ReadByte();
 					var tags = new NbtTagType[ReadInt32()];
 					list.Tags.AddRange(tags);
-					for (int i = 0; i < list.Tags.COunt; i++) 
+					for (int i = 0; i < list.Tags.Count; i++) 
 					{
-						list.Tags[i] = (NbtTagType)ReadTag((byte)list.ListType, false).Value;
+						list.Tags[i] = (NbtTag)ReadTag((byte)list.ListType, false).Value;
 					}
 					tag.Value = list; 
 					break;
