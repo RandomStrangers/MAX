@@ -570,7 +570,7 @@ namespace MAX.Levels.IO {
 
 			nbt.WriteCpeExtCompound("ClickDistance", 1);
 			nbt.Write(NbtTagType.Int16, "Distance"); 
-			nbt.WriteInt16((short)(0);
+			nbt.WriteInt16((short)(0));
 			nbt.Write(NbtTagType.End);
 			
 			nbt.WriteCpeExtCompound("EnvWeatherType", 1);
