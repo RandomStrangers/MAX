@@ -179,33 +179,28 @@ namespace MAX.Levels.IO {
 	}
 }
 namespace MAX.Levels.IO {
-	public struct NbtTag {
+	public struct NbtTag2 {
 		public string Name;
 		public object Value;
 		public NbtTagType TagId;
 	}
 	
-	public class NbtList {
+	public class NbtList2 {
 		public NbtTagType ChildTagId;
 		public object[] ChildrenValues;
 	}
 	
-	public enum NbtTagType : byte {
-		End, Int8, Int16, Int32, Int64,
-		Real32, Real64, Int8Array, String,
-		List, Compound, Int32Array,
-	}
 
-	public class NbtFile {
+	public class NbtFile2 {
 		
 		public BinaryReader reader;
 		public BinaryWriter writer;
 		
-		public NbtFile(BinaryReader reader) {
+		public NbtFile2(BinaryReader reader) {
 			this.reader = reader;
 		}
 		
-		public NbtFile(BinaryWriter writer) {
+		public NbtFile2(BinaryWriter writer) {
 			this.writer = writer;
 		}
 		
@@ -234,7 +229,7 @@ namespace MAX.Levels.IO {
 		
 		public void WriteCpeExtCompound(string name, int version) {
 			Write(NbtTagType.Compound, name);		
-			Write(NbtTagType.Int32, "ExtensionVersion"); 
+			Write(NbtTagType.Int, "ExtensionVersion"); 
 			WriteInt32(version);
 		}
 		
@@ -252,34 +247,34 @@ namespace MAX.Levels.IO {
 		}
 		
 		public unsafe NbtTag ReadTag(byte typeId, bool readTagName) {
-			NbtTag tag = default(NbtTag);
+			NbtTag2 tag = default(NbtTag2);
 			if (typeId == 0) return tag;
 			
 			tag.Name = readTagName ? ReadString() : null;
 			tag.TagId = (NbtTagType)typeId;			
 			switch ((NbtTagType)typeId) {
-				case NbtTagType.Int8:
+				case NbtTagType.Byte:
 					tag.Value = reader.ReadByte(); break;
-				case NbtTagType.Int16:
+				case NbtTagType.Short:
 					tag.Value = ReadInt16(); break;
-				case NbtTagType.Int32:
+				case NbtTagType.Int:
 					tag.Value = ReadInt32(); break;
-				case NbtTagType.Int64:
+				case NbtTagType.Long:
 					tag.Value = ReadInt64(); break;
-				case NbtTagType.Real32:
+				case NbtTagType.Float:
 					int temp32 = ReadInt32();
 					tag.Value = *((float*)&temp32); break;
-				case NbtTagType.Real64:
+				case NbtTagType.Double:
 					long temp64 = ReadInt64();
 					tag.Value = *((double*)&temp64); break;
-				case NbtTagType.Int8Array:
+				case NbtTagType.ByteArray:
 					tag.Value = reader.ReadBytes(ReadInt32()); break;
 				case NbtTagType.String:
 					tag.Value = ReadString(); break;
 					
 				case NbtTagType.List:
-					NbtList list = new NbtList();
-					list.ChildTagId = (NbtTagType)reader.ReadByte();
+					NbtList2 list = new NbtList2();
+					list.ChildTagId = (NbtTagType2)reader.ReadByte();
 					list.ChildrenValues = new object[ReadInt32()];
 					for (int i = 0; i < list.ChildrenValues.Length; i++) {
 						list.ChildrenValues[i] = ReadTag((byte)list.ChildTagId, false).Value;
@@ -288,13 +283,13 @@ namespace MAX.Levels.IO {
 					
 				case NbtTagType.Compound:
 					byte childTagId;
-					Dictionary<string, NbtTag> children = new Dictionary<string, NbtTag>();
+					Dictionary<string, NbtTag2> children = new Dictionary<string, NbtTag2>();
 					while ((childTagId = reader.ReadByte()) != (byte)NbtTagType.End) {
-						NbtTag child = ReadTag(childTagId, true); children[child.Name] = child;
+						NbtTag2 child = ReadTag(childTagId, true); children[child.Name] = child;
 					}
 					tag.Value = children; break;
 					
-				case NbtTagType.Int32Array:
+				case NbtTagType.IntArray:
 					int[] array = new int[ReadInt32()];
 					for (int i = 0; i < array.Length; i++) {
 						array[i] = ReadInt32();
@@ -318,12 +313,12 @@ namespace MAX.Levels.IO {
             }
         }
 		BinaryWriter writer;
-		NbtFile nbt;
+		NbtFile2 nbt;
 		
 		public void SaveCW(Stream s, Level lvl) 
   		{
 				writer = new BinaryWriter(s);
-				nbt = new NbtFile(writer);
+				nbt = new NbtFile2(writer);
 				
 				nbt.Write(NbtTagType.Compound, "ClassicWorld");
 				
