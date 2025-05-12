@@ -136,7 +136,7 @@ namespace MAX.Levels.IO
 
         public static List<IMapExporter> Formats = new List<IMapExporter>() 
         {
-            new LvlExporter(), new McfExporter()
+            new LvlExporter(), new McfExporter(), new CwExporter()
         };
         public static IMapExporter defaultExporter = new LvlExporter();
 
