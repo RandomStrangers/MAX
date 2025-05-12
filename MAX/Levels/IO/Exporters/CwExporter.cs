@@ -5,7 +5,7 @@ using System.IO.Compression;
 using MAX.Events.LevelEvents;
 using System.Drawing;
 using System.Runtime.InteropServices;
-namespace ClassicalSharp {
+namespace MAX.Levels.IO {
 	
 	public static partial class Utils {
 
@@ -34,7 +34,6 @@ namespace ClassicalSharp {
 			return value != 0 && (value & (value - 1)) == 0;
 		}
 		
-#if !LAUNCHER	
 		/// <summary> Creates a vector with all components at 1E25. </summary>
 		public static Vector3 MaxPos() { return new Vector3(1E25f, 1E25f, 1E25f); }
 				
@@ -93,9 +92,7 @@ namespace ClassicalSharp {
 		public static void GetHeading(Vector3 dir, out double yaw, out double pitch) {
 			pitch = Math.Asin(-dir.Y);
 			yaw   = Math.Atan2(dir.X, -dir.Z);
-		}
-#endif
-		
+		}		
 		public static int Floor(float value) {
 			int valueI = (int)value;
 			return value < valueI ? valueI - 1 : valueI;
@@ -117,7 +114,6 @@ namespace ClassicalSharp {
 			return shift;
 		}
 
-#if !LAUNCHER	
 		/// <summary> Linearly interpolates between a given angle range, adjusting if necessary. </summary>
 		public static float LerpAngle(float leftAngle, float rightAngle, float t) {
 			// we have to cheat a bit for angles here.
@@ -130,7 +126,6 @@ namespace ClassicalSharp {
 			
 			return Lerp(leftAngle, rightAngle, t);
 		}
-#endif
 	}
 }
 namespace MAX.Levels.IO {
@@ -210,17 +205,10 @@ namespace MAX.Levels.IO {
 	public struct PackedCol : IEquatable<PackedCol> {
 		
 		[FieldOffset(0)] public uint Packed;
-		#if USE_DX
-		[FieldOffset(0)] public byte B;
-		[FieldOffset(1)] public byte G;
-		[FieldOffset(2)] public byte R;
-		[FieldOffset(3)] public byte A;
-		#else
 		[FieldOffset(0)] public byte R;
 		[FieldOffset(1)] public byte G;
 		[FieldOffset(2)] public byte B;
 		[FieldOffset(3)] public byte A;
-		#endif
 		
 		public PackedCol(byte r, byte g, byte b, byte a) {
 			Packed = 0;
@@ -267,7 +255,6 @@ namespace MAX.Levels.IO {
 				lo * ((hex >> 0) & 1) + hi * (hex >> 3));
 		}
 
-		#if !LAUNCHER
 		public const float ShadeX = 0.6f, ShadeZ = 0.8f, ShadeYBottom = 0.5f;
 		public static void GetShaded(PackedCol normal, out PackedCol xSide,
 		                             out PackedCol zSide, out PackedCol yBottom) {
@@ -275,7 +262,6 @@ namespace MAX.Levels.IO {
 			zSide = PackedCol.Scale(normal, ShadeZ);
 			yBottom = PackedCol.Scale(normal, ShadeYBottom);
 		}
-		#endif
 
 		
 		/// <summary> Packs this instance into a 32 bit integer, where A occupies
@@ -320,12 +306,6 @@ namespace MAX.Levels.IO {
 		public static implicit operator Color(PackedCol col) {
 			return Color.FromArgb(col.A, col.R, col.G, col.B);
 		}
-
-		#if ANDROID
-		public static implicit operator AndroidColor(PackedCol col) {
-			return AndroidColor.Argb(col.A, col.R, col.G, col.B);
-		}
-		#endif
 		
 		public static PackedCol Red   = new PackedCol(255, 0, 0);
 		public static PackedCol Green = new PackedCol(0, 255, 0);
@@ -532,7 +512,7 @@ namespace MAX.Levels.IO {
 		BinaryWriter writer;
 		NbtFile nbt;
 		
-		public void SaveCW(Stream stream, Level lvl) {
+		public void SaveCW(Stream s, Level lvl) {
 				writer = new BinaryWriter(s);
 				nbt = new NbtFile(writer);
 				
@@ -540,10 +520,6 @@ namespace MAX.Levels.IO {
 				
 				nbt.Write(NbtTagType.Int8, "FormatVersion"); 
 				nbt.WriteUInt8(1);
-				
-				nbt.Write(NbtTagType.Int8Array, "UUID"); 
-				nbt.WriteInt32(16);
-				nbt.WriteBytes(lvl.Uuid.ToByteArray());
 				
 				nbt.Write(NbtTagType.Int16, "X"); 
 				nbt.WriteInt16((short)lvl.Width);
@@ -554,43 +530,41 @@ namespace MAX.Levels.IO {
 				nbt.Write(NbtTagType.Int16, "Z"); 
 				nbt.WriteInt16((short)lvl.Length);
 				
-				WriteSpawnCompoundTag();
+				WriteSpawnCompoundTag(lvl);
 				
 				nbt.Write(NbtTagType.Int8Array, "BlockArray"); 
 				nbt.WriteInt32(lvl.blocks.Length);
 				nbt.WriteBytes(lvl.blocks);
 				
-				WriteMetadata();
+				WriteMetadata(lvl);
 				
 				nbt.Write(NbtTagType.End);
 		}
 		
-		void WriteSpawnCompoundTag() {
+		void WriteSpawnCompoundTag(Level lvl) {
 			nbt.Write(NbtTagType.Compound, "Spawn");
-			Vector3 spawn = p.Position; // TODO: Maybe also keep real spawn too?
 			
 			nbt.Write(NbtTagType.Int16, "X"); 
-			nbt.WriteInt16((short)spawn.X);
+			nbt.WriteInt16((short)lvl.spawnx);
 			
 			nbt.Write(NbtTagType.Int16, "Y"); 
-			nbt.WriteInt16((short)spawn.Y);
+			nbt.WriteInt16((short)lvl.spawny);
 			
 			nbt.Write(NbtTagType.Int16, "Z"); 
-			nbt.WriteInt16((short)spawn.Z);
+			nbt.WriteInt16((short)lvl.spawnz);
 			
 			nbt.Write(NbtTagType.Int8, "H");
-			nbt.WriteUInt8(Utils.DegreesToPacked(p.SpawnRotY));
+			nbt.WriteUInt8(lvl.roty);
 			
 			nbt.Write(NbtTagType.Int8, "P");
-			nbt.WriteUInt8(Utils.DegreesToPacked(p.SpawnHeadX));
+			nbt.WriteUInt8(lvl.rotx);
 			
 			nbt.Write(NbtTagType.End);
 		}
 		
-		void WriteMetadata() {
+		void WriteMetadata(Level lvl) {
 			nbt.Write(NbtTagType.Compound, "Metadata");
 			nbt.Write(NbtTagType.Compound, "CPE");
-			LocalPlayer p = game.LocalPlayer;
 
 			nbt.WriteCpeExtCompound("ClickDistance", 1);
 			nbt.Write(NbtTagType.Int16, "Distance"); 
@@ -599,34 +573,33 @@ namespace MAX.Levels.IO {
 			
 			nbt.WriteCpeExtCompound("EnvWeatherType", 1);
 			nbt.Write(NbtTagType.Int8, "WeatherType"); 
-			nbt.WriteUInt8((byte)lvl.Env.Weather);
+			nbt.WriteUInt8((byte)lvl.Config.Weather);
 			nbt.Write(NbtTagType.End);
 			
 			nbt.WriteCpeExtCompound("EnvMapAppearance", 1);
 			nbt.Write(NbtTagType.Int8, "SideBlock"); 
-			nbt.WriteUInt8(lvl.Env.SidesBlock);
+			nbt.WriteUInt8(lvl.Config.EdgeBlock);
 			nbt.Write(NbtTagType.Int8, "EdgeBlock"); 
-			nbt.WriteUInt8(lvl.Env.EdgeBlock);
+			nbt.WriteUInt8(lvl.Config.HorizonBlock);
 			nbt.Write(NbtTagType.Int16, "SideLevel"); 
-			nbt.WriteInt16((short)lvl.Env.EdgeHeight);
+			nbt.WriteInt16((short)lvl.Config.EdgeLevel);
 			nbt.Write(NbtTagType.String, "TextureURL");
-			string url = lvl.TextureUrl == null ? "" : lvl.TextureUrl;
+			string url = lvl.Config.TexturePack == null ? "" : lvl.Config.TexturePack;
 			nbt.Write(url);
 			nbt.Write(NbtTagType.End);
 			
 			nbt.WriteCpeExtCompound("EnvColors", 1);
-			WriteColCompound("Sky", lvl.Env.SkyCol);
-			WriteColCompound("Cloud", lvl.Env.CloudsCol);
-			WriteColCompound("Fog", lvl.Env.FogCol);
-			WriteColCompound("Ambient", lvl.Env.Shadow);
-			WriteColCompound("Sunlight", lvl.Env.Sun);
+			WriteColCompound("Sky", PackedCol.Parse(lvl.Config.SkyColor));
+			WriteColCompound("Cloud", PackedCol.Parse(lvl.Config.CloudColor));
+			WriteColCompound("Fog", PackedCol.Parse(lvl.Config.FogColor));
+			WriteColCompound("Ambient", PackedCol.Parse(lvl.Config.ShadowColor));
+			WriteColCompound("Sunlight", PackedCol.Parse(lvl.Config.LightColor));
 			nbt.Write(NbtTagType.End);
 			
 			nbt.WriteCpeExtCompound("BlockDefinitions", 1);
-			for (int block = 1; block < 256; block++) {
-				if (BlockInfo.IsCustomDefined((byte)block)) {
-					WriteBlockDefinitionCompound((byte)block);
-				}
+			for (int block = 1; block < 256; block++) 
+   			{
+				WriteBlockDefinitionCompound(lvl, (byte)block);
 			}
 			nbt.Write(NbtTagType.End);
 			
@@ -647,56 +620,52 @@ namespace MAX.Levels.IO {
 			nbt.Write(NbtTagType.End);
 		}
 		
-		unsafe void WriteBlockDefinitionCompound(byte id) {
+		unsafe void WriteBlockDefinitionCompound(Level lvl, byte id) {
 			nbt.Write(NbtTagType.Compound, "Block" + id);
-			bool sprite = BlockInfo.Draw[id] == DrawType.Sprite;
-			
+            		BlockDefinition def = lvl.GetBlockDef(id);
 			nbt.Write(NbtTagType.Int8, "ID"); 
 			nbt.WriteUInt8(id);
 			nbt.Write(NbtTagType.String, "Name"); 
-			nbt.Write(BlockInfo.Name[id]);
+			nbt.Write(def.Name);
 			nbt.Write(NbtTagType.Int8, "CollideType"); 
-			nbt.WriteUInt8((byte)BlockInfo.Collide[id]);
-			float speed = BlockInfo.SpeedMultiplier[id];
+			nbt.WriteUInt8((byte)def.Collide);
+			float speed = def.Speed;
 			nbt.Write(NbtTagType.Real32, "Speed"); 
 			nbt.WriteInt32(*((int*)&speed));
 			
 			nbt.Write(NbtTagType.Int8Array, "Textures"); 
 			nbt.WriteInt32(6);
-			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Top));
-			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Bottom));
-			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Left));
-			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Right));
-			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Front));
-			nbt.WriteUInt8(BlockInfo.GetTextureLoc(id, Side.Back));
+			nbt.WriteUInt8(def.TopTex);
+			nbt.WriteUInt8(def.BottomTex);
+			nbt.WriteUInt8(def.LeftTex);
+			nbt.WriteUInt8(def.RightTex);
+			nbt.WriteUInt8(def.FrontTex);
+			nbt.WriteUInt8(def.BackTex);
 			
 			nbt.Write(NbtTagType.Int8, "TransmitsLight"); 
-			nbt.WriteUInt8(BlockInfo.BlocksLight[id] ? 0 : 1);
+			nbt.WriteUInt8(def.BlocksLight);
 			nbt.Write(NbtTagType.Int8, "WalkSound"); 
-			nbt.WriteUInt8(BlockInfo.DigSounds[id]);
+			nbt.WriteUInt8(def.WalkSound);
 			nbt.Write(NbtTagType.Int8, "FullBright"); 
-			nbt.WriteUInt8(BlockInfo.FullBright[id] ? 1 : 0);
+			nbt.WriteUInt8(def.FullBright);
 									
 			nbt.Write(NbtTagType.Int8, "Shape");
-			int shape = sprite ? 0 : (int)(BlockInfo.MaxBB[id].Y * 16);
-			nbt.WriteUInt8(shape);			
+			nbt.WriteUInt8(def.Shape);			
 			nbt.Write(NbtTagType.Int8, "BlockDraw");
-			byte draw = sprite ? BlockInfo.SpriteOffset[id] : BlockInfo.Draw[id];
-			nbt.WriteUInt8(draw);
+			nbt.WriteUInt8(def.BlockDraw);
 			
-			PackedCol col = BlockInfo.FogCol[id];
 			nbt.Write(NbtTagType.Int8Array, "Fog"); 
 			nbt.WriteInt32(4);
-			byte fog = (byte)(128 * BlockInfo.FogDensity[id] - 1);
-			nbt.WriteUInt8(BlockInfo.FogDensity[id] == 0 ? (byte)0 : fog);
-			nbt.WriteUInt8(col.R); nbt.WriteUInt8(col.G); nbt.WriteUInt8(col.B);
+			nbt.WriteUInt8(def.FogDensity);
+			nbt.WriteUInt8(def.FogR); 
+   			nbt.WriteUInt8(def.FogG); 
+      			nbt.WriteUInt8(def.FogB);
 			
-			Vector3 min = BlockInfo.MinBB[id], max = BlockInfo.MaxBB[id];
 			nbt.Write(NbtTagType.Int8Array, "Coords"); 
 			nbt.WriteInt32(6);
-			nbt.WriteUInt8((byte)(min.X * 16)); nbt.WriteUInt8((byte)(min.Y * 16)); 
-			nbt.WriteUInt8((byte)(min.Z * 16)); nbt.WriteUInt8((byte)(max.X * 16));
-			nbt.WriteUInt8((byte)(max.Y * 16)); nbt.WriteUInt8((byte)(max.Z * 16));
+			nbt.WriteUInt8((byte)(def.MinX * 16)); nbt.WriteUInt8((byte)(def.MinY * 16)); 
+			nbt.WriteUInt8((byte)(def.MinZ * 16)); nbt.WriteUInt8((byte)(def.MaxX * 16));
+			nbt.WriteUInt8((byte)(def.MaxY * 16)); nbt.WriteUInt8((byte)(def.MaxZ * 16));
 			
 			nbt.Write(NbtTagType.End);
 		}
