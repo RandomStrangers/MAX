@@ -91,7 +91,7 @@ namespace MAX.Levels.IO
             {
                 if (path.CaselessEnds(imp.Extension)) return imp;
             }
-            return defaultImporter;
+            return null;
         }
         public static string[] GetExtensions()
         {
@@ -109,7 +109,12 @@ namespace MAX.Levels.IO
         /// <summary> Decodes the given level file into a Level instance </summary>
         public static Level Decode(string path, string name, bool metadata)
         {
-            IMapImporter imp = GetFor(path) ?? defaultImporter;
+            IMapImporter imp = GetFor(path);
+            if (imp == null)
+            {
+               Logger.Log(LogType.Warning, "No importer found for {0}, cannot import level!", path);
+               return null;
+            }
             return imp.Read(path, name, metadata);
         }
     }
@@ -151,7 +156,12 @@ namespace MAX.Levels.IO
         {
             string p = path.Replace(".backup", "");
 
-            IMapExporter exp = GetFor(p) ?? defaultExporter;
+            IMapExporter exp = GetFor(p);
+            if (exp == null)
+            {
+               Logger.Log(LogType.Warning, "No exporter found for {0}, cannot save level!", p);
+               return;
+            }
             Logger.Log(LogType.Debug, "Exporter: {0}", exp);
             exp.Write(path, lvl);
         }
