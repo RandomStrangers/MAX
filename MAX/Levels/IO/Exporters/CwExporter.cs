@@ -202,11 +202,11 @@ namespace MAX.Levels.IO {
 
 	public class NbtFile2 {
 		
-		public BinaryReader reader;
+		public NbtBinaryReader reader;
 		public BinaryWriter writer;
 		
-		public NbtFile2(BinaryReader reader) {
-			this.reader = reader;
+		public NbtFile2(BinaryReader reader) 
+		{
 		}
 		
 		public NbtFile2(BinaryWriter writer) {
@@ -281,20 +281,30 @@ namespace MAX.Levels.IO {
 				case NbtTagType.String:
 					tag.Value = ReadString(); break;
 					
-				case NbtTagType.List:
+				/*case NbtTagType.List:
 					NbtList2 list = new NbtList2();
 					list.ChildTagId = (NbtTagType)reader.ReadByte();
 					list.ChildrenValues = new object[ReadInt32()];
 					for (int i = 0; i < list.ChildrenValues.Length; i++) {
 						list.ChildrenValues[i] = ReadTag((byte)list.ChildTagId, false).Value;
 					}
-					tag.Value = list; break;
-					
+					tag.Value = list; break;*/
+				case NbtTagType.List:
+					NbtList list = new NbtList();
+					list.ListType = (NbtTagType)reader.ReadByte();
+					var tags = new NbtTagType[ReadInt32()];
+					list.Tags.AddRange(tags);
+					for (int i = 0; i < list.ChildrenValues.COunt; i++) 
+					{
+						list.ChildrenValues[i] = ReadTag((byte)list.ListType, false).Value;
+					}
+					tag.Value = list; 
+					break;
 				case NbtTagType.Compound:
 					byte childTagId;
-					Dictionary<string, NbtTag2> children = new Dictionary<string, NbtTag2>();
+					Dictionary<string, NbtTag> children = new Dictionary<string, NbtTag>();
 					while ((childTagId = reader.ReadByte()) != (byte)NbtTagType.End) {
-						NbtTag2 child = ReadTag(childTagId, true); children[child.Name] = child;
+						NbtTag child = ReadTag(childTagId, true); children[child.Name] = child;
 					}
 					tag.Value = children; break;
 					
