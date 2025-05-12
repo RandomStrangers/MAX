@@ -36,21 +36,18 @@ namespace MAX.Levels.IO
                 SaveMCF(gs, lvl);
             }
         }
-        public void SaveMCF(Stream fs, Level lvl)
+        public void SaveMCF(Stream gs, Level lvl)
         {
             if (lvl.blocks == null || lvl.IsMuseum) return;
             bool cancel = false;
             OnLevelSaveEvent.Call(lvl, ref cancel);
             if (cancel) return;
-
-            using (GZipStream gs = new GZipStream(fs, CompressionMode.Compress))
-            {
-                var header = new byte[16];
+                byte[] header = new byte[16];
                 BitConverter.GetBytes(1874).CopyTo(header, 0);
                 gs.Write(header, 0, 2);
                 BitConverter.GetBytes(lvl.Width).CopyTo(header, 0);
-                BitConverter.GetBytes(lvl.Height).CopyTo(header, 2);
-                BitConverter.GetBytes(lvl.Length).CopyTo(header, 4);
+                BitConverter.GetBytes(lvl.Length).CopyTo(header, 2);
+                BitConverter.GetBytes(lvl.Height).CopyTo(header, 4);
                 lvl.Changed = false;
                 BitConverter.GetBytes(lvl.spawnx).CopyTo(header, 6);
                 BitConverter.GetBytes(lvl.spawnz).CopyTo(header, 8);
@@ -60,7 +57,7 @@ namespace MAX.Levels.IO
                 header[14] = (byte)lvl.VisitAccess.Min;
                 header[15] = (byte)lvl.BuildAccess.Min;
                 gs.Write(header, 0, 16);
-                var level = new byte[lvl.blocks.Length * 2];
+                byte[] level = new byte[lvl.blocks.Length * 2];
                 for (int i = 0; i < lvl.blocks.Length; ++i)
                 {
                     ushort blockVal = 0;
@@ -79,39 +76,38 @@ namespace MAX.Levels.IO
                     level[i * 2 + 1] = (byte)(blockVal >> 8);
                 }
                 gs.Write(level, 0, level.Length);
-            }
             // UNCOMPRESSED LEVEL SAVING! DO NOT USE!
-            using (FileStream f = File.Create("levels/" + lvl.name + ".wtf"))
+            /*using (FileStream f = File.Create("levels/" + lvl.name + ".wtf"))
             {
-                byte[] header = new byte[16];
-                BitConverter.GetBytes(1874).CopyTo(header, 0);
-                f.Write(header, 0, 2);
+                byte[] header2 = new byte[16];
+                BitConverter.GetBytes(1874).CopyTo(header2, 0);
+                f.Write(header2, 0, 2);
 
-                BitConverter.GetBytes(lvl.Width).CopyTo(header, 0);
-                BitConverter.GetBytes(lvl.Height).CopyTo(header, 2);
-                BitConverter.GetBytes(lvl.Length).CopyTo(header, 4);
-                BitConverter.GetBytes(lvl.spawnx).CopyTo(header, 6);
-                BitConverter.GetBytes(lvl.spawnz).CopyTo(header, 8);
-                BitConverter.GetBytes(lvl.spawny).CopyTo(header, 10);
-                header[12] = lvl.rotx; 
-                header[13] = lvl.roty;
-                header[14] = (byte)lvl.VisitAccess.Min;
-                header[15] = (byte)lvl.BuildAccess.Min;
-                f.Write(header, 0, header.Length);
-                byte[] level = new byte[lvl.blocks.Length];
+                BitConverter.GetBytes(lvl.Width).CopyTo(header2, 0);
+                BitConverter.GetBytes(lvl.Height).CopyTo(header2, 2);
+                BitConverter.GetBytes(lvl.Length).CopyTo(header2, 4);
+                BitConverter.GetBytes(lvl.spawnx).CopyTo(header2, 6);
+                BitConverter.GetBytes(lvl.spawnz).CopyTo(header2, 8);
+                BitConverter.GetBytes(lvl.spawny).CopyTo(header2, 10);
+                header2[12] = lvl.rotx; 
+                header2[13] = lvl.roty;
+                header2[14] = (byte)lvl.VisitAccess.Min;
+                header2[15] = (byte)lvl.BuildAccess.Min;
+                f.Write(header2, 0, header2.Length);
+                byte[] level2 = new byte[lvl.blocks.Length];
                 for (int i = 0; i < lvl.blocks.Length; ++i)
                 {
                     if (lvl.blocks[i] < 80)
                     {
-                        level[i] = lvl.blocks[i];
+                        level2[i] = lvl.blocks[i];
                     }
                     else
                     {
-                        level[i] = (byte)Block.Convert(lvl.blocks[i]);
+                        level2[i] = (byte)Block.Convert(lvl.blocks[i]);
                     }
                 } 
-                f.Write(level, 0, level.Length); fs.Close();
-            }
+                f.Write(level2, 0, level2.Length); gs.Close();
+            }*/
         }
         public static void WriteHeader(Level lvl, Stream gs, byte[] header)
         {
@@ -119,8 +115,8 @@ namespace MAX.Levels.IO
             b.CopyTo(header, 0);
             gs.Write(header, 0, 2);
             BitConverter.GetBytes(lvl.Width).CopyTo(header, 0);
-            BitConverter.GetBytes(lvl.Height).CopyTo(header, 2);
-            BitConverter.GetBytes(lvl.Length).CopyTo(header, 4);
+            BitConverter.GetBytes(lvl.Length).CopyTo(header, 2);
+            BitConverter.GetBytes(lvl.Height).CopyTo(header, 4);
             lvl.Changed = false;
             BitConverter.GetBytes(lvl.spawnx).CopyTo(header, 6);
             BitConverter.GetBytes(lvl.spawnz).CopyTo(header, 8);
@@ -134,7 +130,7 @@ namespace MAX.Levels.IO
 
         public static void WriteBlocksSection(Level lvl, Stream gs)
         {
-            var bl = new byte[lvl.blocks.Length * 2];
+            byte[] bl = new byte[lvl.blocks.Length * 2];
             for (int i = 0; i < lvl.blocks.Length; ++i)
             {
                 ushort blockVal = 0;
