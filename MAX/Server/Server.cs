@@ -315,14 +315,17 @@ namespace MAX
 
         public static string GetServerDLLPath()
         {
-            return Assembly.GetExecutingAssembly().Location;
+            return GetServerExePath();
         }
 
         public static string GetRestartPath()
         {
             return RestartPath;
         }
-
+        /// <summary> Returns the full path to the server executable </summary>
+        public static string GetServerExePath() {
+            return RestartPath;
+        }
         public static bool checkedOnMono, runningOnMono;
         public static bool RunningOnMono()
         {
