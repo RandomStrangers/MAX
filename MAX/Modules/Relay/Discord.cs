@@ -958,7 +958,7 @@ namespace MAX.Relay.Discord
     public class DiscordAddon : Addon
     {
         public override string name { get { return "Discord"; } }
-        public override string MAX_Version { get { return "0.0.0.1"; } }
+        public override string MAX_Version { get { return Server.Version; } }
         public static DiscordConfig Config = new DiscordConfig();
         public static DiscordBot Bot = new DiscordBot();
         public override void Load(bool startup)

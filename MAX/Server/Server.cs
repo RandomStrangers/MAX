@@ -126,7 +126,10 @@ namespace MAX
 
         }
 
-
+        public static void EnsureDirectoryDoesNotExist(string dir)
+        {
+            if (Directory.Exists(dir)) Directory.Delete(dir);
+        }
         public static void ForceEnableTLS()
         {
             // Force enable TLS 1.1/1.2, otherwise checking for updates on Github doesn't work
@@ -149,6 +152,7 @@ namespace MAX
             EnsureDirectoryExists(Paths.ImportsDir);
             EnsureDirectoryExists("blockdefs");
             EnsureDirectoryExists("text/discord"); // TODO move to discord addon
+            EnsureDirectoryDoesNotExist("properties");
         }
 
         public static void EnsureDirectoryExists(string dir)
