@@ -128,7 +128,14 @@ namespace MAX
 
         public static void EnsureDirectoryDoesNotExist(string dir)
         {
-            if (Directory.Exists(dir)) Directory.Delete(dir);
+            if (Directory.Exists(dir)) 
+            {
+                foreach (string file in Directory.GetFiles(dir))
+                {
+                    File.Delete(file);
+                }
+                Directory.Delete(dir, true);
+            }
         }
         public static void ForceEnableTLS()
         {
