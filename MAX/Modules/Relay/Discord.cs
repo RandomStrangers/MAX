@@ -927,7 +927,7 @@ namespace MAX.Relay.Discord
         [ConfigBool("embed-show-game-statuses", "Embeds", true)]
         public bool EmbedGameStatuses = true;
 
-        public const string PROPS_PATH = "properties/discordbot.properties";
+        public const string PROPS_PATH = "discordbot.properties";
         public static ConfigElement[] cfg;
 
         public void Load()

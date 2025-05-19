@@ -37,14 +37,14 @@ namespace MAX
         public const string JokerFile = "text/joker.txt";        
         public const string EightBallFile = "text/8ball.txt";   
         
-        public const string BlockPermsFile = "properties/block.properties";
-        public const string OrdPermsFile = "properties/order.properties";
-        public const string OrdExtraPermsFile = "properties/ExtraOrderPermissions.properties";
-        public const string EconomyPropsFile = "properties/economy.properties";
-        public const string ServerPropsFile = "properties/server.properties";
-        public const string RankPropsFile = "properties/ranks.properties";
-        public const string AuthServicesFile = "properties/authservices.properties";
-        public const string CPEDisabledFile = "properties/cpe.properties";
+        public const string BlockPermsFile = "block.properties";
+        public const string OrdPermsFile = "order.properties";
+        public const string OrdExtraPermsFile = "ExtraOrderPermissions.properties";
+        public const string EconomyPropsFile = "economy.properties";
+        public const string ServerPropsFile = "server.properties";
+        public const string RankPropsFile = "ranks.properties";
+        public const string AuthServicesFile = "authservices.properties";
+        public const string CPEDisabledFile = "cpe.properties";
         
         public const string ImportsDir = "extra/import/";
         public const string WaypointsDir = "extra/Waypoints/";

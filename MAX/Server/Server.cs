@@ -135,7 +135,6 @@ namespace MAX
         }
         public static void EnsureFilesExist()
         {
-            EnsureDirectoryExists("properties");
             EnsureDirectoryExists("levels");
             EnsureDirectoryExists("bots");
             EnsureDirectoryExists("text");
