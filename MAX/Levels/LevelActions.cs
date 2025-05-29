@@ -436,7 +436,7 @@ namespace MAX
         public static Level LoadMuseum(Player p, string name, string mapName, string path)
         {
             Level lvl = GetMuseum(name, path);
-            lvl.MapName = mapName;
+            lvl.MapName = LevelInfo.MapNameExt(mapName);
             lvl.IsMuseum = true;
 
             Level.LoadMetadata(lvl);

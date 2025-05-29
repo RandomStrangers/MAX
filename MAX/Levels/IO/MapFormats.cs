@@ -46,7 +46,6 @@ namespace MAX.Levels.IO
 
         public static void ConvertCustom(Level lvl)
         {
-            ushort x, y, z;
             byte[] blocks = lvl.blocks; // local var to avoid JIT bounds check
             for (int i = 0; i < blocks.Length; i++)
             {
@@ -54,7 +53,7 @@ namespace MAX.Levels.IO
                 if (raw <= Block.CPE_MAX_BLOCK) continue;
 
                 blocks[i] = Block.custom_block;
-                lvl.IntToPos(i, out x, out y, out z);
+                lvl.IntToPos(i, out ushort x, out ushort y, out ushort z);
                 lvl.FastSetExtTile(x, y, z, raw);
             }
         }
@@ -89,20 +88,10 @@ namespace MAX.Levels.IO
         {
             foreach (IMapImporter imp in Formats)
             {
-                if (path.CaselessEnds(imp.Extension)) return imp;
-            }
-            return null;
-        }
-        public static string[] GetExtensions()
-        {
-            List<string> exts = new List<string>
-            {
-            };
-            foreach (IMapImporter format in Formats)
-            {
-                string ext = format.Extension;
-                exts.Add(ext);
-                return exts.ToArray();
+                if (path.CaselessEnds(imp.Extension))
+                {
+                    return imp;
+                }
             }
             return null;
         }
@@ -112,10 +101,13 @@ namespace MAX.Levels.IO
             IMapImporter imp = GetFor(path);
             if (imp == null)
             {
-               Logger.Log(LogType.Warning, "No importer found for {0}, cannot import level!", path);
-               return null;
+                Logger.Log(LogType.Warning, "No importer found for {0}, cannot import level!", path);
+                return null;
             }
-            return imp.Read(path, name, metadata);
+            else
+            {
+                return imp.Read(path, name, metadata);
+            }
         }
     }
 
@@ -147,7 +139,10 @@ namespace MAX.Levels.IO
         {
             foreach (IMapExporter exp in Formats)
             {
-                if (path.CaselessEnds(exp.Extension)) return exp;
+                if (path.CaselessEnds(exp.Extension))
+                {
+                    return exp;
+                }
             }
             return null;
         }
@@ -159,11 +154,14 @@ namespace MAX.Levels.IO
             IMapExporter exp = GetFor(p);
             if (exp == null)
             {
-               Logger.Log(LogType.Warning, "No exporter found for {0}, cannot save level!", p);
-               return;
+                Logger.Log(LogType.Warning, "No exporter found for {0}, cannot save level!", p);
+                return;
             }
-            Logger.Log(LogType.Debug, "Exporter: {0}", exp);
-            exp.Write(path, lvl);
+            else
+            {
+                Logger.Log(LogType.Debug, "Exporter: {0}", exp);
+                exp.Write(path, lvl);
+            }
         }
     }
 }

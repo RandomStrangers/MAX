@@ -29,7 +29,7 @@ using MAX.Util;
 
 namespace MAX
 {
-    public enum LevelPermission : long
+    public enum LevelPermission : int
     {
         Banned = -20, Guest = 0, Builder = 30, AdvBuilder = 50,
         Operator = 80, Admin = 100, Owner = 120, MAX = int.MaxValue,
@@ -80,7 +80,7 @@ namespace MAX
             UpdateAllBlockHandlers();
 
             this.name = name; 
-            MapName = name.ToLower();
+            MapName = LevelInfo.MapNameNoExt(name.ToLower());
             BlockDB = new BlockDB(this);
 
             ChunksX = Utils.CeilDiv16(width);
@@ -256,7 +256,7 @@ namespace MAX
             {
                 path = "levels/" + MapName + IMapExporter.defaultExporter.Extension;
             }
-                bool cancel = false;
+            bool cancel = false;
             OnLevelSaveEvent.Call(this, ref cancel);
             if (cancel) return false;
 
@@ -334,11 +334,6 @@ namespace MAX
 
         public static Level Load(string name, string path)
         {
-            foreach (string ext in IMapImporter.GetExtensions())
-            {
-                string ex = ext.Replace(".", "");
-                name = name.Replace("(" + ex + ")", "");
-            }
             bool cancel = false;
             OnLevelLoadEvent.Call(name, path, ref cancel);
             if (cancel) return null;

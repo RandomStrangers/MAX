@@ -65,6 +65,8 @@ namespace MAX {
         public string ip;
         public string color;
         public Group group;
+        public Pronouns pronouns { get { return pronounsList[0]; } }
+        internal List<Pronouns> pronounsList = new List<Pronouns> { Pronouns.Default };
         public LevelPermission hideRank = LevelPermission.Banned;
         public bool hidden;
         public bool painting;

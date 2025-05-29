@@ -77,23 +77,15 @@ namespace MAX
         public static string[] AllMapNames()
         {
             string[] files = AllMapFiles();
-            for (int i = 0; i < files.Length; i++)
+            List<string> Files = new List<string>() { };
+            foreach (string file in files)
             {
-                string ext = Path.GetExtension(files[i]);
-                ext = ext.Replace(".", "");
-                files[i] = Path.GetFileNameWithoutExtension(files[i]) + "(" + ext + ")";
-                /*if (!files[i].CaselessEnds(".lvl") && !files[i].CaselessEnds(".map"))
-                {
-                    string ext = Path.GetExtension(files[i]);
-                    ext = ext.Replace(".", "");
-                    files[i] = Path.GetFileNameWithoutExtension(files[i]) + "(" + ext + ")";
-                }
-                else
-                {
-                    files[i] = Path.GetFileNameWithoutExtension(files[i]);
-                }*/
+                string ext = Path.GetExtension(file);
+                string extNoPeriod = ext.Replace(".", "");
+                string f = Path.GetFileNameWithoutExtension(file) + "(" + extNoPeriod + ")";
+                Files.Add(f);
             }
-            return files;
+            return Files.ToArray();
         }
         public static string MapNameNoExt(string name)
         {
@@ -101,7 +93,7 @@ namespace MAX
             {
                 string[] array = name.Split('(');
                 string a = array[0].Replace("(", "").Replace(")", "");
-                return a;
+                return a.ToLower();
             }
             else
             {
@@ -125,13 +117,13 @@ namespace MAX
         }
         public static bool LvlExists(string name)
         {
-            return File.Exists("levels/" + name.ToLower() + ".lvl")
-                || File.Exists("levels/" + name.ToLower() + ".map")
-                || File.Exists("levels/" + name.ToLower() + ".cw")
-                || File.Exists("levels/" + name.ToLower() + ".dat")
-                || File.Exists("levels/" + name.ToLower() + ".fcm")
-                || File.Exists("levels/" + name.ToLower() + ".mcf")
-                || File.Exists("levels/" + name.ToLower() + ".mclevel");
+            return File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".lvl")
+                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".map")
+                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".cw")
+                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".dat")
+                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".fcm")
+                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".mcf")
+                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".mclevel");
         }
         public static string MapName(string name)
         {
@@ -144,16 +136,17 @@ namespace MAX
                     string[] array = name.Split('(');
                     string n = name;
                     string a = n.Replace(array[0], "");
-                    ext = a.Replace(")", "").Replace("(", "");
+                    ext = "." + a.Replace(")", "").Replace("(", "");
                 }
                 else
                 {
                     ext = Path.GetExtension(file);
                 }
                 string extNoPeriod = ext.Replace(".", "");
-                name = name.Replace(ext, "");
-                name = name + "(" + extNoPeriod + ")";
-                string mapName = name.ToLower();
+                string name1 = name.Replace(ext, "");
+                string name2 = name1.Replace(extNoPeriod, "");
+                string name3 = name2 + "(" + extNoPeriod + ")";
+                string mapName = name3.ToLower();
                 return mapName;
             }
             return null;
@@ -169,7 +162,7 @@ namespace MAX
                     string[] array = name.Split('(');
                     string n = name;
                     string a = n.Replace(array[0], "");
-                    ext = a.Replace(")", "").Replace("(", "");
+                    ext = "." + a.Replace(")", "").Replace("(", "");
                 }
                 else
                 {
@@ -177,8 +170,8 @@ namespace MAX
                 }
                 if (ext != null)
                 {
-                    ext = ext.Replace(".", "");
-                    string lvlPath = name.ToLower() + "(" + ext + ")";
+                    string extNoPeriod = ext.Replace(".", "");
+                    string lvlPath = name.ToLower() + "(" + extNoPeriod + ")";
                     return lvlPath;
                 }
                 return null;
@@ -196,8 +189,7 @@ namespace MAX
                     string[] array = name.Split('(');
                     string n = name;
                     string a = n.Replace(array[0], "");
-                    ext = a.Replace(")", "").Replace("(", "");
-                    ext = "." + ext;
+                    ext = "." + a.Replace(")", "").Replace("(", "");
                 }
                 else
                 {
@@ -207,9 +199,9 @@ namespace MAX
                 if (ext != null)
                 {
                     string extNoPeriod = ext.Replace(".", "");
-                    name = name.Replace(ext, "");
-                    name = name.Replace("(" + extNoPeriod + ")", "");
-                    string lvlPath = name.ToLower() + ext;
+                    string name1 = name.Replace(ext, "");
+                    string name2 = name1.Replace("(" + extNoPeriod + ")", "");
+                    string lvlPath = name2.ToLower() + ext;
                     return lvlPath;
                 }
                 return null;
@@ -228,17 +220,16 @@ namespace MAX
                     string[] array = name.Split('(');
                     string n = name;
                     string a = n.Replace(array[0], "");
-                    ext = a.Replace(")", "").Replace("(", "");
-                    ext = "." + ext;
+                    ext = "." + a.Replace(")", "").Replace("(", "");
                 }
                 else
                 {
                     ext = Path.GetExtension(file);
                 }
                 string extNoPeriod = ext.Replace(".", "");
-                name = name.Replace(ext, "");
-                name = name.Replace("(" + extNoPeriod + ")", "");
-                string lvlPath = "levels/" + name.ToLower() + ext;
+                string name1 = name.Replace(ext, "");
+                string name2 = name1.Replace("(" + extNoPeriod + ")", "");
+                string lvlPath = "levels/" + name2.ToLower() + ext;
                 return lvlPath;
             }
             return null;
@@ -248,7 +239,7 @@ namespace MAX
         /// <summary> Relative path of a level's backup folder </summary>
         public static string BackupBasePath(string name)
         {
-            return Server.Config.BackupDirectory + "/" + name;
+            return Server.Config.BackupDirectory + "/" + MapNameExt(name);
         }
 
         /// <summary> Relative path of a level's backup map directory </summary>
@@ -264,7 +255,7 @@ namespace MAX
             foreach (string file in files)
             {
                 string ext = Path.GetExtension(file);
-                return BackupDirPath(name, backup) + "/" + MapNameExt(name) + ext;
+                return BackupDirPath(name, backup) + "/" + name + ext;
             }
             return null;
         }
@@ -302,7 +293,7 @@ namespace MAX
         /// <summary> Relative path of a level's property file </summary>
         public static string PropsPath(string name)
         {
-            return "levels/level properties/" + name + ".properties";
+            return "levels/level properties/" + MapName_Ext(name) + ".properties";
         }
 
         public static LevelConfig GetConfig(string map)

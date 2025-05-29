@@ -30,9 +30,7 @@ namespace MAX
 
         public static void OutputBackups(Player p, string map, LevelConfig cfg)
         {
-            map = map.ToLower();
-            map = map.Replace("(" + Path.GetExtension(map).Replace(".", "") + ")", "");
-            string root = LevelInfo.BackupBasePath(map);
+            string root = LevelInfo.BackupBasePath(map.ToLower());
             string name = cfg.Color + map;
 
             if (!Directory.Exists(root))

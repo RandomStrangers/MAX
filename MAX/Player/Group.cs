@@ -180,8 +180,8 @@ namespace MAX
         {
             if (value == null) return defPerm;
 
-            sbyte perm;
-            if (sbyte.TryParse(value, out perm))
+            int perm;
+            if (int.TryParse(value, out perm))
                 return (LevelPermission)perm;
 
             Group grp = Find(value);

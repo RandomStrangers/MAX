@@ -49,25 +49,32 @@ namespace MAX.Orders.CPE
             BotsFile.Save(p.level);
         }
 
-        public override void SetOnlineData(Player p, Player who, string model) {
+        public override void SetOnlineData(Player p, Player who, string model)
+        {
             string orig = model;
             model = ParseModel(p, who, model);
             if (model == null) return;
             who.UpdateModel(model);
-            
-            if (p != who) {
-                Chat.MessageFrom(who, "λNICK &Shad their model changed to a &c" + model);
-            } else {
-                who.Message("Changed your own model to a &c" + model);
+
+            if (p != who)
+            {
+                Chat.MessageFrom(who, "λNICK &Shad " + who.pronouns.Object + " model changed to &c" + model);
             }
-            
-            if (!model.CaselessEq("humanoid")) {
+            else
+            {
+                who.Message("Changed your own model to &c" + model);
+            }
+
+            if (!model.CaselessEq("humanoid"))
+            {
                 Server.models.Update(who.name, model);
-            } else {
+            }
+            else
+            {
                 Server.models.Remove(who.name);
             }
             Server.models.Save();
-            
+
             // Remove model scale too when resetting model
             if (orig.Length == 0) OrdModelScale.UpdateSavedScale(who);
         }

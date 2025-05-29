@@ -291,9 +291,9 @@ namespace MAX
         // Physics settings
         [ConfigInt("Physics", "Physics", 0, 0, 5)]
         public int Physics;
-        [ConfigInt("Physics overload", "Physics", 1500)]
+        [ConfigInt("Physics overload", "Physics", 1500, 1)]
         public int PhysicsOverload = 1500;
-        [ConfigInt("Physics speed", "Physics", 250)]
+        [ConfigInt("Physics speed", "Physics", 250, 1)]
         public int PhysicsSpeed = 250;
         [ConfigBool("RandomFlow", "Physics", true)]
         public bool RandomFlow = true;
@@ -311,11 +311,11 @@ namespace MAX
         public string TreeType = "fern";
 
         // Survival settings
-        [ConfigInt("Drown", "Survival", 70)]
+        [ConfigInt("Drown", "Survival", 70, 1)]
         public int DrownTime = 70;
         [ConfigBool("Edge water", "Survival", false)]
         public bool EdgeWater;
-        [ConfigInt("Fall", "Survival", 9)]
+        [ConfigInt("Fall", "Survival", 9, 1)]
         public int FallHeight = 9;
         [ConfigBool("Guns", "Survival", false)]
         public bool Guns;

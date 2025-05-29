@@ -4,7 +4,7 @@ using MAX.Tasks;
 
 namespace MAX.Core
 {
-    public class ServerURLSender : Addon_Simple
+    public class ServerURLSender : Addon
     {
         public override string name { get { return "Say URL"; } }
         public override string creator { get { return Server.SoftwareName + " team"; } }
@@ -12,26 +12,16 @@ namespace MAX.Core
         public override void Load(bool startup)
         {
             bool SendURL = Server.Config.SendURL;
-            bool IsPublic = Server.Config.Public;
             bool SayHi = Server.Config.SayHello;
             if (SendURL)
             {
-                if (!IsPublic)
-                {
-                    Logger.Log(LogType.SystemActivity, "Server is not public! Cannot send URL to chat!");
-                    return;
-                }
-                else
-                {
-                    Server.MainScheduler.QueueOnce(SayURL, null, TimeSpan.FromSeconds(12));
-                }
+                Server.MainScheduler.QueueOnce(SayURL, null, TimeSpan.FromSeconds(12));
             }
             if (SayHi)
             {
                 Server.Background.QueueOnce(SayHello, null, TimeSpan.FromSeconds(10));
             }
         }
-
         public void SayURL(SchedulerTask task)
         {
             string file = "./text/externalurl.txt";
@@ -40,7 +30,7 @@ namespace MAX.Core
             Order.Find("say").Use(Player.MAX, msg);
             Logger.Log(LogType.SystemActivity, "Server URL sent to chat!");
         }
-        static void SayHello(SchedulerTask task)
+        public static void SayHello(SchedulerTask task)
         {
             Order.Find("say").Use(Player.MAX, "Hello, World!");
             Logger.Log(LogType.SystemActivity, "Hello, World!");

@@ -88,7 +88,10 @@ namespace MAX
     {
         public static LogHandler LogHandler;
         public static object logLock = new object();
-        
+        public static void Log(object obj)
+        {
+            Log(LogType.SystemActivity, obj.ToString());
+        }
         public static void Log(LogType type, string message) {
             lock (logLock) {
                 try {

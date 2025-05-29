@@ -44,7 +44,7 @@ namespace MAX.DB
         public readonly IReaderWriterLock Locker;
         
         public BlockDB(Level lvl) {
-            MapName       = lvl.name;
+            MapName       = LevelInfo.MapNameExt(lvl.name);
             Cache.Enabled = lvl.Config.UseBlockDB; 
             ReadDimensions();
             Locker = new IReaderWriterLock();

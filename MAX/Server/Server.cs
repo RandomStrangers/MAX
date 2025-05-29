@@ -19,7 +19,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
 using MAX.Authentication;
@@ -51,8 +50,9 @@ namespace MAX
             {
                 thread.Name = name;
             }
-            catch
+            catch(Exception e)
             {
+                Logger.LogError(e);
             }
             thread.Start();
         }
@@ -115,6 +115,7 @@ namespace MAX
             Background.QueueOnce(UpgradeTasks.UpgradeOldTempranks);
             Background.QueueOnce(UpgradeTasks.UpgradeDBTimeSpent);
             Background.QueueOnce(InitPlayerLists);
+            Background.QueueOnce(Pronouns.Init);
 
             Background.QueueOnce(SetupSocket);
             Background.QueueOnce(InitTimers);
@@ -145,6 +146,7 @@ namespace MAX
         }
         public static void EnsureFilesExist()
         {
+            EnsureDirectoryExists("props");
             EnsureDirectoryExists("levels");
             EnsureDirectoryExists("bots");
             EnsureDirectoryExists("text");
@@ -211,7 +213,7 @@ namespace MAX
         public static Thread Stop(bool restart, string msg)
         {
             Order.Find("say").Use(Player.MAX, "Goodbye Cruel World!");
-            Logger.Log(LogType.Warning, "&fServer is shutting down!");
+            Logger.Log(LogType.Warning, "&4Server is shutting down!");
             shuttingDown = true;
             lock (stopLock)
             {
@@ -228,8 +230,9 @@ namespace MAX
             {
                 Logger.Log(LogType.SystemActivity, "Server shutting down ({0})", msg);
             }
-            catch 
-            { 
+            catch (Exception e)
+            {
+                Logger.LogError(e);
             }
 
             // Stop accepting new connections and disconnect existing sessions
@@ -282,16 +285,18 @@ namespace MAX
             {
                 Logger.Log(LogType.SystemActivity, "Server shutdown completed");
             }
-            catch 
+            catch (Exception e)
             { 
+                Logger.LogError(e);
             }
 
             try 
             { 
                 FileLogger.Flush(null); 
             } 
-            catch 
+            catch (Exception e)
             { 
+                Logger.LogError(e);
             }
 
             if (restarting)

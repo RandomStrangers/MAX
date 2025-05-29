@@ -30,6 +30,8 @@
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <Prefer32Bit>false</Prefer32Bit>
+    <DefineConstants>
+    </DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>MAX.ico</ApplicationIcon>
@@ -81,6 +83,7 @@
     <Compile Include="Orders\Added\OrdBye.cs" />
     <Compile Include="Orders\Added\OrdCCBeat.cs" />
     <Compile Include="Orders\Added\OrdDisconnect.cs" />
+    <Compile Include="Orders\Chat\OrdPronouns.cs" />
     <Compile Include="Orders\Designation.cs" />
     <Compile Include="Orders\Bots\OrdBot.cs" />
     <Compile Include="Orders\Bots\OrdBotAI.cs" />
@@ -568,6 +571,7 @@
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Player\PlayerOperations.cs" />
     <Compile Include="Player\PlayerPhysics.cs" />
+    <Compile Include="Player\Pronouns.cs" />
     <Compile Include="Player\SpamChecker.cs" />
     <Compile Include="Player\Warp.cs" />
     <Compile Include="Database\Undo\UndoFormat.cs" />

@@ -131,22 +131,25 @@ namespace MAX.Core {
             }
         }
 
-        public static void DoUnban(ModAction e) {
+        public static void DoUnban(ModAction e)
+        {
             Player who = PlayerInfo.FindExact(e.Target);
             LogAction(e, who, "&8unbanned");
-            
-            if (Server.tempBans.Remove(e.Target)) {
+
+            if (Server.tempBans.Remove(e.Target))
+            {
                 Server.tempBans.Save();
             }
             if (!Group.BannedRank.Players.Contains(e.Target)) return;
-            
+
             Ban.DeleteUnban(e.Target);
             Ban.UnbanPlayer(e.Actor, e.Target, e.Reason);
             ModActionOrd.ChangeRank(e.Target, Group.BannedRank, Group.DefaultRank, who, false);
-            
+
             string ip = PlayerDB.FindIP(e.Target);
-            if (ip != null && Server.bannedIP.Contains(ip)) {
-                e.Actor.Message("NOTE: Their IP is still banned.");
+            if (ip != null && Server.bannedIP.Contains(ip))
+            {
+                e.Actor.Message("NOTE: {0} IP is still banned.", Pronouns.GetFor(e.Target)[0].Object);
             }
         }
 
@@ -240,7 +243,7 @@ namespace MAX.Core {
         }
 
         public static string FormatModTaskData(ModAction e) {
-            int assign  = DateTime.UtcNow.ToUnixTime();
+            long assign  = DateTime.UtcNow.ToUnixTime();
             DateTime end = DateTime.MaxValue.AddYears(-1);
             
             if (e.Duration != TimeSpan.Zero) {
@@ -251,7 +254,7 @@ namespace MAX.Core {
                 }
             }
             
-            int expiry = end.ToUnixTime();
+            long expiry = end.ToUnixTime();
             string assigner = e.Actor.name;
             return assigner + " " + assign + " " + expiry;
         }

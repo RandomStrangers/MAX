@@ -22,15 +22,17 @@ namespace MAX.Orders.Chatting
         public override string type { get { return OrderTypes.Chat; } }
         public override bool UseableWhenFrozen { get { return true; } }
 
-        public bool TryMessageAction(Player p, string name, string msg, bool messageWho) {
+        public bool TryMessageAction(Player p, string name, string msg, bool messageWho)
+        {
             if (name.Length == 0) { Help(p); return false; }
             Player target = PlayerInfo.FindMatches(p, name);
             if (target == null) return false;
 
-            string reciever = p == target ? "themselves" : target.ColoredName;
+            string reciever = p == target ? p.pronouns.Reflexive : target.ColoredName;
             if (!TryMessage(p, msg.Replace("λTARGET", reciever))) return false;
 
-            if (messageWho && p != target && !Chat.Ignoring(target, p)) {
+            if (messageWho && p != target && !Chat.Ignoring(target, p))
+            {
                 msg = msg.Replace("λNICK", target.FormatNick(p));
                 target.Message(msg.Replace("λTARGET", "you"));
             }

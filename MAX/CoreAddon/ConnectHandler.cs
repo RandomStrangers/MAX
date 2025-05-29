@@ -27,8 +27,8 @@ namespace MAX.Core {
             
             LoadWaypoints(p);
             p.Ignores.Load(p);
+            p.pronounsList = Pronouns.GetFor(p.name);
         }
-
         public static void CheckReviewList(Player p) {
             if (!p.CanUse("Review")) return;
             ItemPerms checkPerms = OrderExtraPerms.Find("Review", 1);

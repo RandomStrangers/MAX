@@ -103,7 +103,7 @@ namespace MAX
             return success;
         }
         
-        static bool UnloadAddon(Addon a, bool auto) {
+        public static bool UnloadAddon(Addon a, bool auto) {
             try {
                 a.Unload(auto);
                 return true;

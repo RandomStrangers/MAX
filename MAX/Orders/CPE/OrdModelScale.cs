@@ -41,18 +41,21 @@ namespace MAX.Orders.CPE
             p.Message("You changed the {1} scale of bot {0}", bot.ColoredName, axis);
             BotsFile.Save(p.level);
         }
-
-        public override void SetOnlineData(Player p, Player who, string args) {
+        public override void SetOnlineData(Player p, Player who, string args)
+        {
             string axis;
             if (!ParseArgs(p, who, args, out axis)) return;
             who.UpdateModel(who.Model);
 
-            if (p != who) {
-                Chat.MessageFrom(who, "λNICK &Shad their " + axis + " scale changed");
-            } else {
+            if (p != who)
+            {
+                Chat.MessageFrom(who, "λNICK &Shad " + who.pronouns.Object + " " + axis + " scale changed");
+            }
+            else
+            {
                 who.Message("Changed your own {0} scale", axis);
             }
-            
+
             UpdateSavedScale(who);
             Server.modelScales.Save();
         }

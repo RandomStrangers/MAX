@@ -19,17 +19,18 @@ using System;
 using MAX.DB;
 using MAX.SQL;
 
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdSend : Order2 
+    public class OrdSend : Order2
     {
         public override string name { get { return "Send"; } }
         public override string type { get { return OrderTypes.Chat; } }
         public override LevelPermission defaultRank { get { return LevelPermission.Builder; } }
         public override bool UseableWhenFrozen { get { return true; } }
         public override OrderParallelism Parallelism { get { return OrderParallelism.NoAndWarn; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] parts = message.SplitSpaces(2);
             if (parts.Length <= 1) { Help(p); return; }
             if (!MessageOrd.CanSpeak(p, "Send")) return;
@@ -37,42 +38,47 @@ namespace MAX.Orders.Chatting
             string name = PlayerDB.MatchNames(p, parts[0]);
             if (name == null) return;
             message = parts[1];
-            
-            if (message.Length >= 256 && Database.Backend.EnforcesTextLength) {
+
+            if (message.Length >= 256 && Database.Backend.EnforcesTextLength)
+            {
                 message = message.Substring(0, 255);
                 p.Message("&WMessage was too long. It has been trimmed to:");
                 p.Message(message);
             }
             Database.CreateTable("Inbox" + name, createInbox);
-            
+
             int pending = Database.CountRows("Inbox" + name, "WHERE PlayerFrom=@0", p.name);
-            if (pending >= 200) {
-                p.Message("{0} &calready has 200+ messages from you currently in their inbox. " +
-                          "Try again later after they have deleted some of their inbox messages",
-                          p.FormatNick(name));
+            if (pending >= 200)
+            {
+                Pronouns pronouns = Pronouns.GetFor(name)[0];
+                p.Message("{0} &calready has 200+ messages from you currently in {1} inbox. " +
+                          "Try again later after {2} {3} deleted some of {4} inbox messages",
+                          p.FormatNick(name), pronouns.Object, pronouns.Subject, pronouns.PresentPerfectVerb, pronouns.Object);
                 return;
             }
-            
+
             Database.AddRow("Inbox" + name, "PlayerFrom, TimeSent, Contents",
-                            p.name, DateTime.Now.ToString(Database.DateFormat), message);
+                            p.name, DateTime.Now.ToInvariantDateString(), message);
             p.CheckForMessageSpam();
 
             Player target = PlayerInfo.FindExact(name);
             p.Message("Message sent to {0}&S.", p.FormatNick(name));
             if (target == null) return;
-            
-            if (!Chat.Ignoring(target, p)) {
+
+            if (!Chat.Ignoring(target, p))
+            {
                 target.Message("Message received from {0}&S. Check &T/Inbox", target.FormatNick(p));
             }
         }
 
-        public static ColumnDesc[] createInbox = new ColumnDesc[] {
+        static ColumnDesc[] createInbox = new ColumnDesc[] {
             new ColumnDesc("PlayerFrom", ColumnType.Char, 20),
             new ColumnDesc("TimeSent", ColumnType.DateTime),
             new ColumnDesc("Contents", ColumnType.VarChar, 255),
         };
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Send [name] [message]");
             p.Message("&HSends [message] to [name], which can be read with &T/Inbox");
         }

@@ -39,7 +39,7 @@ namespace MAX
         public static PlayerMetaList RankInfo = new PlayerMetaList("text/rankinfo.txt");
         public static PlayerMetaList Notes = new PlayerMetaList("text/notes.txt");
         /// <summary> *** DO NOT USE THIS! *** Use VersionString, as this field is a constant and is inlined if used. </summary>
-        public const string InternalVersion = "0.0.2.9";
+        public const string InternalVersion = "0.0.3.0";
         public static string Version { get { return InternalVersion; } }
         public const string SoftwareNameConst = "&4MAX";
         public static string SoftwareName { get { return SoftwareNameConst; } }
@@ -93,7 +93,6 @@ namespace MAX
         public const byte VERSION_0020 = 6; // classic 0.0.20 / 0.0.21 / 0.0.23
         public const byte VERSION_0030 = 7; // classic 0.30 (final)
         
-        public static bool chatmod, flipHead;
-        public static bool shuttingDown;
+        public static bool chatmod, flipHead, shuttingDown;
     }
 }
