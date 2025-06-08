@@ -21,8 +21,8 @@ using System.IO;
 using MAX.DB;
 using MAX.Events.LevelEvents;
 using MAX.SQL;
-using System.Linq;
-using MAX.Levels.IO;
+using MAX;
+
 namespace MAX
 {
 
@@ -59,187 +59,55 @@ namespace MAX
         // TODO: support loading other map files eventually
         public static string[] AllMapFiles()
         {
-            List<string> files = new List<string>()
-            {
-            };
-            string[] allMapFiles = Directory.GetFiles("levels");
-            foreach (string file in allMapFiles)
-            {
-                if (!file.CaselessEnds(".backup"))
-                {
-                    files.Add(file);
-                }
-            }
-            string[] allFiles = files.ToArray();
-            return allFiles;
+            List<string> Files = new List<string>();
+            Files.AddRange(Directory.GetFiles("levels", "*.lvl"));
+            Files.AddRange(Directory.GetFiles("levels", "*.mcf"));
+            Files.AddRange(Directory.GetFiles("levels", "*.cw"));
+            return Files.ToArray();
         }
 
         public static string[] AllMapNames()
         {
             string[] files = AllMapFiles();
-            List<string> Files = new List<string>() { };
-            foreach (string file in files)
+            for (int i = 0; i < files.Length; i++)
             {
-                string ext = Path.GetExtension(file);
-                string extNoPeriod = ext.Replace(".", "");
-                string f = Path.GetFileNameWithoutExtension(file) + "(" + extNoPeriod + ")";
-                Files.Add(f);
+                files[i] = Path.GetFileNameWithoutExtension(files[i]);
             }
-            return Files.ToArray();
+            return files;
         }
-        public static string MapNameNoExt(string name)
-        {
-            if (name.Contains("("))
-            {
-                string[] array = name.Split('(');
-                string a = array[0].Replace("(", "").Replace(")", "");
-                return a.ToLower();
-            }
-            else
-            {
-                return name.ToLower();
-            }
-        }
+
         public static bool MapExists(string name)
         {
-            bool v;
-            if (name.Contains("("))
+            return File.Exists(MapPath(name));
+        }
+        public static string Name(string name)
+        {
+            bool mcf = File.Exists("levels/" + name.ToLower() + ".mcf");
+            bool cw = File.Exists("levels/" + name.ToLower() + ".cw");
+            if (mcf)
             {
-                string[] array = name.Split('(');
-                string a = array[0].Replace("(", "").Replace(")", "");
-                v = LvlExists(a);
+                return name.ToLower() + ".mcf";
+            }
+            else if (cw)
+            {
+                return name.ToLower() + ".cw";
             }
             else
             {
-                v = LvlExists(name);
+                return name.ToLower() + ".lvl";
             }
-            return v;
-        }
-        public static bool LvlExists(string name)
-        {
-            return File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".lvl")
-                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".map")
-                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".cw")
-                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".dat")
-                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".fcm")
-                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".mcf")
-                || File.Exists("levels/" + MapNameNoExt(name.ToLower()) + ".mclevel");
-        }
-        public static string MapName(string name)
-        {
-            string[] files = AllMapFiles();
-            foreach (string file in files)
-            {
-                string ext;
-                if (name.CaselessContains("("))
-                {
-                    string[] array = name.Split('(');
-                    string n = name;
-                    string a = n.Replace(array[0], "");
-                    ext = "." + a.Replace(")", "").Replace("(", "");
-                }
-                else
-                {
-                    ext = Path.GetExtension(file);
-                }
-                string extNoPeriod = ext.Replace(".", "");
-                string name1 = name.Replace(ext, "");
-                string name2 = name1.Replace(extNoPeriod, "");
-                string name3 = name2 + "(" + extNoPeriod + ")";
-                string mapName = name3.ToLower();
-                return mapName;
-            }
-            return null;
-        }
-        public static string MapNameExt(string name)
-        {
-            string[] files = AllMapFiles();
-            foreach (string file in files)
-            {
-                string ext;
-                if (name.CaselessContains("("))
-                {
-                    string[] array = name.Split('(');
-                    string n = name;
-                    string a = n.Replace(array[0], "");
-                    ext = "." + a.Replace(")", "").Replace("(", "");
-                }
-                else
-                {
-                    ext = Path.GetExtension(file);
-                }
-                if (ext != null)
-                {
-                    string extNoPeriod = ext.Replace(".", "");
-                    string lvlPath = name.ToLower() + "(" + extNoPeriod + ")";
-                    return lvlPath;
-                }
-                return null;
-            }
-            return null;
-        }
-        public static string MapName_Ext(string name)
-        {
-            string[] files = AllMapFiles();
-            foreach (string file in files)
-            {
-                string ext;
-                if (name.CaselessContains("("))
-                {
-                    string[] array = name.Split('(');
-                    string n = name;
-                    string a = n.Replace(array[0], "");
-                    ext = "." + a.Replace(")", "").Replace("(", "");
-                }
-                else
-                {
-                    ext = Path.GetExtension(file);
-
-                }
-                if (ext != null)
-                {
-                    string extNoPeriod = ext.Replace(".", "");
-                    string name1 = name.Replace(ext, "");
-                    string name2 = name1.Replace("(" + extNoPeriod + ")", "");
-                    string lvlPath = name2.ToLower() + ext;
-                    return lvlPath;
-                }
-                return null;
-            }
-            return null;
         }
         /// <summary> Relative path of a level's map file </summary>
         public static string MapPath(string name)
         {
-            string[] files = AllMapFiles();
-            foreach (string file in files)
-            {
-                string ext;
-                if (name.CaselessContains("("))
-                {
-                    string[] array = name.Split('(');
-                    string n = name;
-                    string a = n.Replace(array[0], "");
-                    ext = "." + a.Replace(")", "").Replace("(", "");
-                }
-                else
-                {
-                    ext = Path.GetExtension(file);
-                }
-                string extNoPeriod = ext.Replace(".", "");
-                string name1 = name.Replace(ext, "");
-                string name2 = name1.Replace("(" + extNoPeriod + ")", "");
-                string lvlPath = "levels/" + name2.ToLower() + ext;
-                return lvlPath;
-            }
-            return null;
+            return "levels/" + Name(name);
         }
 
 
         /// <summary> Relative path of a level's backup folder </summary>
         public static string BackupBasePath(string name)
         {
-            return Server.Config.BackupDirectory + "/" + MapNameExt(name);
+            return Server.Config.BackupDirectory + "/" + name;
         }
 
         /// <summary> Relative path of a level's backup map directory </summary>
@@ -251,13 +119,20 @@ namespace MAX
         /// <summary> Relative path of a level's backup map file </summary>
         public static string BackupFilePath(string name, string backup)
         {
-            string[] files = AllMapFiles();
-            foreach (string file in files)
+            bool mcf = File.Exists("levels/" + name.ToLower() + ".mcf");
+            bool cw = File.Exists("levels/" + name.ToLower() + ".cw");
+            if (mcf)
             {
-                string ext = Path.GetExtension(file);
-                return BackupDirPath(name, backup) + "/" + name + ext;
+                return BackupDirPath(name, backup) + "/" + name + ".mcf";
             }
-            return null;
+            else if (cw)
+            {
+                return BackupDirPath(name, backup) + "/" + name + ".cw";
+            }
+            else
+            {
+                return BackupDirPath(name, backup) + "/" + name + ".lvl";
+            }
         }
 
         public static string BackupNameFrom(string path)
@@ -293,12 +168,12 @@ namespace MAX
         /// <summary> Relative path of a level's property file </summary>
         public static string PropsPath(string name)
         {
-            return "levels/level properties/" + MapName_Ext(name) + ".properties";
+            return "levels/level properties/" + Name(name) + ".properties";
         }
 
         public static LevelConfig GetConfig(string map)
         {
-            Level lvl; 
+            Level lvl;
             return GetConfig(map, out lvl);
         }
 
@@ -323,7 +198,7 @@ namespace MAX
             AccessController build = new LevelAccessController(cfg, map, false);
             if (!visit.CheckDetailed(p, plRank) || !build.CheckDetailed(p, plRank))
             {
-                p.Message("Hence, you cannot {0}.", action); 
+                p.Message("Hence, you cannot {0}.", action);
                 return false;
             }
             return true;
@@ -340,7 +215,7 @@ namespace MAX
             if (p.IsMAX) return true;
             if (!lvl.VisitAccess.CheckDetailed(p, plRank) || !lvl.BuildAccess.CheckDetailed(p, plRank))
             {
-                p.Message("Hence, you cannot {0}.", action); 
+                p.Message("Hence, you cannot {0}.", action);
                 return false;
             }
             return true;

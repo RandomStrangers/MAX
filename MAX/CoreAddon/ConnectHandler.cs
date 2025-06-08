@@ -20,7 +20,6 @@ using MAX.Orders;
 
 namespace MAX.Core {
     public static class ConnectHandler {
-
         public static void HandleConnect(Player p) {
             CheckReviewList(p);
             if (p.CanUse("ReachDistance")) LoadReach(p);

@@ -33,7 +33,6 @@ namespace MAX {
         public static string lastMSG = "";
         public PersistentMessages persistentMessages = new PersistentMessages();
         public Zone ZoneIn;
-
         //TpA
         public bool Request;
         public string senderName = "";

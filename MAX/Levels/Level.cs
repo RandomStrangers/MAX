@@ -80,7 +80,7 @@ namespace MAX
             UpdateAllBlockHandlers();
 
             this.name = name; 
-            MapName = LevelInfo.MapNameNoExt(name.ToLower());
+            MapName = name.ToLower();
             BlockDB = new BlockDB(this);
 
             ChunksX = Utils.CeilDiv16(width);

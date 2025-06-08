@@ -42,40 +42,41 @@ namespace MAX.Levels.IO
             bool cancel = false;
             OnLevelSaveEvent.Call(lvl, ref cancel);
             if (cancel) return;
-                byte[] header = new byte[16];
-                BitConverter.GetBytes(1874).CopyTo(header, 0);
-                gs.Write(header, 0, 2);
-                BitConverter.GetBytes(lvl.Width).CopyTo(header, 0);
-                BitConverter.GetBytes(lvl.Length).CopyTo(header, 2);
-                BitConverter.GetBytes(lvl.Height).CopyTo(header, 4);
-                lvl.Changed = false;
-                BitConverter.GetBytes(lvl.spawnx).CopyTo(header, 6);
-                BitConverter.GetBytes(lvl.spawnz).CopyTo(header, 8);
-                BitConverter.GetBytes(lvl.spawny).CopyTo(header, 10);
-                header[12] = lvl.rotx;
-                header[13] = lvl.roty;
-                header[14] = (byte)lvl.VisitAccess.Min;
-                header[15] = (byte)lvl.BuildAccess.Min;
-                gs.Write(header, 0, 16);
-                byte[] level = new byte[lvl.blocks.Length * 2];
-                for (int i = 0; i < lvl.blocks.Length; ++i)
+            byte[] header = new byte[16];
+            BitConverter.GetBytes(1874).CopyTo(header, 0);
+            gs.Write(header, 0, 2);
+            BitConverter.GetBytes(lvl.Width).CopyTo(header, 0);
+            BitConverter.GetBytes(lvl.Length).CopyTo(header, 2);
+            BitConverter.GetBytes(lvl.Height).CopyTo(header, 4);
+            lvl.Changed = false;
+            BitConverter.GetBytes(lvl.spawnx).CopyTo(header, 6);
+            BitConverter.GetBytes(lvl.spawnz).CopyTo(header, 8);
+            BitConverter.GetBytes(lvl.spawny).CopyTo(header, 10);
+            header[12] = lvl.rotx;
+            header[13] = lvl.roty;
+            header[14] = (byte)lvl.VisitAccess.Min;
+            header[15] = (byte)lvl.BuildAccess.Min;
+            gs.Write(header, 0, 16);
+            byte[] level = new byte[lvl.blocks.Length * 2];
+            for (int i = 0; i < lvl.blocks.Length; ++i)
+            {
+                ushort blockVal = 0;
+                if (lvl.blocks[i] < 57)
                 {
-                    ushort blockVal = 0;
-                    if (lvl.blocks[i] < 57)
-                    //CHANGED THIS TO INCOPARATE SOME MORE SPACE THAT I NEEDED FOR THE door_orange_air ETC.
+                    if (lvl.blocks[i] != Block.Air)
                     {
-                        if (lvl.blocks[i] != Block.Air)
-                            blockVal = lvl.blocks[i];
+                        blockVal = lvl.blocks[i];
                     }
-                    else
-                    {
-                        if (Block.Convert(lvl.blocks[i]) != Block.Air)
-                            blockVal = Block.Convert(lvl.blocks[i]);
-                    }
-                    level[i * 2] = (byte)blockVal;
-                    level[i * 2 + 1] = (byte)(blockVal >> 8);
                 }
-                gs.Write(level, 0, level.Length);
+                else
+                {
+                    if (Block.Convert(lvl.blocks[i]) != Block.Air)
+                        blockVal = Block.Convert(lvl.blocks[i]);
+                }
+                level[i * 2] = (byte)blockVal;
+                level[i * 2 + 1] = (byte)(blockVal >> 8);
+            }
+            gs.Write(level, 0, level.Length);
             // UNCOMPRESSED LEVEL SAVING! DO NOT USE!
             /*using (FileStream f = File.Create("levels/" + lvl.name + ".wtf"))
             {
@@ -135,15 +136,15 @@ namespace MAX.Levels.IO
             {
                 ushort blockVal = 0;
                 if (lvl.blocks[i] < 57)
-                //CHANGED THIS TO INCOPARATE SOME MORE SPACE THAT I NEEDED FOR THE door_orange_air ETC.
                 {
                     if (lvl.blocks[i] != Block.Air)
+                    {
                         blockVal = lvl.blocks[i];
+                    }
                 }
                 else
                 {
-                    if (Block.Convert(lvl.blocks[i]) != Block.Air)
-                        blockVal = Block.Convert(lvl.blocks[i]);
+                    blockVal = Block.Convert(lvl.blocks[i]);
                 }
                 bl[i * 2] = (byte)blockVal;
                 bl[i * 2 + 1] = (byte)(blockVal >> 8);

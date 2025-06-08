@@ -41,7 +41,7 @@ namespace MAX.Orders.World {
                 // randomly only visit certain number of maps
                 if (args.Length > 1) {
                     List<string> maps = Wildcard.Filter(files, args[1],
-                                                        mapFile => LevelInfo.MapName_Ext(mapFile));
+                                                        mapFile => Path.GetFileNameWithoutExtension(mapFile));
                     if (maps.Count == 0) {
                         p.Message("No maps found containing \"{0}\"", args[1]);
                         return;
@@ -49,7 +49,7 @@ namespace MAX.Orders.World {
                     map = maps[new Random().Next(maps.Count)];
                 } else {
                     map = files[new Random().Next(files.Length)];
-                    map = LevelInfo.MapName_Ext(map);
+                    map = Path.GetFileNameWithoutExtension(map);
                 }
 
                 PlayerActions.ChangeMap(p, map);

@@ -436,11 +436,11 @@ namespace MAX
         public static Level LoadMuseum(Player p, string name, string mapName, string path)
         {
             Level lvl = GetMuseum(name, path);
-            lvl.MapName = LevelInfo.MapNameExt(mapName);
+            lvl.MapName = mapName;
             lvl.IsMuseum = true;
 
             Level.LoadMetadata(lvl);
-            lvl.BuildAccess.Min = LevelPermission.MAX;
+            lvl.BuildAccess.Min = LevelPermission.Console;
             lvl.Config.Physics = 0;
             return lvl;
         }

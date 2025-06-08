@@ -83,8 +83,8 @@ namespace MAX.Orders.Info
                 MeasureCPU(begUsg.ProcessorTime,   endUsg.ProcessorTime, TimeSpan.FromSeconds(1)),
                 MeasureCPU(startUsg.ProcessorTime, endUsg.ProcessorTime, DateTime.UtcNow - startTime));
 
-            uint idl  = allEnd.IdleTime      - allBeg.IdleTime;
-            uint sys  = allEnd.ProcessorTime - allBeg.ProcessorTime;
+            ulong idl  = allEnd.IdleTime      - allBeg.IdleTime;
+            ulong sys  = allEnd.ProcessorTime - allBeg.ProcessorTime;
             double cpu = sys * 100.0 / (sys + idl);
             int cores  = Environment.ProcessorCount;
             p.Message("  &a{0}% &Sby all processes across {1} CPU core{2}", 

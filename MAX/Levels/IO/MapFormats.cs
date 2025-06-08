@@ -86,9 +86,11 @@ namespace MAX.Levels.IO
         /// <remarks> A suitable IMapImporter, or null if no suitable importer is found </remarks>
         public static IMapImporter GetFor(string path)
         {
+            string p = path.Replace(".prev", "")
+                .Replace(".backup", "");
             foreach (IMapImporter imp in Formats)
             {
-                if (path.CaselessEnds(imp.Extension))
+                if (p.CaselessEnds(imp.Extension))
                 {
                     return imp;
                 }
@@ -137,29 +139,27 @@ namespace MAX.Levels.IO
         /// <remarks> A suitable IMapExporter, or null if no suitable exporter is found </remarks>
         public static IMapExporter GetFor(string path)
         {
+            string p = path.Replace(".prev", "")
+                .Replace(".backup", "");
             foreach (IMapExporter exp in Formats)
             {
-                if (path.CaselessEnds(exp.Extension))
+                if (p.CaselessEnds(exp.Extension))
                 {
                     return exp;
                 }
             }
             return null;
         }
-        /// <summary> Decodes the given level file into a Level instance </summary>
         public static void Encode(string path, Level lvl)
         {
-            string p = path.Replace(".backup", "");
-
-            IMapExporter exp = GetFor(p);
+            IMapExporter exp = GetFor(path);
             if (exp == null)
             {
-                Logger.Log(LogType.Warning, "No exporter found for {0}, cannot save level!", p);
+                Logger.Log(LogType.Warning, "No exporter found for {0}, cannot save level!", path);
                 return;
             }
             else
             {
-                Logger.Log(LogType.Debug, "Exporter: {0}", exp);
                 exp.Write(path, lvl);
             }
         }

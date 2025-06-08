@@ -527,7 +527,7 @@ namespace MAX
         public byte CollideType(ushort block)
         {
             BlockDefinition def = GetBlockDef(block);
-            byte collide = def != null ? def.CollideType : MAX.Blocks.CollideType.Solid;
+            byte collide = def != null ? def.CollideType : Blocks.CollideType.Solid;
 
             if (def == null && block < Block.Extended)
                 return DefaultSet.Collide(Block.Convert(block));

@@ -25,7 +25,9 @@ namespace MAX
         /// <summary> Array of all currently online players. </summary>
         /// <remarks> Note this field is highly volatile, you should cache references to the items array. </remarks>
         public static VolatileArray<Player> Online = new VolatileArray<Player>();
-        
+        public static VolatileArray<Player> NonHiddenUniqueIPPlayers = new VolatileArray<Player>();
+
+        public static int NonHiddenUniqueIPPlayerCount = 0;
         public static Group GetGroup(string name) {
             Player target = FindExact(name);
             return target != null ? target.group : Group.GroupIn(name);
@@ -36,17 +38,39 @@ namespace MAX
             string col = PlayerDB.FindColor(p);
             return col.Length > 0 ? col : p.group.Color;
         }
-        
-        public static int NonHiddenUniqueIPCount() {
+        public static int NonHiddenUniqueIPCount()
+        {
             Player[] players = Online.Items;
-            Dictionary<string, bool> uniqueIPs = new Dictionary<string, bool>();
-            
-            foreach (Player p in players) {
-                if (!p.hidden) uniqueIPs[p.ip] = true;
-            }
-            return uniqueIPs.Count;
+            return NonHiddenUniqueIPCount(players);
         }
-        
+        public static int NonHiddenUniqueIPCount(Player[] players)
+        {
+            foreach (Player p in players)
+            {
+                NonHiddenUniqueIPCount(p);
+            }
+            return NonHiddenUniqueIPPlayerCount;
+        }
+        public static void NonHiddenUniqueIPCount(Player p)
+        {
+            Dictionary<string, bool> uniqueIPs = new Dictionary<string, bool>();
+            if (!p.hidden) uniqueIPs[p.ip] = true;
+            if (!p.Socket.Disconnected)
+            {
+                if (uniqueIPs[p.ip] && !NonHiddenUniqueIPPlayers.Contains(p))
+                {
+                    NonHiddenUniqueIPPlayers.Add(p);
+                }
+            }
+            else
+            {
+                if (NonHiddenUniqueIPPlayers.Contains(p) && uniqueIPs.ContainsKey(p.ip))
+                {
+                    NonHiddenUniqueIPPlayers.Remove(p);
+                }
+            }
+            NonHiddenUniqueIPPlayerCount = NonHiddenUniqueIPPlayers.Count;
+        }
         /// <summary> Matches given name against the names of all online players that the given player can see </summary>
         /// <returns> A Player instance if exactly one match was found </returns>
         public static Player FindMatches(Player pl, string name) {

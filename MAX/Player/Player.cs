@@ -30,9 +30,9 @@ using MAX.SQL;
 using BlockID = System.UInt16;
 
 namespace MAX {
-    public class MAXPlayer : Player
+    public class MAX : Player
     {
-        public MAXPlayer() : base("&S(&4MAX&S)")
+        public MAX() : base("&S(&4MAX&S)")
         {
             group = Group.MAXRank;
             color = "&S";
@@ -46,13 +46,13 @@ namespace MAX {
 
         public override void Message(string message)
         {
-            Logger.Log(LogType.Debug, message);
+            Logger.Log(LogType.MAXMessage, message);
         }
     }
     public partial class Player : Entity, IDisposable {
 
         public static int sessionCounter;
-        public static Player MAX = new MAXPlayer();
+        public static Player MAX = new MAX();
         //This is so that addon devs can declare a player without needing a socket..
         //They would still have to do p.Dispose()..
         public Player(string playername) { 
@@ -136,7 +136,7 @@ namespace MAX {
             bool devPrefix = Server.Config.SoftwareStaffPrefixes &&
                              Server.Devs.CaselessContains(truename);
 
-            prefixes.Add(devPrefix        ? MakeTitle("Dev", "&d") : "");
+            prefixes.Add(devPrefix        ? MakeTitle("Dev", "&4") : "");
             prefixes.Add(title.Length > 0 ? MakeTitle(title, titlecolor) : "");
 
             OnSettingPrefixEvent.Call(this, prefixes);
@@ -285,10 +285,8 @@ namespace MAX {
                 Entities.DespawnEntities(this, false);
                 ShowDisconnectInChat(chatMsg, isKick);
                 SaveStats();
-
                 PlayerInfo.Online.Remove(this);
                 OnPlayerDisconnectEvent.Call(this, discMsg);
-                
                 level.AutoUnload();
                 Dispose();
             } catch (Exception e) { 

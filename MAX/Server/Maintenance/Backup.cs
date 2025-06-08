@@ -86,7 +86,7 @@ namespace MAX
             for (int i = 0; i < paths.Count; i++) {
                 string path = paths[i];
                 // .lvl contents are already compressed, no point in compressing again
-                bool compressThis = compress && !path.CaselessContains(".lvl") && !path.CaselessContains(".pklvl");
+                bool compressThis = compress && !path.CaselessContains(".lvl") && !path.CaselessContains(".mcf");
                 
                 try {
                     using (Stream src = File.OpenRead(path)) {

@@ -19,38 +19,62 @@ using MAX.Events;
 using MAX.Events.EconomyEvents;
 using MAX.Events.PlayerEvents;
 using MAX.Events.ServerEvents;
+using MAX.Network;
 
-namespace MAX.Core {
-
-    public sealed class CoreAddon : Addon {
+namespace MAX.Core
+{
+    public sealed class CoreAddon : Addon
+    {
         public override string name { get { return "CoreAddon"; } }
-
-        public override void Load(bool startup) {
+        public static void HandleDisconnect(Player p, string reason)
+        {
+            PlayerInfo.NonHiddenUniqueIPCount(p);
+            foreach (Heartbeat beat in Heartbeat.Heartbeats)
+            {
+                beat.Pump();
+            }
+        }
+        public static void HandleConnect(Player p, string mppass)
+        {
+            if (p.cancelconnecting) return;
+            PlayerInfo.NonHiddenUniqueIPCount(p);
+            foreach (Heartbeat beat in Heartbeat.Heartbeats)
+            {
+                beat.Pump();
+            }
+        }
+        public override void Load(bool startup)
+        {
+            OnPlayerDisconnectEvent.Register(HandleDisconnect, Priority.Critical);
+            OnPlayerStartConnectingEvent.Register(HandleConnect, Priority.Critical);
             OnPlayerConnectEvent.Register(ConnectHandler.HandleConnect, Priority.Critical);
             OnPlayerOrderEvent.Register(ChatHandler.HandleOrder, Priority.Critical);
             OnChatEvent.Register(ChatHandler.HandleOnChat, Priority.Critical);
             OnPlayerStartConnectingEvent.Register(ConnectingHandler.HandleConnecting, Priority.Critical);
-            
+
             OnSentMapEvent.Register(MiscHandlers.HandleSentMap, Priority.Critical);
             OnPlayerMoveEvent.Register(MiscHandlers.HandlePlayerMove, Priority.Critical);
             OnPlayerClickEvent.Register(MiscHandlers.HandlePlayerClick, Priority.Critical);
             OnChangedZoneEvent.Register(MiscHandlers.HandleChangedZone, Priority.Critical);
-            
+
             OnEcoTransactionEvent.Register(EcoHandlers.HandleEcoTransaction, Priority.Critical);
             OnModActionEvent.Register(ModActionHandler.HandleModAction, Priority.Critical);
         }
-        
-        public override void Unload(bool shutdown) {
+
+        public override void Unload(bool shutdown)
+        {
+            OnPlayerDisconnectEvent.Unregister(HandleDisconnect);
+            OnPlayerStartConnectingEvent.Unregister(HandleConnect);
             OnPlayerConnectEvent.Unregister(ConnectHandler.HandleConnect);
             OnPlayerOrderEvent.Unregister(ChatHandler.HandleOrder);
             OnChatEvent.Unregister(ChatHandler.HandleOnChat);
             OnPlayerStartConnectingEvent.Unregister(ConnectingHandler.HandleConnecting);
-            
+
             OnSentMapEvent.Unregister(MiscHandlers.HandleSentMap);
             OnPlayerMoveEvent.Unregister(MiscHandlers.HandlePlayerMove);
             OnPlayerClickEvent.Unregister(MiscHandlers.HandlePlayerClick);
             OnChangedZoneEvent.Unregister(MiscHandlers.HandleChangedZone);
-            
+
             OnEcoTransactionEvent.Unregister(EcoHandlers.HandleEcoTransaction);
             OnModActionEvent.Unregister(ModActionHandler.HandleModAction);
         }

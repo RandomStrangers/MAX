@@ -82,7 +82,7 @@ namespace MAX.Network
                 "&public="   + Server.Config.Public +
                 "&version=7" +
                 "&salt="     + Salt +
-                "&users="    + PlayerInfo.NonHiddenUniqueIPCount() +
+                "&users="    + PlayerInfo.NonHiddenUniqueIPPlayerCount +
                 "&software=" + Uri.EscapeDataString(Server.SoftwareNameVersioned) +
                 "&web="      + Server.Config.WebClient;
         }

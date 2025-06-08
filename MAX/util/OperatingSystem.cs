@@ -16,8 +16,10 @@
     permissions and limitations under the Licenses.
  */
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace MAX.Platform
@@ -26,14 +28,14 @@ namespace MAX.Platform
     public struct CPUTime
     {
         /// <summary> Total time spent being idle / not executing code </summary>
-        public uint IdleTime;
+        public ulong IdleTime;
         /// <summary> Total time spent executing code in Kernel mode </summary>
-        public uint KernelTime;
+        public ulong KernelTime;
         /// <summary> Total time spent executing code in User mode </summary>
-        public uint UserTime;
+        public ulong UserTime;
         
         /// <summary> Total time spent executing code </summary>
-        public uint ProcessorTime { get { return KernelTime + UserTime; } }
+        public ulong ProcessorTime { get { return KernelTime + UserTime; } }
     }
     
     /// <summary> Summarises resource usage of current process </summary>
@@ -127,11 +129,17 @@ namespace MAX.Platform
                 KernelTime = 1,
                 IdleTime = 1,
                 UserTime = 1,
-            }; 
-            GetSystemTimes(out all.IdleTime, out all.KernelTime, out all.UserTime);
+            };
+            GetSystemTimes(out uint idleTime, out uint kernelTime, out uint userTime);
+            all = new CPUTime()
+            {
+                IdleTime = idleTime,
+                KernelTime = kernelTime,
+                UserTime = userTime,
+            };
             // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes
             // lpKernelTime - "... This time value also includes the amount of time the system has been idle."
-            all.KernelTime -= all.IdleTime;
+            kernelTime -= idleTime;
             return all;
         }
 
@@ -223,25 +231,48 @@ namespace MAX.Platform
 
             return default;
         }
-
+        public static bool AreAllTrue(List<bool> bools)
+        {
+            if (bools == null || !bools.Any())
+            {
+                return false;
+            }
+            return bools.All(Bool => EqualityComparer<bool>.Default.Equals(Bool, true));
+        }
         public static CPUTime ParseCpuLine(string line) {
             // "cpu  [USER TIME] [NICE TIME] [SYSTEM TIME] [IDLE TIME] [I/O WAIT TIME] [IRQ TIME] [SW IRQ TIME]"
             line = line.Replace("  ", " ");
             string[] bits = line.SplitSpaces();
-
-            uint user = uint.Parse(bits[1]);
-            uint nice = uint.Parse(bits[2]);
-            uint kern = uint.Parse(bits[3]);
-            uint idle = uint.Parse(bits[4]);
-            // TODO interrupt time too?
-
+            List<bool> bools = new List<bool>()
+            {
+                ulong.TryParse(bits[1], out ulong user),
+                ulong.TryParse(bits[2], out ulong nice),
+                ulong.TryParse(bits[3], out ulong kern),
+                ulong.TryParse(bits[4], out ulong idle),
+            };
             CPUTime all;
-            all.UserTime   = user + nice;
-            all.KernelTime = kern;
-            all.IdleTime   = idle;
+            if (AreAllTrue(bools))
+            {
+                all = new CPUTime()
+                {
+                    UserTime = user + nice,
+                    KernelTime = kern,
+                    IdleTime = idle,
+                };
+            }
+            else
+            {
+                all = new CPUTime()
+                {
+                    UserTime = 10,
+                    KernelTime = 10,
+                    IdleTime = 10,
+                };
+                Logger.Log(LogType.Warning, "Failed to parse CPU time!");
+            }
+            // TODO interrupt time too?
             return all;
         }
-
 
         public override void RestartInPlace() {
             try {
