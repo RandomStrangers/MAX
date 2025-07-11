@@ -15,29 +15,29 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
+using MAX.Orders;
 using System.Collections.Generic;
 using System.Text;
-using MAX.Orders;
 
 namespace MAX
 {
 
     /// <summary> Encapuslates access permissions (visit or build) for a level/zone. </summary>
-    public abstract class AccessController
+    public class AccessController
     {
 
-        public abstract LevelPermission Min { get; set; }
-        public abstract LevelPermission Max { get; set; }
+        public virtual LevelPermission Min { get; set; }
+        public virtual LevelPermission Max { get; set; }
         /// <summary> List of players who are always allowed to access. </summary>
-        public abstract List<string> Whitelisted { get; }
+        public virtual List<string> Whitelisted { get; }
         /// <summary> List of players who are never allowd to access. </summary>
-        public abstract List<string> Blacklisted { get; }
+        public virtual List<string> Blacklisted { get; }
 
-        public abstract string ColoredName { get; }
-        public abstract string Action { get; }
-        public abstract string ActionIng { get; }
-        public abstract string Type { get; }
-        public abstract string MaxOrd { get; }
+        public virtual string ColoredName { get; }
+        public virtual string Action { get; }
+        public virtual string ActionIng { get; }
+        public virtual string Type { get; }
+        public virtual string MaxOrd { get; }
 
 
         /// <summary> Replaces this instance's access permissions 
@@ -47,9 +47,9 @@ namespace MAX
             Min = source.Min;
             Max = source.Max;
             // TODO this sould be atomic
-            Whitelisted.Clear(); 
+            Whitelisted.Clear();
             Whitelisted.AddRange(source.Whitelisted);
-            Blacklisted.Clear(); 
+            Blacklisted.Clear();
             Blacklisted.AddRange(source.Blacklisted);
         }
 
@@ -72,9 +72,9 @@ namespace MAX
             return AccessResult.Allowed;
         }
 
-        public bool CheckDetailed(Player p) 
-        { 
-            return CheckDetailed(p, p.Rank); 
+        public bool CheckDetailed(Player p)
+        {
+            return CheckDetailed(p, p.Rank);
         }
         public bool CheckDetailed(Player p, LevelPermission plRank)
         {
@@ -211,14 +211,16 @@ namespace MAX
             ApplyChanges(p, lvl, msg);
         }
 
-        public abstract void ApplyChanges(Player p, Level lvl, string msg);
+        public virtual void ApplyChanges(Player p, Level lvl, string msg)
+        {
+        }
 
         public bool CheckRank(Player p, LevelPermission plRank, LevelPermission perm, bool max)
         {
             string mode = max ? "max" : "min";
             if (!CheckDetailed(p, plRank))
             {
-                p.Message("&WHence you cannot change the {1} {0} rank.", Type, mode); 
+                p.Message("&WHence you cannot change the {1} {0} rank.", Type, mode);
                 return false;
             }
 
@@ -233,7 +235,7 @@ namespace MAX
             if (!CheckDetailed(p, plRank))
             {
                 string mode = whitelist ? "whitelist" : "blacklist";
-                p.Message("&WHence you cannot modify the {0} {1}.", Type, mode); 
+                p.Message("&WHence you cannot modify the {0} {1}.", Type, mode);
                 return false;
             }
 
@@ -265,7 +267,7 @@ namespace MAX
         public LevelAccessController(LevelConfig cfg, string levelName, bool isVisit)
         {
             this.cfg = cfg;
-            this.lvlName = levelName;
+            lvlName = levelName;
             this.isVisit = isVisit;
         }
 

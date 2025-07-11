@@ -15,28 +15,28 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Security.Cryptography;
-using System.Threading;
 using MAX.Authentication;
 using MAX.Blocks;
-using MAX.Orders;
 using MAX.DB;
 using MAX.Drawing;
 using MAX.Eco;
 using MAX.Events.LevelEvents;
 using MAX.Events.ServerEvents;
 using MAX.Games;
+using MAX.Modules.Awards;
 using MAX.Network;
+using MAX.Orders;
 using MAX.Platform;
 using MAX.Scripting;
 using MAX.SQL;
 using MAX.Tasks;
 using MAX.Util;
-using MAX.Modules.Awards;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Security.Cryptography;
+using System.Threading;
 
 namespace MAX
 {
@@ -50,14 +50,14 @@ namespace MAX
             {
                 thread.Name = name;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogError(e);
             }
             thread.Start();
         }
         //True = cancel event
-        //Fale = dont cacnel event
+        //False = don't cancel event
         public static bool Check(string ord, string message)
         {
             MAXOrder?.Invoke(ord, message);
@@ -66,8 +66,10 @@ namespace MAX
 
         public static void CheckFile(string file)
         {
-            if (File.Exists(file)) return;
-
+            if (File.Exists(file))
+            {
+                return;
+            }
             Logger.Log(LogType.SystemActivity, file + " doesn't exist, Downloading..");
             try
             {
@@ -129,11 +131,11 @@ namespace MAX
 
         public static void EnsureDirectoryDoesNotExist(string dir)
         {
-            if (Directory.Exists(dir)) 
+            if (Directory.Exists(dir))
             {
                 foreach (string file in Directory.GetFiles(dir))
                 {
-                    File.Delete(file);
+                    FileIO.TryDelete(file);
                 }
                 Directory.Delete(dir, true);
             }
@@ -141,8 +143,20 @@ namespace MAX
         public static void ForceEnableTLS()
         {
             // Force enable TLS 1.1/1.2, otherwise checking for updates on Github doesn't work
-            try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0x300; } catch { }
-            try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0xC00; } catch { }
+            try
+            {
+                ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0x300;
+            }
+            catch
+            {
+            }
+            try
+            {
+                ServicePointManager.SecurityProtocol |= (SecurityProtocolType)0xC00;
+            }
+            catch
+            {
+            }
         }
         public static void EnsureFilesExist()
         {
@@ -160,7 +174,6 @@ namespace MAX
             EnsureDirectoryExists("extra/bots");
             EnsureDirectoryExists(Paths.ImportsDir);
             EnsureDirectoryExists("blockdefs");
-            EnsureDirectoryExists("text/discord"); // TODO move to discord addon
             EnsureDirectoryDoesNotExist("properties");
         }
 
@@ -169,9 +182,9 @@ namespace MAX
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
         }
 
-        public static void LoadAllSettings() 
-        { 
-            LoadAllSettings(false); 
+        public static void LoadAllSettings()
+        {
+            LoadAllSettings(false);
         }
 
         // TODO rethink this
@@ -217,7 +230,10 @@ namespace MAX
             shuttingDown = true;
             lock (stopLock)
             {
-                if (stopThread != null) return stopThread;
+                if (stopThread != null)
+                {
+                    return stopThread;
+                }
                 stopThread = new Thread(() => ShutdownThread(restart, msg));
                 stopThread.Start();
                 return stopThread;
@@ -240,28 +256,28 @@ namespace MAX
             try
             {
                 Player[] players = PlayerInfo.Online.Items;
-                foreach (Player p in players) 
-                { 
-                    p.Leave(msg); 
+                foreach (Player p in players)
+                {
+                    p.Leave(msg);
                 }
             }
-            catch (Exception ex) 
-            { 
-                Logger.LogError(ex); 
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
             }
 
             byte[] kick = Packet.Kick(msg, false);
             try
             {
                 INetSocket[] pending = INetSocket.pending.Items;
-                foreach (INetSocket p in pending) 
-                { 
-                    p.Send(kick, SendFlags.None); 
+                foreach (INetSocket p in pending)
+                {
+                    p.Send(kick, SendFlags.None);
                 }
             }
-            catch (Exception ex) 
-            { 
-                Logger.LogError(ex); 
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
             }
 
             OnShuttingDownEvent.Call(restarting, msg);
@@ -276,9 +292,9 @@ namespace MAX
                     File.WriteAllText("text/autoload.txt", autoload);
                 }
             }
-            catch (Exception ex) 
-            { 
-                Logger.LogError(ex); 
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
             }
 
             try
@@ -286,16 +302,16 @@ namespace MAX
                 Logger.Log(LogType.SystemActivity, "Server shutdown completed");
             }
             catch (Exception e)
-            { 
+            {
                 Logger.LogError(e);
             }
 
-            try 
-            { 
-                FileLogger.Flush(null); 
-            } 
+            try
+            {
+                FileLogger.Flush(null);
+            }
             catch (Exception e)
-            { 
+            {
                 Logger.LogError(e);
             }
 
@@ -320,7 +336,7 @@ namespace MAX
                     continue;
                 }
 
-                autoload = autoload + lvl.name + "=" + lvl.physics + Environment.NewLine;
+                autoload = autoload + lvl.name + "=" + lvl.Physics + Environment.NewLine;
                 lvl.Save();
                 lvl.SaveBlockDBChanges();
             }
@@ -338,7 +354,8 @@ namespace MAX
             return RestartPath;
         }
         /// <summary> Returns the full path to the server executable </summary>
-        public static string GetServerExePath() {
+        public static string GetServerExePath()
+        {
             return RestartPath;
         }
         public static bool checkedOnMono, runningOnMono;
@@ -375,11 +392,15 @@ namespace MAX
         {
             OnMainLevelChangingEvent.Call(ref map);
             string main = mainLevel != null ? mainLevel.name : Config.MainLevel;
-            if (map.CaselessEq(main)) return false;
-
+            if (map.CaselessEq(main))
+            {
+                return false;
+            }
             Level lvl = LevelInfo.FindExact(map) ?? LevelActions.Load(Player.MAX, map, false);
-            if (lvl == null) return false;
-
+            if (lvl == null)
+            {
+                return false;
+            }
             SetMainLevel(lvl);
             return true;
         }
@@ -393,15 +414,17 @@ namespace MAX
 
         public static void DoGC()
         {
-            var sw = Stopwatch.StartNew();
+            Stopwatch sw = Stopwatch.StartNew();
             long start = GC.GetTotalMemory(false);
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
             long end = GC.GetTotalMemory(false);
             double deltaKB = (start - end) / 1024.0;
-            if (deltaKB < 100.0) return;
-
+            if (deltaKB < 100.0)
+            {
+                return;
+            }
             Logger.Log(LogType.BackgroundActivity, "GC performed in {0:F2} ms (tracking {1:F2} KB, freed {2:F2} KB)",
                        sw.Elapsed.TotalMilliseconds, end / 1024.0, deltaKB);
         }
@@ -424,8 +447,10 @@ namespace MAX
             for (ulong i = 0; i < (ulong)str.Length;)
             {
                 rng.GetBytes(one);
-                if (!AcceptableSaltChar((char)one[0])) continue;
-
+                if (!AcceptableSaltChar((char)one[0]))
+                {
+                    continue;
+                }
                 str[i] = (char)one[0]; i++;
             }
             return new string(str);
@@ -439,7 +464,10 @@ namespace MAX
         public static string CalcMppass(string name, string salt)
         {
             byte[] hash = null;
-            lock (md5Lock) hash = md5.ComputeHash(enc.GetBytes(salt + name));
+            lock (md5Lock)
+            {
+                hash = md5.ComputeHash(enc.GetBytes(salt + name));
+            }
             return Utils.ToHexString(hash);
         }
 
@@ -448,7 +476,9 @@ namespace MAX
         public static string ToRawUsername(string name)
         {
             if (Config.ClassicubeAccountPlus)
+            {
                 return name.Replace("+", "");
+            }
             return name;
         }
 
@@ -456,15 +486,20 @@ namespace MAX
         /// <remarks> If ClassiCubeAccountPlus option is set, adds trailing + </remarks>
         public static string FromRawUsername(string name)
         {
-            if (!Config.ClassicubeAccountPlus) return name;
-
+            if (!Config.ClassicubeAccountPlus)
+            {
+                return name;
+            }
             // NOTE:
             // This is technically incorrect when the server has both
             //   classicube-account-plus enabled and is using authentication service suffixes
             // (e.g. ToRawUsername("Test+$") ==> "Test$", so adding + to end is wrong)
             // But since that is an unsupported combination to run the server in anyways,
             //  I decided that it is not worth complicating the implementation for
-            if (!name.Contains("+")) name += "+";
+            if (!name.Contains("+"))
+            {
+                name += "+";
+            }
             return name;
         }
     }

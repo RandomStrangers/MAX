@@ -15,11 +15,11 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Blocks;
 using MAX.Blocks.Physics;
 using MAX.DB;
 using MAX.Maths;
+using System;
 
 namespace MAX
 {
@@ -131,10 +131,10 @@ namespace MAX
         /// <returns> Block.Invalid if coordinates outside level </returns>
         public ushort GetBlock(ushort x, ushort y, ushort z, out int index)
         {
-            if (x >= Width || y >= Height || z >= Length || blocks == null) 
-            { 
-                index = -1; 
-                return Block.Invalid; 
+            if (x >= Width || y >= Height || z >= Length || blocks == null)
+            {
+                index = -1;
+                return Block.Invalid;
             }
             index = x + Width * (z + y * Length);
             byte raw = blocks[index];
@@ -163,8 +163,7 @@ namespace MAX
         /// <remarks> GetBlock / FastGetBlock is preferred over calling this method </remarks>
         public byte GetExtTile(int index)
         {
-            ushort x, y, z;
-            IntToPos(index, out x, out y, out z);
+            IntToPos(index, out ushort x, out ushort y, out ushort z);
 
             int cx = x >> 4, cy = y >> 4, cz = z >> 4;
             byte[] chunk = CustomBlocks[(cy * ChunksZ + cz) * ChunksX + cx];
@@ -333,11 +332,11 @@ namespace MAX
                 if (!CheckAffect(p, x, y, z, old, block)) return ChangeResult.Unchanged;
                 if (old == block) return ChangeResult.Unchanged;
 
-                if (old == Block.Sponge && physics > 0 && block != Block.Sponge)
+                if (old == Block.Sponge && Physics > 0 && block != Block.Sponge)
                 {
                     OtherPhysics.DoSpongeRemoved(this, PosToInt(x, y, z), false);
                 }
-                if (old == Block.LavaSponge && physics > 0 && block != Block.LavaSponge)
+                if (old == Block.LavaSponge && Physics > 0 && block != Block.LavaSponge)
                 {
                     OtherPhysics.DoSpongeRemoved(this, PosToInt(x, y, z), true);
                 }
@@ -364,7 +363,7 @@ namespace MAX
                 }
 
                 errorLocation = "Adding physics";
-                if (physics > 0 && ActivatesPhysics(block)) AddCheck(PosToInt(x, y, z));
+                if (Physics > 0 && ActivatesPhysics(block)) AddCheck(PosToInt(x, y, z));
 
                 Changed = true;
                 ChangedSinceBackup = true;
@@ -386,8 +385,7 @@ namespace MAX
         { //Block change made by physics
             if (!DoPhysicsBlockchange(b, block, overRide, data, addUndo)) return;
 
-            ushort x, y, z;
-            IntToPos(b, out x, out y, out z);
+            IntToPos(b, out ushort x, out ushort y, out ushort z);
             BroadcastChange(x, y, z, block);
         }
 
@@ -418,11 +416,11 @@ namespace MAX
                     if (Props[old].OPBlock || (Props[block].OPBlock && data.Raw != 0)) return false;
                 }
 
-                if (old == Block.Sponge && physics > 0 && block != Block.Sponge)
+                if (old == Block.Sponge && Physics > 0 && block != Block.Sponge)
                 {
                     OtherPhysics.DoSpongeRemoved(this, b, false);
                 }
-                if (old == Block.LavaSponge && physics > 0 && block != Block.LavaSponge)
+                if (old == Block.LavaSponge && Physics > 0 && block != Block.LavaSponge)
                 {
                     OtherPhysics.DoSpongeRemoved(this, b, true);
                 }
@@ -451,8 +449,7 @@ namespace MAX
                 {
                     blocks[b] = Block.ExtendedClass[block >> Block.ExtendedShift];
 
-                    ushort x, y, z;
-                    IntToPos(b, out x, out y, out z);
+                    IntToPos(b, out ushort x, out ushort y, out ushort z);
                     FastSetExtTile(x, y, z, (byte)block);
                 }
                 else
@@ -460,12 +457,11 @@ namespace MAX
                     blocks[b] = (byte)block;
                     if (old >= Block.Extended)
                     {
-                        ushort x, y, z;
-                        IntToPos(b, out x, out y, out z);
+                        IntToPos(b, out ushort x, out ushort y, out ushort z);
                         FastRevertExtTile(x, y, z);
                     }
                 }
-                if (physics > 0 && (ActivatesPhysics(block) || data.Raw != 0))
+                if (Physics > 0 && (ActivatesPhysics(block) || data.Raw != 0))
                 {
                     AddCheck(b, false, data);
                 }
@@ -482,8 +478,7 @@ namespace MAX
         public void UpdateBlock(Player p, ushort x, ushort y, ushort z, ushort block,
                                 ushort flags = BlockDBFlags.ManualPlace, bool buffered = false)
         {
-            int index;
-            ushort old = GetBlock(x, y, z, out index);
+            ushort old = GetBlock(x, y, z, out int index);
             bool drawn = (flags & BlockDBFlags.ManualPlace) == 0;
 
             ChangeResult result = TryChangeBlock(p, x, y, z, block, drawn);

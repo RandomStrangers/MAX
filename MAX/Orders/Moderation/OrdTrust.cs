@@ -15,23 +15,30 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Moderation {
-    public sealed class OrdTrust : Order2 {
-        public override string name { get { return "Trust"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdTrust : Order
+    {
+        public override string Name { get { return "Trust"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0 || message.IndexOf(' ') != -1) { Help(p); return; }
             Player target = PlayerInfo.FindMatches(p, message);
             if (target == null) return;
-            
+
             target.ignoreGrief = !target.ignoreGrief;
             p.Message("{0}&S's trust status: " + target.ignoreGrief, p.FormatNick(target));
-            target.Message("Your trust status was changed to: " + target.ignoreGrief);
+            if (p != target)
+            {
+                target.Message("Your trust status was changed to: " + target.ignoreGrief);
+            }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Trust [name]");
             p.Message("&HTurns off the anti-grief for [name]");
         }

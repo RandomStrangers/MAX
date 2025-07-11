@@ -17,30 +17,34 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.Moderation {
-    
-    public sealed class OrdP2P : Order2 {     
-        public override string name { get { return "P2P"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
 
-        public override void Use(Player p, string message, OrderData data) {
+    public class OrdP2P : Order
+    {
+        public override string Name { get { return "P2P"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces();
             if (args.Length > 2) { Help(p); return; }
             if (args.Length == 1) { p.Message("You did not specify the target player."); return; }
             Player source = PlayerInfo.FindMatches(p, args[0]);
             Player target = PlayerInfo.FindMatches(p, args[1]);
-            
+
             if (source == null || target == null) return;
             if (!CheckRank(p, data, source, "teleport", true)) return;
-            
+
             p.Message("Attempting to teleport " + source.name + " to " + target.name + ".");
             Find("TP").Use(source, target.name, data);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/P2P [source] [target]");
             p.Message("&HTeleports the source player to the target player.");
         }

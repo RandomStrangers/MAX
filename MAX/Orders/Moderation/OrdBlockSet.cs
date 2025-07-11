@@ -16,13 +16,16 @@
     permissions and limitations under the Licenses.
 */
 using MAX.Blocks;
-using BlockID = System.UInt16;
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdBlockSet : ItemPermsOrd {
-        public override string name { get { return "BlockSet"; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+namespace MAX.Orders.Moderation
+{
+    public class OrdBlockSet : ItemPermsOrd
+    {
+        public override string Name { get { return "BlockSet"; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces(2);
             if (args.Length < 2) { Help(p); return; }
 
@@ -32,20 +35,23 @@ namespace MAX.Orders.Moderation {
             SetPerms(p, args, data, perms, "block");
         }
 
-        public override void UpdatePerms(ItemPerms perms, Player p, string msg) {
+        public override void UpdatePerms(ItemPerms perms, Player p, string msg)
+        {
             BlockPerms.Save();
             BlockPerms.ApplyChanges();
-            
-            BlockID block = ((BlockPerms)perms).ID;
-            if (!Block.IsPhysicsType(block)) {
+
+            ushort block = ((BlockPerms)perms).ID;
+            if (!Block.IsPhysicsType(block))
+            {
                 BlockPerms.ResendAllBlockPermissions();
             }
-            
+
             string name = Block.GetName(p, block);
             Announce(p, name + msg);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/BlockSet [block] [rank]");
             p.Message("&HSets lowest rank that can modify/use [block] to [rank]");
             p.Message("&T/BlockSet [block] +[rank]");

@@ -18,54 +18,63 @@
 using MAX.Events;
 using System;
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdJail : Order2 {
-        public override string name { get { return "Jail"; } }
-        public override string shortcut { get { return "ja"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdJail : Order
+    {
+        public override string Name { get { return "Jail"; } }
+        public override string Shortcut { get { return "ja"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces(2);
-            
+
             string target = PlayerInfo.FindMatchesPreferOnline(p, args[0]);
             if (target == null) return;
-            
+
             Group group = ModActionOrd.CheckTarget(p, data, "jail", target);
             if (group == null) return;
-            
-            if (Server.jailed.Contains(target)) {
+
+            if (Server.jailed.Contains(target))
+            {
                 DoUnjail(p, target, args);
-            } else {
+            }
+            else
+            {
                 // unjail has second argument as reason, jail has third argument instead
                 DoJail(p, target, message.SplitSpaces(3));
             }
         }
 
-        public void DoJail(Player p, string target, string[] args) {
+        public void DoJail(Player p, string target, string[] args)
+        {
             if (args.Length < 2) { Help(p); return; }
             TimeSpan duration = TimeSpan.Zero;
             if (!OrderParser.GetTimespan(p, args[1], ref duration, "jail for", "m")) return;
-            
+
             string reason = args.Length > 2 ? args[2] : "";
             reason = ModActionOrd.ExpandReason(p, reason);
             if (reason == null) return;
-            
+
             ModAction action = new ModAction(target, p, ModActionType.Jailed, reason, duration);
             OnModActionEvent.Call(action);
         }
 
-        public void DoUnjail(Player p, string target, string[] args) {
+        public void DoUnjail(Player p, string target, string[] args)
+        {
             string reason = args.Length > 1 ? args[1] : "";
             reason = ModActionOrd.ExpandReason(p, reason);
             if (reason == null) return;
-            
+
             ModAction action = new ModAction(target, p, ModActionType.Unjailed, reason);
             OnModActionEvent.Call(action);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Jail [name] [timespan] <reason>");
             p.Message("&HPrevents [name] from moving for [timespan], or until manually unjailed.");
             p.Message("&HFor <reason>, @number can be used as a shortcut for that rule.");

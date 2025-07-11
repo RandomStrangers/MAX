@@ -15,10 +15,9 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
+using MAX.Orders;
 using System.Collections.Generic;
 using System.Globalization;
-using MAX.Orders;
-using MAX.Network;
 
 namespace MAX
 {
@@ -29,8 +28,8 @@ namespace MAX
 
         public EnvOption(string name, EnvOptions.OptionSetter func, string help)
         {
-            Name = name; 
-            SetFunc = func; 
+            Name = name;
+            SetFunc = func;
             Help = help;
         }
     }
@@ -39,7 +38,7 @@ namespace MAX
     {
         public delegate void OptionSetter(Player p, string area, EnvConfig cfg, string value);
 
-        public static List<EnvOption> Options = new List<EnvOption>() 
+        public static List<EnvOption> Options = new List<EnvOption>()
         {
              new EnvOption("Weather",   SetWeather,   "&HSets the weather (sun, rain, snow)"),
              new EnvOption("SmoothFog", SetSmoothFog, "&HSets whether smoother fog is used"),
@@ -211,7 +210,7 @@ namespace MAX
 
                 if (weather < 0 || weather > 2)
                 {
-                    p.Message("Weather can be either sun, rain, or snow."); 
+                    p.Message("Weather can be either sun, rain, or snow.");
                     return;
                 }
                 string type = weather == 0 ? "&SSun" : (weather == 1 ? "&1Rain" : "&fSnow");
@@ -246,11 +245,10 @@ namespace MAX
             }
             else
             {
-                ushort block;
-                if (!OrderParser.GetBlock(p, input, out block)) return;
+                if (!OrderParser.GetBlock(p, input, out ushort block)) return;
                 if (Block.IsPhysicsType(block))
                 {
-                    p.Message("&WCannot use physics block ids for &T/env"); 
+                    p.Message("&WCannot use physics block ids for &T/env");
                     return;
                 }
 
@@ -304,7 +302,7 @@ namespace MAX
             }
             else
             {
-                ColorDesc rgb = default(ColorDesc);
+                ColorDesc rgb = default;
                 if (!OrderParser.GetHex(p, input, ref rgb)) return;
 
                 p.Message("Set {0} for {1} &Sto #{2}", variable, area, input);

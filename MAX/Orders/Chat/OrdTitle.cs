@@ -16,29 +16,34 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.Chatting 
-{    
-    public class OrdTitle : EntityPropertyOrd 
-    {        
-        public override string name { get { return "Title"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
-        public override OrderPerm[] ExtraPerms {
+namespace MAX.Orders.Chatting
+{
+    public class OrdTitle : EntityPropertyOrd
+    {
+        public override string Name { get { return "Title"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Admin, "can change the title of others") }; }
         }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("XTitle", "-own") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             UsePlayer(p, data, message, "title");
         }
 
-        public override void SetPlayerData(Player p, string target, string title) {
+        public override void SetPlayerData(Player p, string target, string title)
+        {
             PlayerOperations.SetTitle(p, target, title);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Title [player] [title]");
             p.Message("&HSets the title of [player]");
             p.Message("&H  If [title] is not given, removes [player]'s title.");

@@ -15,19 +15,23 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.Building {   
-    public sealed class OrdStatic : Order2 {      
-        public override string name { get { return "Static"; } }
-        public override string shortcut { get { return "t"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+namespace MAX.Orders.Building
+{
+    public class OrdStatic : Order
+    {
+        public override string Name { get { return "Static"; } }
+        public override string Shortcut { get { return "t"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("zz", "cuboid") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             p.staticOrders = !p.staticOrders;
             p.ClearBlockchange();
 
@@ -39,8 +43,9 @@ namespace MAX.Orders.Building {
             string ord = parts[0], args = parts.Length > 1 ? parts[1] : "";
             p.HandleOrder(ord, args, data);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Static [order]");
             p.Message("&HMakes every order a toggle.");
             p.Message("&HIf [order] is given, then that order is used");

@@ -15,9 +15,9 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
-using System.Collections.Generic;
-using MAX.Orders;
 using MAX.Generator.Foliage;
+using MAX.Orders;
+using System.Collections.Generic;
 
 namespace MAX
 {
@@ -45,7 +45,7 @@ namespace MAX
         public const string Chat = "Chat", Guns = "Guns", Buildable = "Buildable", Deletable = "Deletable";
         public const string LoadDelay = "LoadDelay", Drawing = "Drawing", Authors = "Authors";
 
-        public static List<LevelOption> Options = new List<LevelOption>() 
+        public static List<LevelOption> Options = new List<LevelOption>()
         {
              new LevelOption(MOTD,       SetMotd,  "&HSets the motd for this map. (leave blank to use default motd)"),
              new LevelOption(RealmOwner, SetOwner, "&HSets the players allowed to use /realm on this map."),
@@ -141,57 +141,57 @@ namespace MAX
             p.Message("Set tree type that saplings grow into to {0}.", value);
         }
 
-        public static void SetFinite(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.FiniteLiquids, "Finite mode"); 
+        public static void SetFinite(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.FiniteLiquids, "Finite mode");
         }
-        public static void SetAI(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.AnimalHuntAI, "Animal AI"); 
+        public static void SetAI(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.AnimalHuntAI, "Animal AI");
         }
-        public static void SetEdge(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.EdgeWater, "Edge water"); 
+        public static void SetEdge(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.EdgeWater, "Edge water");
         }
-        public static void SetGrass(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.GrassGrow, "Growing grass"); 
+        public static void SetGrass(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.GrassGrow, "Growing grass");
         }
-        public static void SetDeath(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.SurvivalDeath, "Survival death"); 
+        public static void SetDeath(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.SurvivalDeath, "Survival death");
         }
-        public static void SetKiller(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.KillerBlocks, "Killer blocks"); 
+        public static void SetKiller(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.KillerBlocks, "Killer blocks");
         }
-        public static void SetUnload(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.AutoUnload, "Auto unload"); 
+        public static void SetUnload(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.AutoUnload, "Auto unload");
         }
-        public static void SetGoto(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.LoadOnGoto, "Load on goto"); 
+        public static void SetGoto(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.LoadOnGoto, "Load on goto");
         }
-        public static void SetDecay(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.LeafDecay, "Leaf decay"); 
+        public static void SetDecay(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.LeafDecay, "Leaf decay");
         }
-        public static void SetFlow(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.RandomFlow, "Random flow"); 
+        public static void SetFlow(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.RandomFlow, "Random flow");
         }
-        public static void SetTrees(Player p, Level l, string v) 
-        { 
-            Toggle(p, l, ref l.Config.GrowTrees, "Tree growing"); 
+        public static void SetTrees(Player p, Level l, string v)
+        {
+            Toggle(p, l, ref l.Config.GrowTrees, "Tree growing");
         }
-        public static void SetBuildable(Player p, Level l, string v) 
-        { 
-            TogglePerms(p, l, ref l.Config.Buildable, "Buildable"); 
+        public static void SetBuildable(Player p, Level l, string v)
+        {
+            TogglePerms(p, l, ref l.Config.Buildable, "Buildable");
         }
-        public static void SetDeletable(Player p, Level l, string v) 
-        { 
-            TogglePerms(p, l, ref l.Config.Deletable, "Deletable"); 
+        public static void SetDeletable(Player p, Level l, string v)
+        {
+            TogglePerms(p, l, ref l.Config.Deletable, "Deletable");
         }
 
         public static void SetChat(Player p, Level l, string v)
@@ -230,7 +230,7 @@ namespace MAX
 
             if (p.Rank < LevelPermission.Admin && raw > 2500)
             {
-                p.Message("Only SuperOPs may set physics overload higher than 2500"); 
+                p.Message("Only SuperOPs may set physics overload higher than 2500");
                 return;
             }
             SetInt(l, raw, ref l.Config.PhysicsOverload, "Physics overload");

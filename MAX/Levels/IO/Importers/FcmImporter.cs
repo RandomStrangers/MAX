@@ -15,11 +15,11 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
+using MAX.Maths;
 using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using MAX.Maths;
 
 namespace MAX.Levels.IO
 {
@@ -39,13 +39,14 @@ namespace MAX.Levels.IO
         {
             BinaryReader reader = new BinaryReader(src);
             Vec3U16 dims = ReadHeader(reader);
-            Level lvl = new Level(name, dims.X, dims.Y, dims.Z);
-
-            lvl.spawnx = (ushort)(reader.ReadInt32() / 32);
-            lvl.spawny = (ushort)(reader.ReadInt32() / 32);
-            lvl.spawnz = (ushort)(reader.ReadInt32() / 32);
-            lvl.rotx = reader.ReadByte();
-            lvl.roty = reader.ReadByte();
+            Level lvl = new Level(name, dims.X, dims.Y, dims.Z)
+            {
+                spawnx = (ushort)(reader.ReadInt32() / 32),
+                spawny = (ushort)(reader.ReadInt32() / 32),
+                spawnz = (ushort)(reader.ReadInt32() / 32),
+                rotx = reader.ReadByte(),
+                roty = reader.ReadByte()
+            };
 
             reader.ReadUInt32();  // date modified
             reader.ReadUInt32();  // date created
@@ -99,9 +100,9 @@ namespace MAX.Levels.IO
             return Encoding.ASCII.GetString(data);
         }
 
-        public static char[] comma = new char[] 
-        { 
-            ',' 
+        public static char[] comma = new char[]
+        {
+            ','
         };
         public static void ParseZone(Level lvl, string raw)
         {

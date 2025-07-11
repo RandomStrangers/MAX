@@ -17,20 +17,22 @@
  */
 using MAX.Util;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdOpRules : Order2 
+    public class OrdOpRules : Order
     {
-        public override string name { get { return "OpRules"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override string Name { get { return "OpRules"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             TextFile oprulesFile = TextFile.Files["OpRules"];
             oprulesFile.EnsureExists();
 
             Player who = p;
-            if (message.Length > 0) {
+            if (message.Length > 0)
+            {
                 who = PlayerInfo.FindMatches(p, message);
                 if (who == null) return;
                 if (!CheckRank(p, data, who, "send oprules to", false)) return;
@@ -41,7 +43,8 @@ namespace MAX.Orders.Info
             who.MessageLines(oprules);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/OpRules [player]");
             p.Message("&HDisplays server oprules to a player");
         }

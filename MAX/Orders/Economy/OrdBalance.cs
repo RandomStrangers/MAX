@@ -15,22 +15,23 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Eco;
+using System;
 
-namespace MAX.Orders.Eco 
+namespace MAX.Orders.Eco
 {
-    public sealed class OrdBalance : Order2 
+    public class OrdBalance : Order
     {
-        public override string name { get { return "Balance"; } }
-        public override string shortcut { get { return "Money"; } }
-        public override string type { get { return OrderTypes.Economy; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override string Name { get { return "Balance"; } }
+        public override string Shortcut { get { return "Money"; } }
+        public override string Type { get { return OrderTypes.Economy; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (CheckSuper(p, message, "player name")) return;
             if (message.Length == 0) message = p.name;
             if (!Formatter.ValidPlayerName(p, message)) return;
-            
+
             if (!Economy.CheckIsEnabled(p, this)) return;
 
             Player who = PlayerInfo.FindMatches(p, message, out int matches);
@@ -51,7 +52,7 @@ namespace MAX.Orders.Eco
             string targetName = p.FormatNick(target);
             p.Message("Economy stats for {0}&S:", targetName);
             p.Message(" Current balance: &f{0} &3{1}", money, Server.Config.Currency);
-            
+
             Economy.EcoStats ecos = Economy.RetrieveStats(target);
             p.Message(" Total spent: &f" + ecos.TotalSpent + " &3" + Server.Config.Currency);
             Output(p, ecos.Purchase, "purchase");
@@ -61,22 +62,25 @@ namespace MAX.Orders.Eco
         }
 
         public const string dateFormat = "MM'/'dd'/'yyyy HH:mm:ss";
-        public static void Output(Player p, string value, string type) {
+        public static void Output(Player p, string value, string type)
+        {
             if (value == null) return;
-            
-            if (!AdjustRelative(ref value, " on %f")) {
+
+            if (!AdjustRelative(ref value, " on %f"))
+            {
                 AdjustRelative(ref value, " - Date: %f"); // old date format for purchases
             }
             p.Message(" Last {0}: {1}", type, value);
         }
 
-        public static bool AdjustRelative(ref string value, string dateStart) {
+        public static bool AdjustRelative(ref string value, string dateStart)
+        {
             int index = value.IndexOf(dateStart);
             if (index == -1) return false;
-            
+
             string prefix = value.Substring(0, index);
             index += dateStart.Length; // skip over the date start bit
-            
+
             const int dateLength = 19;
             string date = value.Substring(index, dateLength);
 
@@ -92,7 +96,8 @@ namespace MAX.Orders.Eco
             return true;
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Balance [player]");
             p.Message("&HShows how much &3" + Server.Config.Currency + " &H[player] has, " +
                            "plus their most recent transactions.");

@@ -18,20 +18,21 @@
 using MAX.Eco;
 using MAX.Events.EconomyEvents;
 
-namespace MAX.Orders.Eco 
+namespace MAX.Orders.Eco
 {
-    public abstract class MoneyOrd : Order2 
+    public abstract class MoneyOrd : Order
     {
-        public override string type { get { return OrderTypes.Economy; } }
+        public override string Type { get { return OrderTypes.Economy; } }
 
-        public bool ParseArgs(Player p, string message, ref bool all, 
-                                 string action, out EcoTransaction data) {
+        public bool ParseArgs(Player p, string message, ref bool all,
+                                 out EcoTransaction data)
+        {
             data = new EcoTransaction();
             string[] args = message.SplitSpaces(3);
             if (args.Length < 2) { Help(p); return false; }
-            
+
             if (!Economy.CheckIsEnabled(p, this)) return false;
-            
+
             data.TargetName = args[0];
             data.Reason = args.Length > 2 ? args[2] : null;
             data.Source = p;

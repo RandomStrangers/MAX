@@ -19,7 +19,7 @@ using System;
 
 namespace MAX.Maths
 {
-       /// <summary> 3 component vector (unsigned 32 bit integer) </summary>
+    /// <summary> 3 component vector (unsigned 32 bit integer) </summary>
     public struct Vec3U32 : IEquatable<Vec3U32>
     {
         public uint X, Y, Z;
@@ -29,15 +29,15 @@ namespace MAX.Maths
 
         public Vec3U32(uint x, uint y, uint z)
         {
-            X = x; 
+            X = x;
             Y = y;
             Z = z;
         }
 
         public Vec3U32(uint value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -75,7 +75,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3U32) && Equals((Vec3U32)obj);
+            return (obj is Vec3U32 u) && Equals(u);
         }
 
         public bool Equals(Vec3U32 other)
@@ -102,9 +102,9 @@ namespace MAX.Maths
             return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
         }
 
-        public override string ToString() 
-        { 
-            return X + ", " + Y + ", " + Z; 
+        public override string ToString()
+        {
+            return X + ", " + Y + ", " + Z;
         }
     }
     /// <summary> 3 component vector (unsigned 64 bit integer) </summary>
@@ -117,15 +117,15 @@ namespace MAX.Maths
 
         public Vec3U64(ulong x, ulong y, ulong z)
         {
-            X = x; 
+            X = x;
             Y = y;
             Z = z;
         }
 
         public Vec3U64(ulong value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -163,7 +163,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3U64) && Equals((Vec3U64)obj);
+            return (obj is Vec3U64 u) && Equals(u);
         }
 
         public bool Equals(Vec3U64 other)
@@ -190,13 +190,13 @@ namespace MAX.Maths
             return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
         }
 
-        public override string ToString() 
-        { 
-            return X + ", " + Y + ", " + Z; 
+        public override string ToString()
+        {
+            return X + ", " + Y + ", " + Z;
         }
     }
 
-       /// <summary> 3 component vector (signed 8 bit integer) </summary>
+    /// <summary> 3 component vector (signed 8 bit integer) </summary>
     public struct Vec3S8 : IEquatable<Vec3S8>
     {
         public sbyte X, Y, Z;
@@ -204,15 +204,15 @@ namespace MAX.Maths
 
         public Vec3S8(sbyte x, sbyte y, sbyte z)
         {
-            X = x; 
-            Y = y; 
+            X = x;
+            Y = y;
             Z = z;
         }
 
         public Vec3S8(sbyte value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -226,32 +226,32 @@ namespace MAX.Maths
         {
             get
             {
-                if (index == 0) 
-                { 
-                    return X; 
+                if (index == 0)
+                {
+                    return X;
                 }
                 else if (index == 1)
-                { 
-                    return Y; 
+                {
+                    return Y;
                 }
-                else 
-                { 
-                    return Z; 
+                else
+                {
+                    return Z;
                 }
             }
             set
             {
-                if (index == 0) 
+                if (index == 0)
                 {
-                    X = value; 
+                    X = value;
                 }
-                else if (index == 1) 
-                { 
-                    Y = value; 
+                else if (index == 1)
+                {
+                    Y = value;
                 }
-                else 
-                { 
-                    Z = value; 
+                else
+                {
+                    Z = value;
                 }
             }
         }
@@ -259,12 +259,12 @@ namespace MAX.Maths
 
         public static Vec3S8 Max(Vec3S8 a, Vec3S8 b)
         {
-            return new Vec3S8((sbyte)Math.Max(a.X, b.X), (sbyte)Math.Max(a.Y, b.Y), (sbyte)Math.Max(a.Z, b.Z));
+            return new Vec3S8(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y), Math.Max(a.Z, b.Z));
         }
 
         public static Vec3S8 Min(Vec3S8 a, Vec3S8 b)
         {
-            return new Vec3S8((sbyte)Math.Min(a.X, b.X), (sbyte)Math.Min(a.Y, b.Y), (sbyte)Math.Min(a.Z, b.Z));
+            return new Vec3S8(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
         }
         public static implicit operator Vec3S8(Vec3S64 a)
         {
@@ -323,7 +323,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3S8) && Equals((Vec3S8)obj);
+            return (obj is Vec3S8 s) && Equals(s);
         }
 
         public bool Equals(Vec3S8 other)
@@ -355,7 +355,7 @@ namespace MAX.Maths
             return X + ", " + Y + ", " + Z;
         }
     }
-       /// <summary> 3 component vector (signed 16 bit integer) </summary>
+    /// <summary> 3 component vector (signed 16 bit integer) </summary>
     public struct Vec3S16 : IEquatable<Vec3S16>
     {
         public short X, Y, Z;
@@ -363,15 +363,15 @@ namespace MAX.Maths
 
         public Vec3S16(short x, short y, short z)
         {
-            X = x; 
-            Y = y; 
+            X = x;
+            Y = y;
             Z = z;
         }
 
         public Vec3S16(short value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -385,32 +385,32 @@ namespace MAX.Maths
         {
             get
             {
-                if (index == 0) 
-                { 
-                    return X; 
+                if (index == 0)
+                {
+                    return X;
                 }
                 else if (index == 1)
-                { 
-                    return Y; 
+                {
+                    return Y;
                 }
-                else 
-                { 
-                    return Z; 
+                else
+                {
+                    return Z;
                 }
             }
             set
             {
-                if (index == 0) 
+                if (index == 0)
                 {
-                    X = value; 
+                    X = value;
                 }
-                else if (index == 1) 
-                { 
-                    Y = value; 
+                else if (index == 1)
+                {
+                    Y = value;
                 }
-                else 
-                { 
-                    Z = value; 
+                else
+                {
+                    Z = value;
                 }
             }
         }
@@ -418,12 +418,12 @@ namespace MAX.Maths
 
         public static Vec3S16 Max(Vec3S16 a, Vec3S16 b)
         {
-            return new Vec3S16((short)Math.Max(a.X, b.X), (short)Math.Max(a.Y, b.Y), (short)Math.Max(a.Z, b.Z));
+            return new Vec3S16(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y), Math.Max(a.Z, b.Z));
         }
 
         public static Vec3S16 Min(Vec3S16 a, Vec3S16 b)
         {
-            return new Vec3S16((short)Math.Min(a.X, b.X), (short)Math.Min(a.Y, b.Y), (short)Math.Min(a.Z, b.Z));
+            return new Vec3S16(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
         }
         public static implicit operator Vec3S16(Vec3S64 a)
         {
@@ -482,7 +482,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3S16) && Equals((Vec3S16)obj);
+            return (obj is Vec3S16 s) && Equals(s);
         }
 
         public bool Equals(Vec3S16 other)
@@ -522,15 +522,15 @@ namespace MAX.Maths
 
         public Vec3S64(long x, long y, long z)
         {
-            X = x; 
-            Y = y; 
+            X = x;
+            Y = y;
             Z = z;
         }
 
         public Vec3S64(long value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -544,32 +544,32 @@ namespace MAX.Maths
         {
             get
             {
-                if (index == 0) 
-                { 
-                    return X; 
+                if (index == 0)
+                {
+                    return X;
                 }
                 else if (index == 1)
-                { 
-                    return Y; 
+                {
+                    return Y;
                 }
-                else 
-                { 
-                    return Z; 
+                else
+                {
+                    return Z;
                 }
             }
             set
             {
-                if (index == 0) 
+                if (index == 0)
                 {
-                    X = value; 
+                    X = value;
                 }
-                else if (index == 1) 
-                { 
-                    Y = value; 
+                else if (index == 1)
+                {
+                    Y = value;
                 }
-                else 
-                { 
-                    Z = value; 
+                else
+                {
+                    Z = value;
                 }
             }
         }
@@ -641,7 +641,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3S64) && Equals((Vec3S64)obj);
+            return (obj is Vec3S64 s) && Equals(s);
         }
 
         public bool Equals(Vec3S64 other)
@@ -683,15 +683,15 @@ namespace MAX.Maths
 
         public Vec3U8(byte x, byte y, byte z)
         {
-            X = x; 
+            X = x;
             Y = y;
             Z = z;
         }
 
         public Vec3U8(byte value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
         public static explicit operator Vec3U8(Vec3S64 a)
@@ -729,7 +729,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3U8) && Equals((Vec3U8)obj);
+            return (obj is Vec3U8 u) && Equals(u);
         }
 
         public bool Equals(Vec3U8 other)
@@ -756,9 +756,9 @@ namespace MAX.Maths
             return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
         }
 
-        public override string ToString() 
-        { 
-            return X + ", " + Y + ", " + Z; 
+        public override string ToString()
+        {
+            return X + ", " + Y + ", " + Z;
         }
     }
     /// <summary> 3 component vector (unsigned 16 bit integer) </summary>
@@ -771,15 +771,15 @@ namespace MAX.Maths
 
         public Vec3U16(ushort x, ushort y, ushort z)
         {
-            X = x; 
+            X = x;
             Y = y;
             Z = z;
         }
 
         public Vec3U16(ushort value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
         public static explicit operator Vec3U16(Vec3S64 a)
@@ -816,7 +816,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3U16) && Equals((Vec3U16)obj);
+            return (obj is Vec3U16 u) && Equals(u);
         }
 
         public bool Equals(Vec3U16 other)
@@ -843,9 +843,9 @@ namespace MAX.Maths
             return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
         }
 
-        public override string ToString() 
-        { 
-            return X + ", " + Y + ", " + Z; 
+        public override string ToString()
+        {
+            return X + ", " + Y + ", " + Z;
         }
     }
 
@@ -857,15 +857,15 @@ namespace MAX.Maths
 
         public Vec3S32(int x, int y, int z)
         {
-            X = x; 
-            Y = y; 
+            X = x;
+            Y = y;
             Z = z;
         }
 
         public Vec3S32(int value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -879,32 +879,32 @@ namespace MAX.Maths
         {
             get
             {
-                if (index == 0) 
-                { 
-                    return X; 
+                if (index == 0)
+                {
+                    return X;
                 }
                 else if (index == 1)
-                { 
-                    return Y; 
+                {
+                    return Y;
                 }
-                else 
-                { 
-                    return Z; 
+                else
+                {
+                    return Z;
                 }
             }
             set
             {
-                if (index == 0) 
+                if (index == 0)
                 {
-                    X = value; 
+                    X = value;
                 }
-                else if (index == 1) 
-                { 
-                    Y = value; 
+                else if (index == 1)
+                {
+                    Y = value;
                 }
-                else 
-                { 
-                    Z = value; 
+                else
+                {
+                    Z = value;
                 }
             }
         }
@@ -976,7 +976,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3S32) && Equals((Vec3S32)obj);
+            return (obj is Vec3S32 s) && Equals(s);
         }
 
         public bool Equals(Vec3S32 other)
@@ -1015,15 +1015,15 @@ namespace MAX.Maths
 
         public Vec3F32(float x, float y, float z)
         {
-            X = x; 
-            Y = y; 
+            X = x;
+            Y = y;
             Z = z;
         }
 
         public Vec3F32(float value)
         {
-            X = value; 
-            Y = value; 
+            X = value;
+            Y = value;
             Z = value;
         }
 
@@ -1056,8 +1056,8 @@ namespace MAX.Maths
             // handle zero vector
             if (invLen == float.PositiveInfinity) return a;
 
-            a.X *= invLen; 
-            a.Y *= invLen; 
+            a.X *= invLen;
+            a.Y *= invLen;
             a.Z *= invLen;
             return a;
         }
@@ -1091,7 +1091,7 @@ namespace MAX.Maths
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec3F32) && Equals((Vec3F32)obj);
+            return (obj is Vec3F32 f) && Equals(f);
         }
 
         public bool Equals(Vec3F32 other)

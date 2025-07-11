@@ -17,25 +17,27 @@
  */
 using System;
 
-namespace MAX.Undo 
+namespace MAX.Undo
 {
-    public sealed class UndoDrawOpEntry 
+    public class UndoDrawOpEntry
     {
         public string DrawOpName;
         public string LevelName;
         public DateTime Start, End;
-        
-        public void Init(string op, string map) {
+
+        public void Init(string op, string map)
+        {
             DrawOpName = op; LevelName = map;
             // Use same time method as DoBlockchange writing to undo buffer
             int timeDelta = (int)DateTime.UtcNow.Subtract(Server.StartTime).TotalSeconds;
             Start = Server.StartTime.AddTicks(timeDelta * TimeSpan.TicksPerSecond);
         }
-        
-        public void Finish(Player p) {
+
+        public void Finish(Player p)
+        {
             int timeDelta = (int)DateTime.UtcNow.Subtract(Server.StartTime).TotalSeconds + 1;
             End = Server.StartTime.AddTicks(timeDelta * TimeSpan.TicksPerSecond);
-            
+
             p.DrawOps.Add(this);
             if (p.DrawOps.Count > 200) p.DrawOps.RemoveFirst();
         }

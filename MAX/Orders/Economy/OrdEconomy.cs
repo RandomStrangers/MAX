@@ -15,55 +15,74 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Eco;
+using System;
 
-namespace MAX.Orders.Eco {
-    public sealed class OrdEconomy : Order2 {
-        public override string name { get { return "Economy"; } }
-        public override string shortcut { get { return "Eco"; } }
-        public override string type { get { return OrderTypes.Economy; } }
-        public override OrderPerm[] ExtraPerms {
+namespace MAX.Orders.Eco
+{
+    public class OrdEconomy : Order
+    {
+        public override string Name { get { return "Economy"; } }
+        public override string Shortcut { get { return "Eco"; } }
+        public override string Type { get { return OrderTypes.Economy; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can setup the economy") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] raw = message.SplitSpaces();
             string[] args = new string[] { "", "", "", "", "", "", "", "" };
             for (int i = 0; i < Math.Min(args.Length, raw.Length); i++)
                 args[i] = raw[i];
             if (!CheckExtraPerm(p, data, 1)) return;
-            
-            if (args[0].CaselessEq("enable")) {
+
+            if (args[0].CaselessEq("enable"))
+            {
                 p.Message("Economy is now &aenabled");
                 Economy.Enabled = true; Economy.Save();
-            } else if (args[0].CaselessEq("disable")) {
+            }
+            else if (args[0].CaselessEq("disable"))
+            {
                 p.Message("Economy is now &cdisabled");
                 Economy.Enabled = false; Economy.Save();
-            } else {
+            }
+            else
+            {
                 Item item = Economy.GetItem(args[0]);
-                if (item != null) {
+                if (item != null)
+                {
                     item.Setup(p, args);
                     Economy.Save();
-                } else if (args[1].Length == 0) {
+                }
+                else if (args[1].Length == 0)
+                {
                     Help(p);
-                } else {
+                }
+                else
+                {
                     Help(p, args[1]);
                 }
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Eco enable/disable &H- Enables/disables the economy system.");
             p.Message("&T/Eco help [item] &H- Outputs help for setting up that item.");
             p.Message("   &HAll items: &S" + Economy.Items.Join(item => item.Name));
         }
-        
-        public override void Help(Player p, string message) {
+
+        public override void Help(Player p, string message)
+        {
             Item item = Economy.GetItem(message);
-            if (item == null) {
+            if (item == null)
+            {
                 p.Message("No item has that name, see &T/Eco help &Sfor a list of items.");
-            } else {
+            }
+            else
+            {
                 item.OnSetupHelp(p);
             }
         }

@@ -15,23 +15,22 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.Config;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MAX.Config;
-using MAX.Network;
 
 namespace MAX
 {
-    public class ConfigEnvIntAttribute : ConfigIntegerAttribute
+    public class ConfigEnvIntAttribute : ConfigSignedIntegerAttribute
     {
         public int minValue, maxValue;
 
-        public ConfigEnvIntAttribute(string name, int min, int max) : base(name, "Env") 
-        { 
+        public ConfigEnvIntAttribute(string name, int min, int max) : base(name, "Env")
+        {
             minValue = min;
-            maxValue = max; 
+            maxValue = max;
         }
 
         public override object Parse(string value)
@@ -63,19 +62,18 @@ namespace MAX
     // Hacky workaround for old ExponentialFog attribute which was a bool
     public class ConfigExpFogAttribute : ConfigEnvIntAttribute
     {
-        public ConfigExpFogAttribute(string name) : base(name, -1, 1) 
-        { 
+        public ConfigExpFogAttribute(string name) : base(name, -1, 1)
+        {
         }
 
         public override object Parse(string raw)
         {
-            bool value;
-            if (bool.TryParse(raw, out value)) return value ? 1 : 0;
+            if (bool.TryParse(raw, out bool value)) return value ? 1 : 0;
             return base.Parse(raw);
         }
     }
 
-    public abstract class EnvConfig
+    public class EnvConfig
     {
         public const int ENV_USE_DEFAULT = int.MaxValue;
         public const int envRange = 0xFFFFFF;
@@ -227,7 +225,7 @@ namespace MAX
         }
     }
 
-    public abstract class AreaConfig : EnvConfig
+    public class AreaConfig : EnvConfig
     {
         [ConfigString("MOTD", "General", "ignore", true)]
         public string MOTD = "ignore";

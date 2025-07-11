@@ -17,41 +17,52 @@
  */
 using System.IO;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdView : Order2 
+    public class OrdView : Order
     {
-        public override string name { get { return "View"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
-            if (!Directory.Exists("extra/text/")) 
+        public override string Name { get { return "View"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (!Directory.Exists("extra/text/"))
                 Directory.CreateDirectory("extra/text");
-            
-            if (message.Length == 0) {
-                string[] files = Directory.GetFiles("extra/text", "*.txt");
+
+            if (message.Length == 0)
+            {
+                string[] files = FileIO.TryGetFiles("extra/text", "*.txt");
                 string all = files.Join(f => Path.GetFileNameWithoutExtension(f));
 
-                if (all.Length == 0) {
+                if (all.Length == 0)
+                {
                     p.Message("No files are viewable by you");
-                } else {
+                }
+                else
+                {
                     p.Message("Available files:");
                     p.Message(all);
                 }
-            } else {
+            }
+            else
+            {
                 message = Path.GetFileName(message);
-                
-                if (File.Exists("extra/text/" + message + ".txt")) {
+
+                if (File.Exists("extra/text/" + message + ".txt"))
+                {
                     string[] lines = File.ReadAllLines("extra/text/" + message + ".txt");
                     p.MessageLines(lines);
-                } else {
+                }
+                else
+                {
                     p.Message("File specified doesn't exist");
                 }
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/view &H- Lists all files you can view");
             p.Message("&T/view [file] &H- Views [file]'s contents");
         }

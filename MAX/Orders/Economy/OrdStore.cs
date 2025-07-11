@@ -17,40 +17,48 @@
  */
 using MAX.Eco;
 
-namespace MAX.Orders.Eco 
+namespace MAX.Orders.Eco
 {
-    public sealed class OrdStore : Order2 
+    public class OrdStore : Order
     {
-        public override string name { get { return "Store"; } }
-        public override string shortcut { get { return "Shop"; } }
-        public override string type { get { return OrderTypes.Economy; } }
-        public override OrderDesignation[] Designations {
+        public override string Name { get { return "Store"; } }
+        public override string Shortcut { get { return "Shop"; } }
+        public override string Type { get { return OrderTypes.Economy; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("Item") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {            
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (!Economy.CheckIsEnabled(p, this)) return;
-            
-            if (message.Length == 0 || IsListModifier(message)) {
-        		Paginator.Output(p, Economy.GetEnabledItems(), 
-        		                 PrintItemOverview, "Store", "enabled Items", message);
-                p.Message("&HUse &T/Store [item] &Hto see more information about that item.");
-            } else {
-                Item item = Economy.GetItem(message);
-                if (item == null) { Help(p); return; }                
 
-                if (!item.Enabled) {
+            if (message.Length == 0 || IsListModifier(message))
+            {
+                Paginator.Output(p, Economy.GetEnabledItems(),
+                                 PrintItemOverview, "Store", "enabled Items", message);
+                p.Message("&HUse &T/Store [item] &Hto see more information about that item.");
+            }
+            else
+            {
+                Item item = Economy.GetItem(message);
+                if (item == null) { Help(p); return; }
+
+                if (!item.Enabled)
+                {
                     p.Message("&WThe " + item.ShopName + " item is not currently buyable."); return;
                 }
                 item.OnStoreOrder(p);
             }
         }
 
-        public static void PrintItemOverview(Player p, Item item) {
-        	item.OnStoreOverview(p);
+        public static void PrintItemOverview(Player p, Item item)
+        {
+            item.OnStoreOverview(p);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Store [item]");
             p.Message("&HViews information about the specific item, such as its cost.");
             p.Message("&T/Store");

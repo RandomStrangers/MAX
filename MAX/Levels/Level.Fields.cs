@@ -15,15 +15,15 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using MAX.Blocks;
 using MAX.Blocks.Physics;
 using MAX.DB;
 using MAX.Maths;
 using MAX.Network;
 using MAX.Util;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace MAX
 {
@@ -98,7 +98,7 @@ namespace MAX
         public LevelAccessController VisitAccess, BuildAccess;
 
         // Physics fields and settings
-        public int physics { get { return Physicsint; } }
+        public int Physics { get { return Physicsint; } }
         public int Physicsint;
         public int currentUndo;
 

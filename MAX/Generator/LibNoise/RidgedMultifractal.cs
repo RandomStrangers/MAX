@@ -34,7 +34,7 @@ namespace LibNoise
 
         public RidgedMultifractal()
         {
-            Lacunarity  = 2.0;
+            Lacunarity = 2.0;
             OctaveCount = 6;
         }
 
@@ -43,8 +43,6 @@ namespace LibNoise
             x *= Frequency;
             y *= Frequency;
             z *= Frequency;
-
-            double signal = 0.0;
             double value = 0.0;
             double weight = 1.0;
 
@@ -55,7 +53,7 @@ namespace LibNoise
 
             for (int octave = 0; octave < OctaveCount; octave++)
             {
-                signal = GradientNoise.GradientCoherentNoise(x, y, z, (Seed + octave) & 0x7fffffff);
+                double signal = GradientNoise.GradientCoherentNoise(x, y, z, (Seed + octave) & 0x7fffffff);
 
                 // Make the ridges.
                 signal = Math.Abs(signal);
@@ -81,7 +79,7 @@ namespace LibNoise
                 }
 
                 // Add the signal to the output value.
-                value += (signal * SpectralWeights[octave]);
+                value += signal * SpectralWeights[octave];
 
                 // Go to the next octave.
                 x *= Lacunarity;

@@ -17,53 +17,69 @@
  */
 using MAX.SQL;
 
-namespace MAX.Orders.Maintenance {
-    public sealed class OrdBlockDB : Order2 {
-        public override string name { get { return "BlockDB"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        public override OrderDesignation[] Designations {
-            get { return new [] { new OrderDesignation("ClearBlockChanges", "clear"),
-                    new OrderDesignation("cbc", "clear") }; }
+namespace MAX.Orders.Maintenance
+{
+    public class OrdBlockDB : Order
+    {
+        public override string Name { get { return "BlockDB"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+        public override OrderDesignation[] Designations
+        {
+            get
+            {
+                return new[] { new OrderDesignation("ClearBlockChanges", "clear"),
+                    new OrderDesignation("cbc", "clear") };
+            }
         }
         public override bool MessageBlockRestricted { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
             if (args.Length == 1 && p.IsSuper) { SuperRequiresArgs(p, "map name"); return; }
-            
+
             Level lvl = p.IsSuper ? null : p.level;
-            if (args.Length > 1) {
+            if (args.Length > 1)
+            {
                 lvl = Matcher.FindLevels(p, args[1]);
                 if (lvl == null) return;
             }
             if (!LevelInfo.Check(p, data.Rank, lvl, "change BlockDB state of this level")) return;
-            
-            if (args[0].CaselessEq("clear")) {
+
+            if (args[0].CaselessEq("clear"))
+            {
                 p.Message("Clearing &cALL &Sblock changes for {0}&S...", lvl.ColoredName);
                 if (Database.TableExists("Block" + lvl.name))
                     Database.DeleteTable("Block" + lvl.name);
                 lvl.BlockDB.DeleteBackingFile();
                 p.Message("Cleared &cALL &Sblock changes for " + lvl.ColoredName);
-            } else if (args[0].CaselessEq("disable")) {
+            }
+            else if (args[0].CaselessEq("disable"))
+            {
                 lvl.Config.UseBlockDB = false;
                 lvl.BlockDB.Cache.Enabled = false;
-                
+
                 p.Message("&cDisabled &Srecording further block changes for " + lvl.ColoredName);
                 lvl.SaveSettings();
-            } else if (args[0].CaselessEq("enable")) {
+            }
+            else if (args[0].CaselessEq("enable"))
+            {
                 lvl.Config.UseBlockDB = true;
                 lvl.BlockDB.Cache.Enabled = true;
-                
+
                 p.Message("&aEnabled &Srecording further block changes for " + lvl.ColoredName);
                 lvl.SaveSettings();
-            } else {
+            }
+            else
+            {
                 Help(p);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/BlockDB clear [level]");
             p.Message("&HClears the BlockDB (block changes stored in /b) for [level]");
             p.Message("&T/BlockDB disable [level]");

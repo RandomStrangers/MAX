@@ -15,9 +15,6 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.IO;
 using MAX.Blocks.Extended;
 using MAX.Bots;
 using MAX.DB;
@@ -25,6 +22,9 @@ using MAX.Events.LevelEvents;
 using MAX.Levels.IO;
 using MAX.SQL;
 using MAX.Util;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MAX
 {
@@ -75,7 +75,7 @@ namespace MAX
             }
 
             List<Player> players = null;
-            if (lvl != null) players = lvl.getPlayers();
+            if (lvl != null) players = lvl.GetPlayers();
 
             if (lvl != null && !lvl.Unload())
             {
@@ -84,7 +84,7 @@ namespace MAX
                 return false;
             }
 
-            File.Move(LevelInfo.MapPath(src), LevelInfo.MapPath(dst));
+            FileIO.TryMove(LevelInfo.MapPath(src), LevelInfo.MapPath(dst));
             DoAll(src, dst, action_move);
 
             // TODO: Should we move backups still
@@ -140,8 +140,8 @@ namespace MAX
             }
         }
 
-        /*public static void MoveBackups(string src, string dst) 
-          {
+        public static void MoveBackups(string src, string dst) 
+        {
             string srcBase = LevelInfo.BackupBasePath(src);
             string dstBase = LevelInfo.BackupBasePath(dst);
             if (!Directory.Exists(srcBase)) return;
@@ -156,11 +156,11 @@ namespace MAX
                 string dstDir = LevelInfo.BackupDirPath(dst, name);
                 
                 Directory.CreateDirectory(dstDir);
-                File.Move(srcFile, dstFile);
+                FileIO.TryMove(srcFile, dstFile);
                 Directory.Delete(backups[i]);
             }
             Directory.Delete(srcBase);
-        }*/
+        }
 
 
         /// <summary> Deletes a level and its associated metadata. </summary>
@@ -189,11 +189,11 @@ namespace MAX
                 int num = 0;
                 while (File.Exists(Paths.DeletedMapFile(map + num))) num++;
 
-                File.Move(LevelInfo.MapPath(map), Paths.DeletedMapFile(map + num));
+                FileIO.TryMove(LevelInfo.MapPath(map), Paths.DeletedMapFile(map + num));
             }
             else
             {
-                File.Move(LevelInfo.MapPath(map), Paths.DeletedMapFile(map));
+                FileIO.TryMove(LevelInfo.MapPath(map), Paths.DeletedMapFile(map));
             }
 
             DoAll(map, "", action_delete);
@@ -335,11 +335,11 @@ namespace MAX
             {
                 if (action == action_delete)
                 {
-                    File.Delete(src);
+                    FileIO.TryDelete(src);
                 }
                 else if (action == action_move)
                 {
-                    File.Move(src, dst);
+                    FileIO.TryMove(src, dst);
                 }
                 else if (action == action_copy)
                 {
@@ -433,14 +433,14 @@ namespace MAX
         }
 
 
-        public static Level LoadMuseum(Player p, string name, string mapName, string path)
+        public static Level LoadMuseum(string name, string mapName, string path)
         {
             Level lvl = GetMuseum(name, path);
             lvl.MapName = mapName;
             lvl.IsMuseum = true;
 
             Level.LoadMetadata(lvl);
-            lvl.BuildAccess.Min = LevelPermission.Console;
+            lvl.BuildAccess.Min = LevelPermission.Terminal;
             lvl.Config.Physics = 0;
             return lvl;
         }
@@ -455,9 +455,11 @@ namespace MAX
                 Level lvl = pl.level;
                 if (!lvl.IsMuseum || lvl.name != name) continue;
 
-                Level clone = new Level();
-                clone.blocks = lvl.blocks;
-                clone.CustomBlocks = lvl.CustomBlocks;
+                Level clone = new Level
+                {
+                    blocks = lvl.blocks,
+                    CustomBlocks = lvl.CustomBlocks
+                };
 
                 // Just in case museum was unloaded a split second before
                 if (clone.blocks == null || clone.CustomBlocks == null) break;
@@ -522,7 +524,7 @@ namespace MAX
 
                 // Make sure zones are kept
                 res.Zones = lvl.Zones;
-                lvl.Zones = new VolatileArray<Zone>(false);
+                lvl.Zones = new VolatileArray<Zone>();
 
                 IMapExporter.Encode(LevelInfo.MapPath(lvl.name), res);
                 lvl.SaveChanges = false;

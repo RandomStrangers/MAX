@@ -15,102 +15,119 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Collections.Generic;
-using MAX.Orders.Building;
 using MAX.DB;
 using MAX.Drawing.Brushes;
 using MAX.Maths;
+using MAX.Orders.Building;
 using MAX.Util;
-using BlockID = System.UInt16;
+using System.Collections.Generic;
+
 
 namespace MAX.Drawing.Ops
 {
-    public class FillDrawOp : DrawOp 
-    {      
+    public class FillDrawOp : DrawOp
+    {
         public List<int> Positions;
-        
-        public FillDrawOp() {
+
+        public FillDrawOp()
+        {
             Flags = BlockDBFlags.Filled;
             AffectedByTransform = false;
         }
-        
+
         public override string Name { get { return "Fill"; } }
-        
-        public override int BlocksAffected(Level lvl, Vec3S32[] marks) {
+
+        public override int BlocksAffected(Level lvl, Vec3S32[] marks)
+        {
             return Positions.Count;
         }
-        
-        public override bool CanDraw(Vec3S32[] marks, Player p, long affected) {
-            if (affected > p.group.DrawLimit) {
+
+        public override bool CanDraw(Vec3S32[] marks, Player p, long affected)
+        {
+            if (affected > p.group.DrawLimit)
+            {
                 p.Message("You can only fill up to {0} blocks. " +
                           "This fill would affect more than {0} blocks.", p.group.DrawLimit);
                 return false;
             }
             return true;
         }
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
-            ushort x, y, z;
-            for (int i = 0; i < Positions.Count; i++) {
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
+            for (int i = 0; i < Positions.Count; i++)
+            {
                 int pos = Positions[i];
-                Level.IntToPos(pos, out x, out y, out z);
+                Level.IntToPos(pos, out ushort x, out ushort y, out ushort z);
                 output(Place(x, y, z, brush));
             }
         }
-        
-        
-        public unsafe static List<int> FloodFill(Player p, int index, BlockID block, DrawMode mode) {
+
+
+        public static unsafe List<int> FloodFill(Player p, int index, ushort block, DrawMode mode)
+        {
             Level lvl = p.level;
             SparseBitSet bits = new SparseBitSet(lvl.Width, lvl.Height, lvl.Length);
             List<int> buffer = new List<int>();
             Queue<int> temp = new Queue<int>();
-            
+
             const int max = 65536;
             int count = 0, oneY = lvl.Width * lvl.Length;
             int* pos = stackalloc int[max];
             pos[0] = index; count++;
-            
-            while (count > 0 && buffer.Count <= p.group.DrawLimit) {
+
+            while (count > 0 && buffer.Count <= p.group.DrawLimit)
+            {
                 index = pos[count - 1]; count--;
                 ushort x = (ushort)(index % lvl.Width);
-                ushort y = (ushort)((index / lvl.Width) / lvl.Length);
-                ushort z = (ushort)((index / lvl.Width) % lvl.Length);
-                
+                ushort y = (ushort)(index / lvl.Width / lvl.Length);
+                ushort z = (ushort)(index / lvl.Width % lvl.Length);
+
                 if (temp.Count > 0) { pos[count] = temp.Dequeue(); count++; }
                 if (!bits.TrySetOn(x, y, z)) continue;
                 buffer.Add(index);
-                
-                if (mode != DrawMode.verticalX) { // x
-                    if (lvl.GetBlock((ushort)(x + 1), y, z) == block) {
+
+                if (mode != DrawMode.verticalX)
+                { // x
+                    if (lvl.GetBlock((ushort)(x + 1), y, z) == block)
+                    {
                         if (count == max) { temp.Enqueue(index + 1); }
                         else { pos[count] = index + 1; count++; }
                     }
-                    if (lvl.GetBlock((ushort)(x - 1), y, z) == block) {
+                    if (lvl.GetBlock((ushort)(x - 1), y, z) == block)
+                    {
                         if (count == max) { temp.Enqueue(index - 1); }
                         else { pos[count] = index - 1; count++; }
                     }
                 }
 
-                if (mode != DrawMode.verticalZ) { // z
-                    if (lvl.GetBlock(x, y, (ushort)(z + 1)) == block) {
+                if (mode != DrawMode.verticalZ)
+                { // z
+                    if (lvl.GetBlock(x, y, (ushort)(z + 1)) == block)
+                    {
                         if (count == max) { temp.Enqueue(index + lvl.Width); }
                         else { pos[count] = index + lvl.Width; count++; }
                     }
-                    if (lvl.GetBlock(x, y, (ushort)(z - 1)) == block) {
+                    if (lvl.GetBlock(x, y, (ushort)(z - 1)) == block)
+                    {
                         if (count == max) { temp.Enqueue(index - lvl.Width); }
                         else { pos[count] = index - lvl.Width; count++; }
                     }
                 }
 
-                if (!(mode == DrawMode.down || mode == DrawMode.layer)) { // y up
-                    if (lvl.GetBlock(x, (ushort)(y + 1), z) == block) {
+                if (!(mode == DrawMode.down || mode == DrawMode.layer))
+                { // y up
+                    if (lvl.GetBlock(x, (ushort)(y + 1), z) == block)
+                    {
                         if (count == max) { temp.Enqueue(index + oneY); }
                         else { pos[count] = index + oneY; count++; }
                     }
                 }
 
-                if (!(mode == DrawMode.up || mode == DrawMode.layer)) { // y down
-                    if (lvl.GetBlock(x, (ushort)(y - 1), z) == block) {
+                if (!(mode == DrawMode.up || mode == DrawMode.layer))
+                { // y down
+                    if (lvl.GetBlock(x, (ushort)(y - 1), z) == block)
+                    {
                         if (count == max) { temp.Enqueue(index - oneY); }
                         else { pos[count] = index - oneY; count++; }
                     }

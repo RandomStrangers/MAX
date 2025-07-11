@@ -16,39 +16,47 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.Misc {
-    public sealed class OrdFakeRank : Order2 {
-        public override string name { get { return "FakeRank"; } }
-        public override string shortcut { get { return "frk"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+namespace MAX.Orders.Misc
+{
+    public class OrdFakeRank : Order
+    {
+        public override string Name { get { return "FakeRank"; } }
+        public override string Shortcut { get { return "frk"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
             if (message.Length == 0 || args.Length < 2) { Help(p); return; }
             Player who = PlayerInfo.FindMatches(p, args[0]);
             Group newRank = Matcher.FindRanks(p, args[1]);
             if (who == null || newRank == null) return;
-            
+
             if (!CheckRank(p, data, who, "fakerank", true)) return;
-            DoFakerank(p, who, newRank);
+            DoFakerank(who, newRank);
         }
 
-        public static void DoFakerank(Player p, Player who, Group newRank) {            
-            if (newRank.Permission == LevelPermission.Banned) {
+        public static void DoFakerank(Player who, Group newRank)
+        {
+            if (newRank.Permission == LevelPermission.Banned)
+            {
                 Chat.MessageGlobal("{0} &Swas &8banned&S.", who.ColoredName);
-            } else {
-                string reason    = newRank.Permission >= who.Rank ? Server.Config.DefaultPromoteMessage : Server.Config.DefaultDemoteMessage;
+            }
+            else
+            {
+                string reason = newRank.Permission >= who.Rank ? Server.Config.DefaultPromoteMessage : Server.Config.DefaultDemoteMessage;
                 string direction = newRank.Permission >= who.Rank ? " &Swas promoted to " : " &Swas demoted to ";
-                string rankMsg   = who.ColoredName + direction + newRank.ColoredName + "&S. (" + reason + "&S)";
-                
+                string rankMsg = who.ColoredName + direction + newRank.ColoredName + "&S. (" + reason + "&S)";
+
                 Chat.MessageGlobal(rankMsg);
                 who.Message("You are now ranked {0}&S, type /Help for your new set of orders.", newRank.ColoredName);
             }
-            who.UpdateColor(newRank.Color);         
+            who.UpdateColor(newRank.Color);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/FakeRank [player] [rank]");
             p.Message("&HGives [player] the appearance of being ranked to [rank].");
         }

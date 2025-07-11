@@ -18,11 +18,11 @@
 
 namespace MAX.Modules.Awards
 {
-    public class OrdAward : Order2 
+    public class OrdAward : Order
     {
-        public override string name { get { return "Award"; } }
-        public override string type { get { return OrderTypes.Economy; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "Award"; } }
+        public override string Type { get { return OrderTypes.Economy; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
         public override void Use(Player p, string message, OrderData data)
         {
@@ -80,7 +80,8 @@ namespace MAX.Modules.Awards
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Award give/take [player] [award]");
             p.Message("&HGives/takes [award] award to/from [player]");
             p.Message("&T/Award [player] [award]");

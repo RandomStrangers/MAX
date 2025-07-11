@@ -17,14 +17,15 @@
  */
 using System.IO;
 
-namespace MAX.Bots 
-{    
+namespace MAX.Bots
+{
     /// <summary> Causes the bot to nod spin around for a certain interval. </summary>
-    public class SpinInstruction : BotInstruction 
+    public class SpinInstruction : BotInstruction
     {
         public SpinInstruction() { Name = "spin"; }
 
-        public override bool Execute(PlayerBot bot, InstructionData data) {
+        public override bool Execute(PlayerBot bot, InstructionData data)
+        {
             Metadata meta = (Metadata)data.Metadata;
             if (bot.countdown == 0) { bot.countdown = meta.Seconds; return true; }
             bot.countdown--;
@@ -38,22 +39,26 @@ namespace MAX.Bots
         }
 
         public class Metadata { public short Seconds, Speed; }
-        
-        public override InstructionData Parse(string[] args) {
+
+        public override InstructionData Parse(string[] args)
+        {
             InstructionData data = default;
-            Metadata meta = new Metadata();
-            meta.Seconds  = short.Parse(args[1]);
-            meta.Speed    = short.Parse(args[2]);
+            Metadata meta = new Metadata
+            {
+                Seconds = short.Parse(args[1]),
+                Speed = short.Parse(args[2])
+            };
             data.Metadata = meta;
             return data;
         }
-        
-       public override void Output(Player p, string[] args, TextWriter w) {
-            string time  = args.Length > 3 ? args[3] : "10";
+
+        public override void Output(Player p, string[] args, TextWriter w)
+        {
+            string time = args.Length > 3 ? args[3] : "10";
             string speed = args.Length > 4 ? args[4] : "2";
             w.WriteLine(Name + " " + short.Parse(time) + " " + short.Parse(speed));
         }
-        
+
         public override string[] Help { get { return help; } }
         public static string[] help = new string[] { "&T/BotAI add [name] spin <interval> <speed>",
             "&HCauses the bot to spin around for a period of time.",
@@ -62,40 +67,50 @@ namespace MAX.Bots
             "&H  <speed> sets how fast the bot spins. (defaults to 2)",
         };
     }
-    
+
     /// <summary> Causes the bot to nod down up and down for a certain interval. </summary>
-    public sealed class NodInstruction : SpinInstruction 
+    public class NodInstruction : SpinInstruction
     {
         public NodInstruction() { Name = "nod"; }
 
-        public override bool Execute(PlayerBot bot, InstructionData data) {
+        public override bool Execute(PlayerBot bot, InstructionData data)
+        {
             Metadata meta = (Metadata)data.Metadata;
             if (bot.countdown == 0) { bot.countdown = meta.Seconds; return true; }
             bot.countdown--;
 
             byte speed = (byte)meta.Speed;
             Orientation rot = bot.Rot;
-            if (bot.nodUp) {
-                if (rot.HeadX > 32 && rot.HeadX < 128) {
+            if (bot.nodUp)
+            {
+                if (rot.HeadX > 32 && rot.HeadX < 128)
+                {
                     bot.nodUp = !bot.nodUp;
-                } else {
+                }
+                else
+                {
                     if (rot.HeadX + speed > 255) rot.HeadX = 0;
                     else rot.HeadX += speed;
                 }
-            } else {
-                if (rot.HeadX > 128 && rot.HeadX < 224) {
+            }
+            else
+            {
+                if (rot.HeadX > 128 && rot.HeadX < 224)
+                {
                     bot.nodUp = !bot.nodUp;
-                } else {
+                }
+                else
+                {
                     if (rot.HeadX - speed < 0) rot.HeadX = 255;
                     else rot.HeadX -= speed;
                 }
-            }            
+            }
             bot.Rot = rot;
 
             if (bot.countdown == 0) { bot.NextInstruction(); return false; }
             return true;
         }
-        
+
         public override string[] Help { get { return help; } }
         public static new string[] help = new string[] { "" +
             "T/BotAI add [name] nod <interval> <speed>",

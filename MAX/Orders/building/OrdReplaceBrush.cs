@@ -17,21 +17,23 @@
  */
 using MAX.Drawing.Ops;
 
-namespace MAX.Orders.Building 
+namespace MAX.Orders.Building
 {
-    public class OrdReplaceBrush : DrawOrd 
+    public class OrdReplaceBrush : DrawOrd
     {
-        public override string name { get { return "ReplaceBrush"; } }
-        public override string shortcut { get { return "rb"; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "ReplaceBrush"; } }
+        public override string Shortcut { get { return "rb"; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public virtual bool ReplaceNot { get { return false; } }
 
-        public override DrawOp GetDrawOp(DrawArgs dArgs) {
+        public override DrawOp GetDrawOp(DrawArgs dArgs)
+        {
             Player p = dArgs.Player;
-            
+
             string replaceOrd = ReplaceNot ? "ReplaceNot" : "Replace";
-            if (!p.CanUse(replaceOrd) || !p.CanUse("Brush")) {
-                p.Message("You cannot use &T/Brush &Sand/or &T/" + replaceOrd + 
+            if (!p.CanUse(replaceOrd) || !p.CanUse("Brush"))
+            {
+                p.Message("You cannot use &T/Brush &Sand/or &T/" + replaceOrd +
                           "&S, so therefore cannot use this order."); return null;
             }
 
@@ -42,26 +44,29 @@ namespace MAX.Orders.Building
             return op;
         }
 
-        public override void GetBrush(DrawArgs dArgs) {
-        	dArgs.BrushName = ReplaceNot ? "ReplaceNotBrush" : "ReplaceBrush";
+        public override void GetBrush(DrawArgs dArgs)
+        {
+            dArgs.BrushName = ReplaceNot ? "ReplaceNotBrush" : "ReplaceBrush";
             dArgs.BrushArgs = dArgs.Message;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/ReplaceBrush [block] [brush name] <brush args>");
             p.Message("&HReplaces all blocks of the given type, " +
                       "in the specified area with the output of the given brush.");
             p.Message(BrushHelpLine);
         }
     }
-    
-    public class OrdReplaceNotBrush : OrdReplaceBrush 
+
+    public class OrdReplaceNotBrush : OrdReplaceBrush
     {
-        public override string name { get { return "ReplaceNotBrush"; } }
-        public override string shortcut { get { return "rnb"; } }
+        public override string Name { get { return "ReplaceNotBrush"; } }
+        public override string Shortcut { get { return "rnb"; } }
         public override bool ReplaceNot { get { return true; } }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/ReplaceNotBrush [block] [brush name] <brush args>");
             p.Message("&HReplaces all blocks (except for the given block), " +
                       "in the specified area with the output of the given brush.");

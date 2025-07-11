@@ -15,23 +15,28 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Misc {
-    public sealed class OrdBack : Order2 {
-        public override string name { get { return "Back"; } }
-        public override string type { get { return OrderTypes.Other; } }
+namespace MAX.Orders.Misc
+{
+    public class OrdBack : Order
+    {
+        public override string Name { get { return "Back"; } }
+        public override string Type { get { return OrderTypes.Other; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (p.PreTeleportMap == null) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (p.PreTeleportMap == null)
+            {
                 p.Message("You have not teleported anywhere yet"); return;
             }
-            
+
             if (!p.level.name.CaselessEq(p.PreTeleportMap))
                 PlayerActions.ChangeMap(p, p.PreTeleportMap);
             p.SendPosition(p.PreTeleportPos, p.PreTeleportRot);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Back");
             p.Message("&HTakes you back to the position you were in before teleportation");
         }

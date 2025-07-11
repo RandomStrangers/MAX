@@ -17,39 +17,48 @@
  */
 using MAX.Drawing.Brushes;
 
-namespace MAX.Orders.Building 
+namespace MAX.Orders.Building
 {
-    public sealed class OrdBrush : Order2 
+    public class OrdBrush : Order
     {
-        public override string name { get { return "Brush"; } }
-        public override string shortcut { get { return "br"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "Brush"; } }
+        public override string Shortcut { get { return "br"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new OrderDesignation[] { new OrderDesignation("Brushes", "list") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 p.Message("Your current brush is: " + p.BrushName); return;
             }
             string[] args = message.SplitSpaces(2);
             BrushFactory brush = BrushFactory.Find(args[0]);
-            
-            if (IsListOrder(args[0])) {
+
+            if (IsListOrder(args[0]))
+            {
                 BrushFactory.List(p);
-            } else if (brush == null) {
+            }
+            else if (brush == null)
+            {
                 p.Message("No brush found with name \"{0}\".", args[0]);
                 BrushFactory.List(p);
-            } else {
+            }
+            else
+            {
                 p.Message("Set your brush to: " + brush.Name);
                 p.BrushName = brush.Name;
                 p.DefaultBrushArgs = args.Length > 1 ? args[1] : "";
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Brush [name] <default brush args>");
             p.Message("&HSets your current brush to the brush with that name.");
             p.Message("&T/Help Brush [name]");
@@ -59,12 +68,16 @@ namespace MAX.Orders.Building
                       "existing blocks in the map will not be replaced by this block.");
         }
 
-        public override void Help(Player p, string message) {
+        public override void Help(Player p, string message)
+        {
             BrushFactory brush = BrushFactory.Find(message);
-            if (brush == null) {
+            if (brush == null)
+            {
                 p.Message("No brush found with name \"{0}\".", message);
                 BrushFactory.List(p);
-            } else {
+            }
+            else
+            {
                 p.MessageLines(brush.Help);
             }
         }

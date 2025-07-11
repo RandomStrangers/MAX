@@ -19,19 +19,19 @@ using MAX.Scripting;
 
 namespace MAX.Orders.Scripting
 {
-    public class OrdOrdLoad : Order2
+    public class OrdOrdLoad : Order
     {
-        public override string name { get { return "OrdLoad"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
+        public override string Name { get { return "OrdLoad"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
         public override bool MessageBlockRestricted { get { return true; } }
 
         public override void Use(Player p, string ordName, OrderData data)
         {
-            if (ordName.Length == 0) 
-            { 
-                Help(p); 
-                return; 
+            if (ordName.Length == 0)
+            {
+                Help(p);
+                return;
             }
             if (!Formatter.ValidFilename(p, ordName)) return;
 

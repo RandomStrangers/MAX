@@ -17,60 +17,67 @@
  */
 using MAX.DB;
 using MAX.Maths;
-using BlockID = System.UInt16;
 
-namespace MAX.Orders.Building 
+
+namespace MAX.Orders.Building
 {
-    public sealed class OrdDrill : Order2 
+    public class OrdDrill : Order
     {
-        public override string name { get { return "Drill"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "Drill"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             ushort dist = 20;
             if (message.Length > 0 && !OrderParser.GetUShort(p, message, "Distance", ref dist)) return;
-            
+
             p.Message("Destroy the block you wish to drill.");
             p.MakeSelection(1, "Selecting location for &SDrill", dist, DoDrill);
         }
 
-        public bool DoDrill(Player p, Vec3S32[] marks, object state, BlockID block) {
+        public bool DoDrill(Player p, Vec3S32[] marks, object state, ushort block)
+        {
             ushort x = (ushort)marks[0].X, y = (ushort)marks[0].Y, z = (ushort)marks[0].Z;
             block = p.level.GetBlock(x, y, z);
-            int dist = (ushort)state, numBlocks = (3 * 3) * dist;
-            
-            if (numBlocks > p.group.DrawLimit) {
+            int dist = (ushort)state, numBlocks = 3 * 3 * dist;
+
+            if (numBlocks > p.group.DrawLimit)
+            {
                 p.Message("You tried to drill " + numBlocks + " blocks.");
                 p.Message("You cannot drill more than " + p.group.DrawLimit + ".");
                 return false;
             }
 
-            int dx = 0, dz = 0;
-            DirUtils.FourYaw(p.Rot.RotY, out dx, out dz);
+            DirUtils.FourYaw(p.Rot.RotY, out int dx, out int dz);
             Level lvl = p.level;
 
-            if (dx != 0) {
-                for (int depth = 0; depth < dist; x += (ushort)dx, depth++) {
+            if (dx != 0)
+            {
+                for (int depth = 0; depth < dist; x += (ushort)dx, depth++)
+                {
                     if (x >= lvl.Width) continue;
-                    
+
                     for (ushort yy = (ushort)(y - 1); yy <= (ushort)(y + 1); yy++)
                         for (ushort zz = (ushort)(z - 1); zz <= (ushort)(z + 1); zz++)
-                    {
-                        DoBlock(p, lvl, block, x, yy, zz);
-                    }
+                        {
+                            DoBlock(p, lvl, block, x, yy, zz);
+                        }
                 }
-            } else {
-                for (int depth = 0; depth < dist; z += (ushort)dz, depth++) {
+            }
+            else
+            {
+                for (int depth = 0; depth < dist; z += (ushort)dz, depth++)
+                {
                     if (z >= lvl.Length) break;
-                    
+
                     for (ushort yy = (ushort)(y - 1); yy <= (ushort)(y + 1); yy++)
                         for (ushort xx = (ushort)(x - 1); xx <= (ushort)(x + 1); xx++)
-                    {
-                        DoBlock(p, lvl, block, xx, yy, z);
-                    }
+                        {
+                            DoBlock(p, lvl, block, xx, yy, z);
+                        }
                 }
             }
 
@@ -78,14 +85,17 @@ namespace MAX.Orders.Building
             return true;
         }
 
-        public void DoBlock(Player p, Level lvl, BlockID block, ushort x, ushort y, ushort z) {
-            BlockID cur = lvl.GetBlock(x, y, z);
-            if (cur == block) {
+        public void DoBlock(Player p, Level lvl, ushort block, ushort x, ushort y, ushort z)
+        {
+            ushort cur = lvl.GetBlock(x, y, z);
+            if (cur == block)
+            {
                 p.level.UpdateBlock(p, x, y, z, Block.Air, BlockDBFlags.Drawn, true);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Drill [distance]");
             p.Message("&HDrills a hole, destroying all similar blocks in a 3x3 rectangle ahead of you.");
         }

@@ -15,25 +15,32 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Moderation {
-    public sealed class OrdBanEdit : Order2 {
-        public override string name { get { return "BanEdit"; } }
-        public override string shortcut { get { return "be"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdBanEdit : Order
+    {
+        public override string Name { get { return "BanEdit"; } }
+        public override string Shortcut { get { return "be"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces(2);
             if (args.Length < 2) { Help(p); return; }
 
-            if (!Ban.ChangeBanReason(args[0], args[1])) {
+            if (!Ban.ChangeBanReason(args[0], args[1]))
+            {
                 p.Message("That player isn't banned.");
-            } else {
+            }
+            else
+            {
                 p.Message("Set ban reason for &0{0} &Sto: &2{1}", args[0], args[1]);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/BanEdit [username] [reason]");
             p.Message("&HEdits reason of ban for the user.");
         }

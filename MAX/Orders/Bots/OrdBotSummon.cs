@@ -17,41 +17,46 @@
 */
 using MAX.Bots;
 using MAX.Orders.Misc;
-    
-namespace MAX.Orders.Bots 
+
+namespace MAX.Orders.Bots
 {
-    public sealed class OrdBotSummon : Order2
+    public class OrdBotSummon : Order
     {
-        public override string name { get { return "BotSummon"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "BotSummon"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             if (!LevelInfo.Check(p, data.Rank, p.level, "summon that bot")) return;
-            
+
             string[] args = message.SplitSpaces(2);
             PlayerBot bot = Matcher.FindBots(p, args[0]);
             if (bot == null) return;
             if (!bot.EditableBy(p, "summon")) { return; }
-            
-            Position pos; byte yaw, pitch;            
-            if (args.Length == 1) {
+
+            Position pos; byte yaw, pitch;
+            if (args.Length == 1)
+            {
                 pos = p.Pos; yaw = p.Rot.RotY; pitch = p.Rot.HeadX;
-            } else {
+            }
+            else
+            {
                 args = args[1].SplitSpaces();
-                
-                if (args.Length < 3) { Help(p); return; }                
+
+                if (args.Length < 3) { Help(p); return; }
                 if (!OrdTp.GetTeleportCoords(p, bot, args, false, out pos, out yaw, out pitch)) return;
             }
-            
+
             bot.Pos = pos; bot.SetYawPitch(yaw, pitch);
             BotsFile.Save(p.level);
         }
-        
-        public override void Help(Player p) {   
+
+        public override void Help(Player p)
+        {
             p.Message("&T/BotSummon [name] [x y z] <yaw> <pitch>");
             p.Message("&HTeleports a bot to the given block coordinates.");
             p.Message("&HUse ~ before a coordinate to move relative to current position");

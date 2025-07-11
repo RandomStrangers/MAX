@@ -15,17 +15,17 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
 using MAX.Blocks;
 using MAX.Bots;
 using MAX.DB;
 using MAX.Events.LevelEvents;
 using MAX.Levels.IO;
 using MAX.Util;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace MAX
 {
@@ -33,12 +33,12 @@ namespace MAX
     {
         Banned = -20, Guest = 0, Builder = 30, AdvBuilder = 50,
         Operator = 80, Admin = 100, Owner = 120, MAX = int.MaxValue,
-        Null = 150, Nobody = 120, Console = 127// backwards compatibility
+        Null = 150, Terminal = 127
     }
 
-    public enum BuildType 
-    { 
-        Normal, ModifyOnly, NoModify 
+    public enum BuildType
+    {
+        Normal, ModifyOnly, NoModify
     };
 
     public partial class Level : IDisposable
@@ -53,8 +53,8 @@ namespace MAX
             this.blocks = blocks;
             Init(name, width, height, length);
         }
-        public Level() 
-        { 
+        public Level()
+        {
         }
 
         public void Init(string name, ushort width, ushort height, ushort length)
@@ -62,8 +62,8 @@ namespace MAX
             if (width < 1) width = 1;
             if (height < 1) height = 1;
             if (length < 1) length = 1;
-            Width = width; 
-            Height = height; 
+            Width = width;
+            Height = height;
             Length = length;
 
             for (int i = 0; i < CustomBlockDefs.Length; i++)
@@ -79,7 +79,7 @@ namespace MAX
             }
             UpdateAllBlockHandlers();
 
-            this.name = name; 
+            this.name = name;
             MapName = name.ToLower();
             BlockDB = new BlockDB(this);
 
@@ -91,7 +91,7 @@ namespace MAX
             spawnx = (ushort)(width / 2);
             spawny = (ushort)(height * 0.75f);
             spawnz = (ushort)(length / 2);
-            rotx = 0; 
+            rotx = 0;
             roty = 0;
 
             VisitAccess = new LevelAccessController(Config, name, true);
@@ -100,7 +100,7 @@ namespace MAX
             listUpdateExists = new SparseBitSet(width, height, length);
         }
 
-        public List<Player> players { get { return getPlayers(); } }
+        public List<Player> Players { get { return GetPlayers(); } }
 
         public void Dispose()
         {
@@ -130,13 +130,13 @@ namespace MAX
 
         public bool CanJoin(Player p)
         {
-            if (p.IsMAX || this == Server.mainLevel) return true;            bool skip = p.summonedMap != null && p.summonedMap.CaselessEq(name);
+            if (p.IsMAX || this == Server.mainLevel) return true; bool skip = p.summonedMap != null && p.summonedMap.CaselessEq(name);
             LevelPermission plRank = skip ? LevelPermission.MAX : p.Rank;
             if (!VisitAccess.CheckDetailed(p, plRank)) return false;
 
             if (Server.lockdown.Contains(name))
             {
-                p.Message("The level " + name + " is locked."); 
+                p.Message("The level " + name + " is locked.");
                 return false;
             }
             return true;
@@ -175,10 +175,10 @@ namespace MAX
         {
             if (Server.mainLevel == this) return false;
             // Still cleanup resources, even if this is not a true level
-            if (IsMuseum) 
-            { 
-                Cleanup(); 
-                return true; 
+            if (IsMuseum)
+            {
+                Cleanup();
+                return true;
             }
 
             bool cancel = false;
@@ -229,9 +229,9 @@ namespace MAX
             }
         }
 
-        public void SaveSettings() 
-        { 
-            if (!IsMuseum) Config.SaveFor(MapName); 
+        public void SaveSettings()
+        {
+            if (!IsMuseum) Config.SaveFor(MapName);
         }
 
         // Returns true if ListCheck does not already have an check in the position.
@@ -292,17 +292,17 @@ namespace MAX
             if (File.Exists(path))
             {
                 string prevPath = Paths.PrevMapFile(name);
-                if (File.Exists(prevPath)) File.Delete(prevPath);
+                if (File.Exists(prevPath)) FileIO.TryDelete(prevPath);
                 File.Copy(path, prevPath, true);
-                File.Delete(path);
+                FileIO.TryDelete(path);
             }
-            
+
             IMapExporter.Encode(path + ".backup", this);
             File.Copy(path + ".backup", path);
             SaveSettings();
 
             Logger.Log(LogType.SystemActivity, "SAVED: Level \"{0}\". ({1}/{2}/{3})",
-                       name, players.Count, PlayerInfo.Online.Count, Server.Config.MaxPlayers);
+                       name, Players.Count, PlayerInfo.Online.Count, Server.Config.MaxPlayers);
             Changed = false;
         }
 
@@ -327,9 +327,9 @@ namespace MAX
             return null;
         }
 
-        public static Level Load(string name) 
-        { 
-            return Load(name, LevelInfo.MapPath(name)); 
+        public static Level Load(string name)
+        {
+            return Load(name, LevelInfo.MapPath(name));
         }
 
         public static Level Load(string name, string path)
@@ -430,7 +430,7 @@ namespace MAX
             lock (dbLock) LevelDB.SaveBlockDB(this);
         }
 
-        public List<Player> getPlayers()
+        public List<Player> GetPlayers()
         {
             Player[] players = PlayerInfo.Online.Items;
             List<Player> onLevel = new List<Player>();

@@ -15,18 +15,18 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using MAX.Orders;
 using MAX.Eco;
 using MAX.Modules.Awards;
+using MAX.Orders;
+using System;
+using System.Collections.Generic;
 
-namespace MAX.DB 
+namespace MAX.DB
 {
     public delegate void OnlineStatPrinter(Player p, Player who);
-    
+
     /// <summary> Prints stats for an online player in /info. </summary>
-    public static class OnlineStat 
+    public static class OnlineStat
     {
         /// <summary> List of stats that can be output to /info. </summary>
         public static List<OnlineStatPrinter> Stats = new List<OnlineStatPrinter>() {
@@ -43,14 +43,15 @@ namespace MAX.DB
             IdleLine,
             EntityLine,
         };
-        
-        public static void CoreLine(Player p, Player who) {
-            string prefix   = who.title.Length == 0 ? "" : who.MakeTitle(who.title, who.titlecolor);
+
+        public static void CoreLine(Player p, Player who)
+        {
+            string prefix = who.title.Length == 0 ? "" : who.MakeTitle(who.title, who.titlecolor);
             string fullName = prefix + who.ColoredName;
             CommonCoreLine(p, fullName, who.name, who.group, who.TotalMessagesSent);
         }
 
-        internal static void CommonCoreLine(Player p, string fullName, string name, Group grp, int messages)
+        public static void CommonCoreLine(Player p, string fullName, string name, Group grp, int messages)
         {
             p.Message("{0} &S({1}) has:", fullName, name);
             p.Message("  Rank of {0}&S, wrote &a{1} &Smessages", grp.ColoredName, messages);
@@ -60,95 +61,118 @@ namespace MAX.DB
             p.Message("  Pronouns: &a{0}", pros.Join((pro) => pro.Name, ", "));
         }
 
-        public static void MiscLine(Player p, string name, int deaths, int money) {
-            if (Economy.Enabled) {
+        public static void MiscLine(Player p, string name, int deaths, int money)
+        {
+            if (Economy.Enabled)
+            {
                 p.Message("  &a{0} &cdeaths&S, &a{2} &S{3}, &f{1} &Sawards",
                                deaths, PlayerAwards.Summarise(name), money, Server.Config.Currency);
-            } else {
+            }
+            else
+            {
                 p.Message("  &a{0} &cdeaths&S, &f{1} &Sawards",
                                deaths, PlayerAwards.Summarise(name));
             }
         }
-        
-        public static void BlocksModifiedLine(Player p, Player who) {
+
+        public static void BlocksModifiedLine(Player p, Player who)
+        {
             p.Message("  Modified &a{0} &Sblocks, &a{1} &Ssince login", who.TotalModified, who.SessionModified);
         }
-        
-        public static void BlockStatsLine(Player p, long placed, long deleted, long drawn) {
+
+        public static void BlockStatsLine(Player p, long placed, long deleted, long drawn)
+        {
             p.Message("    &a{0} &Splaced, &a{1} &Sdeleted, &a{2} &Sdrawn",
                            placed, deleted, drawn);
         }
-        
-        public static void TimeSpentLine(Player p, Player who) {
+
+        public static void TimeSpentLine(Player p, Player who)
+        {
             TimeSpan timeOnline = DateTime.UtcNow - who.SessionStartTime;
             p.Message("  Spent &a{0} &Son the server, &a{1} &Sthis session",
                            who.TotalTime.Shorten(), timeOnline.Shorten());
         }
-        
-        public static void LoginLine(Player p, Player who) {
+
+        public static void LoginLine(Player p, Player who)
+        {
             p.Message("  First login &a{0}&S, and is currently &aonline",
                            who.FirstLogin.ToString("yyyy-MM-dd"));
         }
-        
-        public static void LoginsLine(Player p, int logins, int kicks) {
+
+        public static void LoginsLine(Player p, int logins, int kicks)
+        {
             p.Message("  Logged in &a{0} &Stimes, &c{1} &Sof which ended in a kick", logins, kicks);
         }
-        
-        public static void BanLine(Player p, string name) {
-            if (!Group.BannedRank.Players.Contains(name)) return;            
-            string banner, reason, prevRank;
-            DateTime time;
-            Ban.GetBanData(name, out banner, out reason, out time, out prevRank);
-            
-            if (banner != null) {
+
+        public static void BanLine(Player p, string name)
+        {
+            if (!Group.BannedRank.Players.Contains(name)) return;
+            Ban.GetBanData(name, out string banner, out string reason, out DateTime _, out string _);
+
+            if (banner != null)
+            {
                 p.Message("  Banned for {0} by {1}", reason, p.FormatNick(banner));
-            } else {
+            }
+            else
+            {
                 p.Message("  Is banned");
             }
         }
-        
-        public static void SpecialGroupLine(Player p, string name) {
+
+        public static void SpecialGroupLine(Player p, string name)
+        {
             string owner;
-            name  = Server.ToRawUsername(name);
+            name = Server.ToRawUsername(name);
             owner = Server.ToRawUsername(Server.Config.OwnerName);
-        	
+
             if (Server.Devs.CaselessContains(name))
                 p.Message("  Player is a developer of {0}", Server.SoftwareName);
             if (owner.CaselessEq(name))
                 p.Message("  Player is the &cServer owner");
         }
-        
-        public static void IPLine(Player p, string name, string ip) {
+
+        public static void IPLine(Player p, string name, string ip)
+        {
             ItemPerms seeIpPerms = OrderExtraPerms.Find("WhoIs", 1);
             if (!seeIpPerms.UsableBy(p)) return;
-            
+
             string ipMsg = ip;
             if (Server.bannedIP.Contains(ip)) ipMsg = "&8" + ip + ", which is banned";
-            
+
             p.Message("  The IP of " + ipMsg);
             if (Server.Config.WhitelistedOnly && Server.whiteList.Contains(name))
                 p.Message("  Player is &fWhitelisted");
         }
-                
-        public static void IdleLine(Player p, Player who) {
+
+        public static void IdleLine(Player p, Player who)
+        {
             TimeSpan idleTime = DateTime.UtcNow - who.LastAction;
-            if (who.afkMessage != null) {
+            if (who.afkMessage != null)
+            {
                 p.Message("  Idle for {0} (AFK {1}&S)", idleTime.Shorten(), who.afkMessage);
-            } else if (idleTime.TotalMinutes >= 1) {
+            }
+            else if (idleTime.TotalMinutes >= 1)
+            {
                 p.Message("  Idle for {0}", idleTime.Shorten());
             }
         }
-        
-        public static void EntityLine(Player p, Player who) {
-            bool hasSkin  = !who.SkinName.CaselessEq(who.truename);
+
+        public static void EntityLine(Player p, Player who)
+        {
+            bool hasSkin = !who.SkinName.CaselessEq(who.truename);
             // TODO remove hardcoding
             bool hasModel = !(who.Model.CaselessEq("humanoid") || who.Model.CaselessEq("human"));
-            
-            if (hasSkin && hasModel) {
+
+            if (hasSkin && hasModel)
+            {
                 p.Message("  Skin: &f{0} &Smodel: &f{1}", who.SkinName, who.Model);
-            } else if (hasSkin) {
+            }
+            else if (hasSkin)
+            {
                 p.Message("  Skin: &f{0}", who.SkinName);
-            } else if (hasModel) {
+            }
+            else if (hasModel)
+            {
                 p.Message("  Model: &f{0}", who.Model);
             }
         }

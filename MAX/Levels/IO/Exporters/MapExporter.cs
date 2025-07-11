@@ -53,7 +53,7 @@ namespace MAX.Levels.IO
 
         public static void WriteU8(byte[] dst, int idx, byte value)
         {
-            dst[idx] = (byte)value;
+            dst[idx] = value;
             dst[idx + 1] = (byte)(value >> 8);
         }
 

@@ -15,13 +15,13 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
+using MAX.Maths;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
-using MAX.Maths;
 
 namespace MAX.Levels.IO
 {
@@ -29,34 +29,34 @@ namespace MAX.Levels.IO
     {
         public BinaryReader src;
         public List<object> handles = new List<object>();
-        public byte[] ReadBytes(int count) 
-        { 
-            return src.ReadBytes(count); 
+        public byte[] ReadBytes(int count)
+        {
+            return src.ReadBytes(count);
         }
 
-        public byte ReadUInt8() 
-        { 
-            return src.ReadByte(); 
-        }
-        public short ReadInt16() 
+        public byte ReadUInt8()
         {
-            return IPAddress.HostToNetworkOrder(src.ReadInt16()); 
+            return src.ReadByte();
         }
-        public ushort ReadUInt16() 
-        { 
-            return (ushort)IPAddress.HostToNetworkOrder(src.ReadInt16()); 
+        public short ReadInt16()
+        {
+            return IPAddress.HostToNetworkOrder(src.ReadInt16());
         }
-        public int ReadInt32() 
-        { 
-            return IPAddress.HostToNetworkOrder(src.ReadInt32()); 
+        public ushort ReadUInt16()
+        {
+            return (ushort)IPAddress.HostToNetworkOrder(src.ReadInt16());
         }
-        public long ReadInt64() 
-        { 
-            return IPAddress.HostToNetworkOrder(src.ReadInt64()); 
+        public int ReadInt32()
+        {
+            return IPAddress.HostToNetworkOrder(src.ReadInt32());
         }
-        public string ReadUtf8() 
-        { 
-            return Encoding.UTF8.GetString(src.ReadBytes(ReadUInt16())); 
+        public long ReadInt64()
+        {
+            return IPAddress.HostToNetworkOrder(src.ReadInt64());
+        }
+        public string ReadUtf8()
+        {
+            return Encoding.UTF8.GetString(src.ReadBytes(ReadUInt16()));
         }
     }
 
@@ -97,7 +97,7 @@ namespace MAX.Levels.IO
                     case 0x01:
                         return ReadFormat1(lvl, r);
                     // Format version 2 - classic 0.15 to 0.30
-                    case 0x02: 
+                    case 0x02:
                         return ReadFormat2(lvl, r);
                 }
                 throw new InvalidDataException("Invalid .dat map version");
@@ -116,8 +116,8 @@ namespace MAX.Levels.IO
             // First 4 bytes were already read earlier as signature
             byte[] blocks = new byte[PC_WIDTH * PC_HEIGHT * PC_LENGTH];
             blocks[0] = 1;
-            blocks[1] = 1; 
-            blocks[2] = 1; 
+            blocks[1] = 1;
+            blocks[2] = 1;
             blocks[3] = 1;
             s.Read(blocks, 4, blocks.Length - 4);
             lvl.blocks = blocks;
@@ -214,9 +214,9 @@ namespace MAX.Levels.IO
         }
 
         // object is actually an int, so a simple cast to ushort will fail
-        public static ushort U16(object o) 
-        { 
-            return (ushort)(int)o; 
+        public static ushort U16(object o)
+        {
+            return (ushort)(int)o;
         }
 
         public static void ParseRootObject(Level lvl, JObject obj)
@@ -240,23 +240,23 @@ namespace MAX.Levels.IO
             }
         }
 
-        public static object ReadObject(DatReader r) 
-        { 
-            return ReadObject(r, r.ReadUInt8()); 
+        public static object ReadObject(DatReader r)
+        {
+            return ReadObject(r, r.ReadUInt8());
         }
         public static object ReadObject(DatReader r, byte typeCode)
         {
             switch (typeCode)
             {
-                case TC_STRING: 
+                case TC_STRING:
                     return NewString(r);
-                case TC_NULL: 
+                case TC_NULL:
                     return null;
-                case TC_REFERENCE: 
+                case TC_REFERENCE:
                     return PrevObject(r);
-                case TC_OBJECT: 
+                case TC_OBJECT:
                     return NewObject(r);
-                case TC_ARRAY: 
+                case TC_ARRAY:
                     return NewArray(r);
             }
             throw new InvalidDataException("Invalid typecode: " + typeCode);
@@ -387,15 +387,15 @@ namespace MAX.Levels.IO
         {
             if (type == 'B') return r.ReadUInt8();
             if (type == 'C') return (char)r.ReadUInt16();
-            if (type == 'D') 
-            { 
-                long tmp = r.ReadInt64(); 
-                return *(double*)&tmp; 
-            }
-            if (type == 'F') 
+            if (type == 'D')
             {
-                int tmp = r.ReadInt32(); 
-                return *(float*)&tmp; 
+                long tmp = r.ReadInt64();
+                return *(double*)&tmp;
+            }
+            if (type == 'F')
+            {
+                int tmp = r.ReadInt32();
+                return *(float*)&tmp;
             }
             if (type == 'I') return r.ReadInt32();
             if (type == 'J') return r.ReadInt64();

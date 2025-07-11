@@ -15,31 +15,36 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.Net;
 using MAX.DB;
 using MAX.Generator;
 using MAX.Network;
 using MAX.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Net;
 
-namespace MAX 
+namespace MAX
 {
-    public partial class Server 
+    public partial class Server
     {
-        public static void LoadMainLevel(SchedulerTask task) {
-            try {
+        public static void LoadMainLevel(SchedulerTask task)
+        {
+            try
+            {
                 mainLevel = LevelActions.Load(Player.MAX, Config.MainLevel, false);
                 if (mainLevel == null) GenerateMain();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error loading main level", ex);
             }
         }
 
-        public static void GenerateMain() {
+        public static void GenerateMain()
+        {
             Logger.Log(LogType.SystemActivity, "main level not found, generating..");
             mainLevel = new Level(Config.MainLevel, 128, 64, 128);
-            
+
             MapGen.Find("Flat").Generate(Player.MAX, mainLevel, "");
             mainLevel.Save();
             Level.LoadMetadata(mainLevel);
@@ -48,74 +53,85 @@ namespace MAX
 
         public static void LoadAllAddons(SchedulerTask task) { Addon.LoadAll(); }
 
-        public static void InitPlayerLists(SchedulerTask task) {
-            try {
+        public static void InitPlayerLists(SchedulerTask task)
+        {
+            try
+            {
                 UpgradeTasks.UpgradeOldAgreed();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error upgrading agreed list", ex);
             }
-            
+
             LoadPlayerLists();
             ModerationTasks.QueueTasks();
         }
 
-        public static void LoadPlayerLists() {
+        public static void LoadPlayerLists()
+        {
             agreed = PlayerList.Load("ranks/agreed.txt");
             invalidIds = PlayerList.Load("extra/invalidids.txt");
             Player.MAX.DatabaseID = NameConverter.InvalidNameID("(MAX)");
-            
-            hidden   = PlayerList.Load("ranks/hidden.txt");
-            vip      = PlayerList.Load("text/vip.txt");
+
+            hidden = PlayerList.Load("ranks/hidden.txt");
+            vip = PlayerList.Load("text/vip.txt");
             noEmotes = PlayerList.Load("text/emotelist.txt");
             lockdown = PlayerList.Load("text/lockdown.txt");
-            
+
             models = PlayerExtList.Load("extra/models.txt");
-            skins  = PlayerExtList.Load("extra/skins.txt");
-            reach  = PlayerExtList.Load("extra/reach.txt");
-            rotations   = PlayerExtList.Load("extra/rotations.txt");
+            skins = PlayerExtList.Load("extra/skins.txt");
+            reach = PlayerExtList.Load("extra/reach.txt");
+            rotations = PlayerExtList.Load("extra/rotations.txt");
             modelScales = PlayerExtList.Load("extra/modelscales.txt");
 
-            bannedIP  = PlayerExtList.Load("ranks/banned-ip.txt");
-            muted     = PlayerExtList.Load("ranks/muted.txt");
-            jailed    = PlayerExtList.Load("ranks/jailed.txt");
+            bannedIP = PlayerExtList.Load("ranks/banned-ip.txt");
+            muted = PlayerExtList.Load("ranks/muted.txt");
+            jailed = PlayerExtList.Load("ranks/jailed.txt");
             tempRanks = PlayerExtList.Load(Paths.TempRanksFile);
-            tempBans  = PlayerExtList.Load(Paths.TempBansFile);
+            tempBans = PlayerExtList.Load(Paths.TempBansFile);
             whiteList = PlayerList.Load("ranks/whitelist.txt");
         }
 
-        public static void LoadAutoloadMaps(SchedulerTask task) {
+        public static void LoadAutoloadMaps(SchedulerTask task)
+        {
             AutoloadMaps = PlayerExtList.Load("text/autoload.txt", '=');
             List<string> maps = AutoloadMaps.AllNames();
-            
-            foreach (string map in maps) {
+
+            foreach (string map in maps)
+            {
                 if (map.CaselessEq(Config.MainLevel)) continue;
                 LevelActions.Load(Player.MAX, map, false);
             }
         }
 
-        public static void SetupSocket(SchedulerTask task) {        
-            IPAddress ip;
-            
-            if (!IPAddress.TryParse(Config.ListenIP, out ip)) {
+        public static void SetupSocket(SchedulerTask task)
+        {
+
+            if (!IPAddress.TryParse(Config.ListenIP, out IPAddress ip))
+            {
                 Logger.Log(LogType.Warning, "Unable to parse listen IP config key, listening on any IP");
                 ip = IPAddress.Any;
-            }            
+            }
             Listener.Listen(ip, Config.Port);
         }
 
-        public static void InitHeartbeat(SchedulerTask task) {
+        public static void InitHeartbeat(SchedulerTask task)
+        {
             Heartbeat.Start();
         }
 
-        public static void InitTimers(SchedulerTask task) {
-            MainScheduler.QueueRepeat(RandomMessage, null, 
+        public static void InitTimers(SchedulerTask task)
+        {
+            MainScheduler.QueueRepeat(RandomMessage, null,
                                       Config.AnnouncementInterval);
             Critical.QueueRepeat(ServerTasks.UpdateEntityPositions, null,
                                  TimeSpan.FromMilliseconds(Config.PositionUpdateInterval));
         }
 
-        public static void InitRest(SchedulerTask task) {
-            MainScheduler.QueueRepeat(BlockQueue.Loop, null, 
+        public static void InitRest(SchedulerTask task)
+        {
+            MainScheduler.QueueRepeat(BlockQueue.Loop, null,
                                       TimeSpan.FromMilliseconds(BlockQueue.Interval));
             Critical.QueueRepeat(ServerTasks.TickPlayers, null,
                                  TimeSpan.FromMilliseconds(20));

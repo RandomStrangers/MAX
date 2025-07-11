@@ -15,17 +15,17 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
+using MAX.Maths;
 using System.Collections.Generic;
 using System.IO;
-using MAX.Maths;
 
 namespace MAX.Levels.IO
 {
     /// <summary> Reads/Loads block data (and potentially metadata) encoded in a particular format. </summary>
-    public abstract class IMapImporter
+    public class IMapImporter
     {
-        public abstract string Extension { get; }
-        public abstract string Description { get; }
+        public virtual string Extension { get; }
+        public virtual string Description { get; }
 
         public virtual Level Read(string path, string name, bool metadata)
         {
@@ -33,7 +33,10 @@ namespace MAX.Levels.IO
                 return Read(fs, name, metadata);
         }
 
-        public abstract Level Read(Stream src, string name, bool metadata);
+        public virtual Level Read(Stream src, string name, bool metadata)
+        {
+            return null;
+        }
 
         public virtual Vec3U16 ReadDimensions(string path)
         {
@@ -41,9 +44,15 @@ namespace MAX.Levels.IO
                 return ReadDimensions(fs);
         }
 
-        public abstract Vec3U16 ReadDimensions(Stream src);
-
-
+        public virtual Vec3U16 ReadDimensions(Stream src)
+        {
+            return Vec3U16.Zero;
+        }
+        public virtual Vec3U8 ReadDimensionsByte(Stream src)
+        {
+            Vec3U16 dims = ReadDimensions(src);
+            return new Vec3U8((byte)dims.X, (byte)dims.Y, (byte)dims.Z);
+        }
         public static void ConvertCustom(Level lvl)
         {
             byte[] blocks = lvl.blocks; // local var to avoid JIT bounds check
@@ -68,17 +77,18 @@ namespace MAX.Levels.IO
                 int read = s.Read(data, offset, count);
 
                 if (read == 0) throw new EndOfStreamException("End of stream reading data");
-                offset += read; 
+                offset += read;
                 count -= read;
             }
         }
 
 
         /// <summary> List of all level format importers </summary>
-        public static List<IMapImporter> Formats = new List<IMapImporter>() 
+        public static List<IMapImporter> Formats = new List<IMapImporter>()
         {
-            new LvlImporter(), new CwImporter(), new FcmImporter(), new McfImporter(),
-            new DatImporter(), new McLevelImporter(), new MapImporter(),
+            new LvlImporter(), new CwImporter(), new FcmImporter(), 
+            new McfImporter(), new DatImporter(), new McLevelImporter(), 
+            new MapImporter(), new PKLvlImporter(), new FLvlImporter()
         };
         public static IMapImporter defaultImporter = new LvlImporter();
         /// <summary> Returns an IMapImporter capable of decoding the given level file </summary>
@@ -114,9 +124,9 @@ namespace MAX.Levels.IO
     }
 
     /// <summary> Writes/Saves block data (and potentially metadata) encoded in a particular format. </summary>
-    public abstract class IMapExporter
+    public class IMapExporter
     {
-        public abstract string Extension { get; }
+        public virtual string Extension { get; }
 
         public void Write(string path, Level lvl)
         {
@@ -126,11 +136,14 @@ namespace MAX.Levels.IO
             }
         }
 
-        public abstract void Write(Stream dst, Level lvl);
-
-        public static List<IMapExporter> Formats = new List<IMapExporter>() 
+        public virtual void Write(Stream dst, Level lvl)
         {
-            new LvlExporter(), new McfExporter(), new CwExporter()
+        }
+
+        public static List<IMapExporter> Formats = new List<IMapExporter>()
+        {
+            new LvlExporter(), new McfExporter(), new FLvlExporter(),
+            new PKLvlExporter(), new MapExporter()//, new CwExporter()
         };
         public static IMapExporter defaultExporter = new LvlExporter();
 

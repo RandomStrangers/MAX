@@ -16,18 +16,21 @@
     permissions and limitations under the Licenses.
  */
 using MAX.Drawing.Ops;
-using BlockID = System.UInt16;
 
-namespace MAX.Drawing.Brushes 
+
+namespace MAX.Drawing.Brushes
 {
-    public abstract class Brush 
+    public class Brush
     {
-        public abstract string Name { get; }
+        public virtual string Name { get; }
         public virtual void Configure(DrawOp op, Player p) { }
-        
+
         /// <summary> Returns the next block that should be placed in the world, 
         /// based on the draw operation's current state. </summary>
         /// <remarks> Returns Block.Invalid if no block should be placed. </remarks>
-        public abstract BlockID NextBlock(DrawOp op);
+        public virtual ushort NextBlock(DrawOp op)
+        {
+            return 0;
+        }
     }
 }

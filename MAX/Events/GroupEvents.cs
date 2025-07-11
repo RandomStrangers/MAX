@@ -17,46 +17,56 @@
  */
 using System;
 
-namespace MAX.Events.GroupEvents {
-    
+namespace MAX.Events.GroupEvents
+{
+
     public delegate void GroupLoaded(Group group);
     /// <summary> Raised when a particular group is loaded.</summary>
-    public sealed class OnGroupLoadedEvent : IEvent<GroupLoaded> {
-        
-        public static void Call(Group g) {
+    public class OnGroupLoadedEvent : IEvent<GroupLoaded>
+    {
+
+        public static void Call(Group g)
+        {
             if (handlers.Count == 0) return;
             CallCommon(pl => pl(g));
         }
     }
-    
+
     public delegate void GroupLoad();
     /// <summary> Raised when list of groups has been loaded or reloaded. </summary>
-    public sealed class OnGroupLoadEvent : IEvent<GroupLoad> {
-        
-        public static void Call() {
+    public class OnGroupLoadEvent : IEvent<GroupLoad>
+    {
+
+        public static void Call()
+        {
             if (handlers.Count == 0) return;
             CallCommon(pl => pl());
         }
     }
-    
+
     public delegate void GroupSave();
     /// <summary> Raised when list of groups has been saved. </summary>
-    public sealed class OnGroupSaveEvent : IEvent<GroupSave> {
-        
-        public static void Call() {
+    public class OnGroupSaveEvent : IEvent<GroupSave>
+    {
+
+        public static void Call()
+        {
             if (handlers.Count == 0) return;
             CallCommon(pl => pl());
         }
     }
-    
+
     public delegate void OnChangingGroup(string player, Group curRank, Group newRank, ref bool cancel);
     /// <summary> Raised when a player is about to have their rank changed. Cancelable. </summary>
-    public sealed class OnChangingGroupEvent : IEvent<OnChangingGroup> {
-        
-        public static void Call(string player, Group curRank, Group newRank, ref bool cancel) {
+    public class OnChangingGroupEvent : IEvent<OnChangingGroup>
+    {
+
+        public static void Call(string player, Group curRank, Group newRank, ref bool cancel)
+        {
             IEvent<OnChangingGroup>[] items = handlers.Items;
-            for (int i = 0; i < items.Length; i++) {
-                try { items[i].method(player, curRank, newRank, ref cancel); } 
+            for (int i = 0; i < items.Length; i++)
+            {
+                try { items[i].method(player, curRank, newRank, ref cancel); }
                 catch (Exception ex) { LogHandlerException(ex, items[i]); }
             }
         }

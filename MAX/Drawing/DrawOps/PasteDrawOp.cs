@@ -19,44 +19,48 @@ using MAX.DB;
 using MAX.Drawing.Brushes;
 using MAX.Maths;
 
-namespace MAX.Drawing.Ops 
+namespace MAX.Drawing.Ops
 {
-    public class PasteDrawOp : DrawOp 
+    public class PasteDrawOp : DrawOp
     {
-        public override string Name { get { return "Paste"; } }        
+        public override string Name { get { return "Paste"; } }
         public CopyState CopyState;
-        
-        public PasteDrawOp() {
+
+        public PasteDrawOp()
+        {
             Flags = BlockDBFlags.Pasted;
         }
-        
-        public override int BlocksAffected(Level lvl, Vec3S32[] marks) {
+
+        public override int BlocksAffected(Level lvl, Vec3S32[] marks)
+        {
             return CopyState.UsedBlocks;
         }
-        
-        public override void SetMarks(Vec3S32[] m) {
+
+        public override void SetMarks(Vec3S32[] m)
+        {
             Origin = m[0];
             CopyState cState = CopyState;
-            if (cState.X != cState.OriginX) m[0].X -= (cState.Width - 1);
-            if (cState.Y != cState.OriginY) m[0].Y -= (cState.Height - 1);
-            if (cState.Z != cState.OriginZ) m[0].Z -= (cState.Length - 1);
-            
+            if (cState.X != cState.OriginX) m[0].X -= cState.Width - 1;
+            if (cState.Y != cState.OriginY) m[0].Y -= cState.Height - 1;
+            if (cState.Z != cState.OriginZ) m[0].Z -= cState.Length - 1;
+
             Min = m[0]; Max = m[0];
             Max.X += cState.Width - 1; Max.Y += cState.Height - 1; Max.Z += cState.Length - 1;
         }
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
             CopyState state = CopyState;
-            bool pasteAir = state.PasteAir;            
+            bool pasteAir = state.PasteAir;
             Vec3U16 p1 = Clamp(Min), p2 = Clamp(Max);
-            
+
             for (ushort y = p1.Y; y <= p2.Y; y++)
                 for (ushort z = p1.Z; z <= p2.Z; z++)
                     for (ushort x = p1.X; x <= p2.X; x++)
-            {
-                DrawOpBlock block = Place(x, y, z, brush);
-                if (pasteAir || block.Block != Block.Air) output(block);
-            }
+                    {
+                        DrawOpBlock block = Place(x, y, z, brush);
+                        if (pasteAir || block.Block != Block.Air) output(block);
+                    }
         }
     }
 }

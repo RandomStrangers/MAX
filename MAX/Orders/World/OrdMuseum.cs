@@ -18,16 +18,19 @@
 using System.IO;
 using System.Threading;
 
-namespace MAX.Orders.World {
-    public sealed class OrdMuseum : Order2 {
-        public override string name { get { return "Museum"; } }
-        public override string type { get { return OrderTypes.World; } }
+namespace MAX.Orders.World
+{
+    public class OrdMuseum : Order
+    {
+        public override string Name { get { return "Museum"; } }
+        public override string Type { get { return OrderTypes.World; } }
         public override bool SuperUseable { get { return false; } }
 
         public const string currentFlag = "*current";
         public const string latestFlag = "*latest";
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { LevelOperations.OutputBackups(p, p.level); return; }
 
             string[] args = message.ToLower().SplitSpaces();
@@ -35,24 +38,34 @@ namespace MAX.Orders.World {
             string backupArg = args.Length > 1 ? args[1] : args[0];
 
             string path;
-            if (backupArg == currentFlag) {
+            if (backupArg == currentFlag)
+            {
                 path = LevelInfo.MapPath(mapArg);
-                if (!LevelInfo.MapExists(mapArg)) {
-                    if (Directory.Exists(LevelInfo.BackupBasePath(mapArg))) {
+                if (!LevelInfo.MapExists(mapArg))
+                {
+                    if (Directory.Exists(LevelInfo.BackupBasePath(mapArg)))
+                    {
                         p.Message("&WLevel \"{0}\" does not currently exist, &Showever:", mapArg);
                         LevelOperations.OutputBackups(p, mapArg, LevelInfo.GetConfig(mapArg));
-                    } else {
+                    }
+                    else
+                    {
                         p.Message("&WLevel \"{0}\" does not exist and no backups could be found.", mapArg);
                     }
                     return;
                 }
-            } else {
-                if (!Directory.Exists(LevelInfo.BackupBasePath(mapArg))) {
+            }
+            else
+            {
+                if (!Directory.Exists(LevelInfo.BackupBasePath(mapArg)))
+                {
                     p.Message("Level \"{0}\" has no backups.", mapArg); return;
                 }
-                if (backupArg == latestFlag) {
+                if (backupArg == latestFlag)
+                {
                     int latest = LevelInfo.LatestBackup(mapArg);
-                    if (latest == 0) {
+                    if (latest == 0)
+                    {
                         p.Message("&WLevel \"{0}\" does not have any numbered backups, " +
                             "so the latest backup could not be determined.", mapArg);
                         return;
@@ -61,33 +74,43 @@ namespace MAX.Orders.World {
                 }
                 path = LevelInfo.BackupFilePath(mapArg, backupArg);
             }
-            if (!File.Exists(path)) {
+            if (!File.Exists(path))
+            {
                 p.Message("Backup \"{0}\" for {1} could not be found.", backupArg, mapArg); return;
             }
 
             string formattedMuseumName;
-            if (backupArg == currentFlag) {
+            if (backupArg == currentFlag)
+            {
                 formattedMuseumName = "&cMuseum &S(" + mapArg + ")";
-            } else {
+            }
+            else
+            {
                 formattedMuseumName = "&cMuseum &S(" + mapArg + " " + backupArg + ")";
             }
-            
-            if (p.level.name.CaselessEq(formattedMuseumName)) {
+
+            if (p.level.name.CaselessEq(formattedMuseumName))
+            {
                 p.Message("You are already in this museum."); return;
             }
-            if (Interlocked.CompareExchange(ref p.LoadingMuseum, 1, 0) == 1) {
+            if (Interlocked.CompareExchange(ref p.LoadingMuseum, 1, 0) == 1)
+            {
                 p.Message("You are already loading a museum level."); return;
             }
-            
-            try {
-                Level lvl = LevelActions.LoadMuseum(p, formattedMuseumName, mapArg, path);
+
+            try
+            {
+                Level lvl = LevelActions.LoadMuseum(formattedMuseumName, mapArg, path);
                 PlayerActions.ChangeMap(p, lvl);
-            } finally {
+            }
+            finally
+            {
                 Interlocked.Exchange(ref p.LoadingMuseum, 0);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Museum <level> [backup]");
             p.Message("&HVisits the [backup] of <level>");
             p.Message("&T/Museum <level> *latest");

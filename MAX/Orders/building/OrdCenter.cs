@@ -17,47 +17,52 @@
 */
 using MAX.DB;
 using MAX.Maths;
-using BlockID = System.UInt16;
 
-namespace MAX.Orders.Building 
+
+namespace MAX.Orders.Building
 {
-    public sealed class OrdCenter : Order2 
+    public class OrdCenter : Order
     {
-        public override string name { get { return "Center"; } }
-        public override string shortcut { get { return "Centre"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override string Name { get { return "Center"; } }
+        public override string Shortcut { get { return "Centre"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             p.Message("Place or break two blocks to determine the edges.");
             p.MakeSelection(2, "Selecting region for &SCenter", null, DoCentre);
         }
 
-        public bool DoCentre(Player p, Vec3S32[] m, object state, BlockID block) {
+        public bool DoCentre(Player p, Vec3S32[] m, object state, ushort block)
+        {
             int lenX = m[0].X + m[1].X, lenY = m[0].Y + m[1].Y, lenZ = m[0].Z + m[1].Z;
             int x = lenX / 2, y = lenY / 2, z = lenZ / 2;
-            
+
             Place(p, x, y, z);
             if ((lenX & 1) == 1) Place(p, x + 1, y, z);
             if ((lenZ & 1) == 1) Place(p, x, y, z + 1);
             if ((lenX & 1) == 1 && (lenZ & 1) == 1) Place(p, x + 1, y, z + 1);
-            
+
             // Top layer blocks
-            if ((lenY & 1) == 1) {
+            if ((lenY & 1) == 1)
+            {
                 Place(p, x, y + 1, z);
                 if ((lenX & 1) == 1) Place(p, x + 1, y + 1, z);
                 if ((lenZ & 1) == 1) Place(p, x, y + 1, z + 1);
                 if ((lenX & 1) == 1 && (lenZ & 1) == 1) Place(p, x + 1, y + 1, z + 1);
             }
-            
+
             p.Message("Gold blocks were placed at ({0}, {1}, {2}).", x, y, z);
             return true;
         }
 
-        public static void Place(Player p, int x, int y, int z) {
+        public static void Place(Player p, int x, int y, int z)
+        {
             p.level.UpdateBlock(p, (ushort)x, (ushort)y, (ushort)z, Block.Gold, BlockDBFlags.Drawn);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Center");
             p.Message("&HPlaces gold blocks at the center of your selection");
         }

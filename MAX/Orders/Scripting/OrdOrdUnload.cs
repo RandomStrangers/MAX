@@ -19,19 +19,19 @@ using MAX.Scripting;
 
 namespace MAX.Orders.Scripting
 {
-    public class OrdOrdUnload : Order2
+    public class OrdOrdUnload : Order
     {
-        public override string name { get { return "OrdUnload"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
+        public override string Name { get { return "OrdUnload"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
         public override bool MessageBlockRestricted { get { return true; } }
 
         public override void Use(Player p, string ordName, OrderData data)
         {
-            if (ordName.Length == 0) 
-            { 
+            if (ordName.Length == 0)
+            {
                 Help(p);
-                return; 
+                return;
             }
 
             string ordArgs = "";
@@ -40,7 +40,7 @@ namespace MAX.Orders.Scripting
 
             if (ord == null)
             {
-                p.Message("\"{0}\" is not a valid or loaded order.", ordName); 
+                p.Message("\"{0}\" is not a valid or loaded order.", ordName);
                 return;
             }
             ScriptingOperations.UnloadOrder(p, ord);

@@ -18,42 +18,51 @@
 
 namespace MAX.Orders.Chatting
 {
-    public sealed class OrdClear : Order2 
+    public class OrdClear : Order
     {
-        public override string name { get { return "Clear"; } }
-        public override string shortcut { get { return "cls"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        public override OrderDesignation[] Designations {
+        public override string Name { get { return "Clear"; } }
+        public override string Shortcut { get { return "cls"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override bool UseableWhenJailed { get { return true; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("PlayerCLS"), new OrderDesignation("GlobalCLS", "global"), new OrderDesignation("gcls", "global") }; }
         }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Admin, "can clear chat for everyone") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {        
-            if (!message.CaselessEq("global")) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (!message.CaselessEq("global"))
+            {
                 ClearChat(p);
                 p.Message("&4Chat cleared.");
-            } else {
+            }
+            else
+            {
                 if (!CheckExtraPerm(p, data, 1)) return;
-                
+
                 Player[] players = PlayerInfo.Online.Items;
-                foreach (Player pl in players) {
+                foreach (Player pl in players)
+                {
                     ClearChat(pl);
                 }
                 Chat.MessageAll("&4Global Chat cleared.");
             }
         }
 
-        public static void ClearChat(Player p) {
-            for (int i = 0; i < 30; i++) 
+        public static void ClearChat(Player p)
+        {
+            for (int i = 0; i < 30; i++)
             {
                 p.Session.SendMessage(CpeMessageType.Normal, "");
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Clear &H- Clears your chat.");
             p.Message("&T/Clear global &H- Clears chat of all users.");
         }

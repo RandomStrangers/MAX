@@ -17,59 +17,72 @@
  */
 using System;
 
-namespace MAX.Orders.Building 
+namespace MAX.Orders.Building
 {
-    public sealed class OrdCalculate : Order2 
+    public class OrdCalculate : Order
     {
-        public override string name { get { return "Calculate"; } }
-        public override string shortcut { get { return "Calc"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override string Name { get { return "Calculate"; } }
+        public override string Shortcut { get { return "Calc"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
             if (args.Length < 2) { Help(p); return; }
-            
-            double n1 = 0, n2 = 0, result = 0;
-            string r1 = args[0], op = args[1], r2 = null, format = null;
-            
-            if (!Utils.TryParseDouble(r1, out n1)) {
+
+            double result = 0;
+            string r1 = args[0], op = args[1], r2 = null;
+
+            if (!Utils.TryParseDouble(r1, out double n1))
+            {
                 p.Message("&W\"{0}\" is not a valid number.", r1); return;
             }
 
             char sym = op[0];
-            if (sym == '+' || sym == '-' || sym == '*' || sym == '/' || sym == '^') {
-                if (args.Length == 2 ||op.Length > 1) { Help(p); return; }
+            string format;
+            if (sym == '+' || sym == '-' || sym == '*' || sym == '/' || sym == '^')
+            {
+                if (args.Length == 2 || op.Length > 1) { Help(p); return; }
                 r2 = args[2];
-                
-                if (!Utils.TryParseDouble(r2, out n2)) {
+                if (!Utils.TryParseDouble(r2, out double n2))
+                {
                     p.Message("&W\"{0}\" is not a valid number.", r2); return;
                 }
-                
+
                 if (sym == '+') { result = n1 + n2; }
                 if (sym == '-') { result = n1 - n2; }
                 if (sym == '*') { result = n1 * n2; }
                 if (sym == '/') { result = n1 / n2; }
                 if (sym == '^') { result = Math.Pow(n1, n2); }
-                
+
                 format = "&aResult&f: {0} {1} {2} = {3}";
-            } else if (op == "sqrt") {
+            }
+            else if (op == "sqrt")
+            {
                 result = Math.Sqrt(n1);
                 format = "&aResult&f: Square root of {0} = {3}";
-            } else if (op == "square") {
+            }
+            else if (op == "square")
+            {
                 result = n1 * n1;
                 format = "&aResult&f: Square of {0} = {3}";
-            }  else if (op == "cubed") {
+            }
+            else if (op == "cubed")
+            {
                 result = n1 * n1 * n1;
                 format = "&aResult&f: Cube of {0} = {3}";
-            } else {
+            }
+            else
+            {
                 p.Message("&WOnly supported operators are: +, -, *, /, sqrt, square, or cubed");
                 return;
             }
-            
+
             p.Message(format, r1, op, r2, result);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Calculate [num1] [operation] [num2]");
             p.Message("&H[operation] can be +, -, /, or *");
             p.Message("&T/Calculate [num1] [operation]");

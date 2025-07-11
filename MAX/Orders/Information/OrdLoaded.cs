@@ -16,15 +16,16 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdLoaded : Order2 
+    public class OrdLoaded : Order
     {
-        public override string name { get { return "Loaded"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override string Name { get { return "Loaded"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             Level[] loaded = LevelInfo.Loaded.Items;
             p.Message("Loaded levels [physics level] (&c[no] &Sif not visitable): ");
             Paginator.Output(p, loaded, (lvl) => FormatMap(p, lvl),
@@ -32,14 +33,16 @@ namespace MAX.Orders.Info
             p.Message("Use &T/Levels &Sfor all levels.");
         }
 
-        public static string FormatMap(Player p, Level lvl) {            
+        public static string FormatMap(Player p, Level lvl)
+        {
             bool canVisit = p.IsSuper || lvl.VisitAccess.CheckAllowed(p);
-            string physics = " [" +  lvl.physics + "]";
+            string physics = " [" + lvl.Physics + "]";
             string visit = canVisit ? "" : " &c[no]";
             return lvl.ColoredName + physics + visit;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Loaded");
             p.Message("&HLists loaded levels and their physics levels.");
         }

@@ -15,37 +15,42 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Net;
 using MAX.Events;
+using System.Net;
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdUnbanip : Order2 {
-        public override string name { get { return "UnbanIP"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
-        public override OrderDesignation[] Designations {
+namespace MAX.Orders.Moderation
+{
+    public class OrdUnbanip : Order
+    {
+        public override string Name { get { return "UnbanIP"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new OrderDesignation[] { new OrderDesignation("UnIPBan") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces(2);
-            string addr = ModActionOrd.FindIP(p, args[0], "UnbanIP", out string name);
+            string addr = ModActionOrd.FindIP(p, args[0], "UnbanIP", out string _);
             if (addr == null) return;
 
             if (!IPAddress.TryParse(addr, out IPAddress ip)) { p.Message("\"{0}\" is not a valid IP.", addr); return; }
-            if (ip.Equals(p.IP))                   { p.Message("You cannot un-IP ban yourself."); return; }
-            if (!Server.bannedIP.Contains(addr))   { p.Message(addr + " is not a banned IP."); return; }
-            
+            if (ip.Equals(p.IP)) { p.Message("You cannot un-IP ban yourself."); return; }
+            if (!Server.bannedIP.Contains(addr)) { p.Message(addr + " is not a banned IP."); return; }
+
             string reason = args.Length > 1 ? args[1] : "";
             reason = ModActionOrd.ExpandReason(p, reason);
             if (reason == null) return;
-            
+
             ModAction action = new ModAction(addr, p, ModActionType.UnbanIP, reason);
             OnModActionEvent.Call(action);
         }
-        
-        public override void Help(Player p)  {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/UnbanIP [ip/player]");
             p.Message("&HUn-bans an IP, or the IP the given player is on.");
         }

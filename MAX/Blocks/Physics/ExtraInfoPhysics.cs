@@ -16,40 +16,45 @@
     permissions and limitations under the Licenses.
  */
 using System;
-using BlockID = System.UInt16;
 
-namespace MAX.Blocks.Physics {
-    
+
+namespace MAX.Blocks.Physics
+{
+
     public delegate bool ExtraInfoHandler(Level lvl, ref PhysInfo C);
-    
-    public static class ExtraInfoPhysics {
-        
-        public static bool DoDoorsOnly(Level lvl, ref PhysInfo C) {
+
+    public static class ExtraInfoPhysics
+    {
+
+        public static bool DoDoorsOnly(Level lvl, ref PhysInfo C)
+        {
             if (!C.Data.HasWait && C.Block == Block.Air)
                 C.Data.ResetTypes();
             if (!C.Data.HasWait) return false;
-            
+
             int waitTime = 0;
             if (C.Data.Type1 == PhysicsArgs.Wait) waitTime = C.Data.Value1;
             if (C.Data.Type2 == PhysicsArgs.Wait) waitTime = C.Data.Value2;
-            
+
             if (C.Data.Data <= waitTime) { C.Data.Data++; return true; }
             if (C.Data.Type1 == PhysicsArgs.Wait) C.Data.Type1 = 0;
             if (C.Data.Type2 == PhysicsArgs.Wait) C.Data.Type2 = 0;
-            
+
             return false;
         }
-        
-        public static bool DoNormal(Level lvl, ref PhysInfo C) {
+
+        public static bool DoNormal(Level lvl, ref PhysInfo C)
+        {
             if (!C.Data.HasWait && C.Block == Block.Air)
                 C.Data.ResetTypes();
-            
+
             ExtraInfoArgs args = default;
             ParseType(C.Data.Type1, ref args, C.Data.Value1);
             ParseType(C.Data.Type2, ref args, C.Data.Value2);
             args.ExtBlock = C.Data.ExtBlock;
-            
-            if (args.Wait) {
+
+            if (args.Wait)
+            {
                 if (C.Data.Data <= args.WaitTime) { C.Data.Data++; return true; }
                 if (C.Data.Type1 == PhysicsArgs.Wait) C.Data.Type1 = 0;
                 if (C.Data.Type2 == PhysicsArgs.Wait) C.Data.Type2 = 0;
@@ -62,8 +67,10 @@ namespace MAX.Blocks.Physics {
         public static ExtraInfoHandler doorsHandler = DoDoorsOnly;
         public static ExtraInfoHandler normalHandler = DoNormal;
 
-        public static void ParseType(byte type, ref ExtraInfoArgs args, byte value) {
-            switch (type) {
+        public static void ParseType(byte type, ref ExtraInfoArgs args, byte value)
+        {
+            switch (type)
+            {
                 case PhysicsArgs.Wait:
                     args.Wait = true; args.WaitTime = value; break;
                 case PhysicsArgs.Drop:
@@ -79,72 +86,89 @@ namespace MAX.Blocks.Physics {
             }
         }
 
-        public static void DoOther(Level lvl, ref PhysInfo C, ref ExtraInfoArgs args) {
+        public static void DoOther(Level lvl, ref PhysInfo C, ref ExtraInfoArgs args)
+        {
             Random rand = lvl.physRandom;
-            if (args.Rainbow) {
+            if (args.Rainbow)
+            {
                 if (C.Data.Data < 4) C.Data.Data++;
                 else DoRainbow(lvl, ref C, rand, args.RainbowNum);
                 return;
             }
-            
-            if (args.Revert) {
+
+            if (args.Revert)
+            {
                 PhysicsArgs revertArgs = default;
                 revertArgs.ExtBlock = args.ExtBlock;
                 lvl.AddUpdate(C.Index, args.RevertType, revertArgs);
-                
+
                 C.Data.ResetTypes();
                 C.Data.Data = PhysicsArgs.RemoveFromChecks;
             }
-            
-            ushort x = C.X, y = C.Y, z = C.Z;            
+
+            ushort x = C.X, y = C.Y, z = C.Z;
             // Not setting drop = false can cause occasional leftover blocks, since C.extraInfo is emptied, so
             // drop can generate another block with no dissipate/explode information.
-            if (args.Dissipate && rand.Next(1, 100) <= args.DissipateNum) {
-                if (!lvl.listUpdateExists.Get(x, y, z)) {
+            if (args.Dissipate && rand.Next(1, 100) <= args.DissipateNum)
+            {
+                if (!lvl.listUpdateExists.Get(x, y, z))
+                {
                     lvl.AddUpdate(C.Index, Block.Air, default(PhysicsArgs));
                     C.Data.ResetTypes();
                     args.Drop = false;
-                } else {
+                }
+                else
+                {
                     lvl.AddUpdate(C.Index, C.Block, C.Data);
                 }
             }
-            
-            if (args.Explode && rand.Next(1, 100) <= args.ExplodeNum) {
+
+            if (args.Explode && rand.Next(1, 100) <= args.ExplodeNum)
+            {
                 lvl.MakeExplosion(x, y, z, 0);
                 C.Data.ResetTypes();
                 args.Drop = false;
             }
-            
+
             if (args.Drop && rand.Next(1, 100) <= args.DropNum)
                 DoDrop(lvl, ref C, rand, args.DropNum, x, y, z);
         }
 
-        public static void DoRainbow(Level lvl, ref PhysInfo C, Random rand, int rainbownum) {
-            if (rainbownum > 2) {
-                BlockID block = C.Block;
-                if (block < Block.Red || block > Block.Pink) {
+        public static void DoRainbow(Level lvl, ref PhysInfo C, Random rand, int rainbownum)
+        {
+            if (rainbownum > 2)
+            {
+                ushort block = C.Block;
+                if (block < Block.Red || block > Block.Pink)
+                {
                     lvl.AddUpdate(C.Index, Block.Red, C.Data);
-                } else {
-                    BlockID next = block == Block.Pink ? Block.Red : (BlockID)(block + 1);
+                }
+                else
+                {
+                    ushort next = block == Block.Pink ? Block.Red : (ushort)(block + 1);
                     lvl.AddUpdate(C.Index, next, default(PhysicsArgs));
                 }
-            } else {
-                lvl.AddUpdate(C.Index, (BlockID)rand.Next(Block.Red, Block.Pink + 1), default(PhysicsArgs));
+            }
+            else
+            {
+                lvl.AddUpdate(C.Index, (ushort)rand.Next(Block.Red, Block.Pink + 1), default(PhysicsArgs));
             }
         }
 
-        public static void DoDrop(Level lvl, ref PhysInfo C, Random rand, int dropnum, ushort x, ushort y, ushort z) {
-            int index;
-            BlockID below = lvl.GetBlock(x, (ushort)(y - 1), z, out index);
+        public static void DoDrop(Level lvl, ref PhysInfo C, Random rand, int dropnum, ushort x, ushort y, ushort z)
+        {
+            ushort below = lvl.GetBlock(x, (ushort)(y - 1), z, out int index);
             if (!(below == Block.Air || below == Block.Lava || below == Block.Water)) return;
-            
-            if (rand.Next(1, 100) < dropnum && lvl.AddUpdate(index, C.Block, C.Data)) {
+
+            if (rand.Next(1, 100) < dropnum && lvl.AddUpdate(index, C.Block, C.Data))
+            {
                 lvl.AddUpdate(C.Index, Block.Air, default(PhysicsArgs));
                 C.Data.ResetTypes();
             }
         }
 
-        public struct ExtraInfoArgs {
+        public struct ExtraInfoArgs
+        {
             public bool Wait, Drop, Dissipate, Revert, Explode, Rainbow;
             public int WaitTime, DropNum, DissipateNum, ExplodeNum, RainbowNum;
             public byte RevertType, ExtBlock;

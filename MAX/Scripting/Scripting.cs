@@ -25,24 +25,25 @@ namespace MAX.Scripting
 {
     /// <summary> Exception raised when attempting to load a new order/addon 
     /// that has the same name as an already loaded order/addon </summary>
-    public sealed class AlreadyLoadedException : Exception
+    public class AlreadyLoadedException : Exception
     {
         public AlreadyLoadedException(string msg) : base(msg) { }
     }
-    
+
     /// <summary> Utility methods for loading assemblies, orders, and addons </summary>
     public static class IScripting
     {
         public const string ORDERS_DLL_DIR = "extra/orders/";
-        public const string ADDONS_DLL_DIR  = "addons/";
-        
+        public const string ADDONS_DLL_DIR = "addons/";
+
         /// <summary> Returns the default .dll path for the custom order with the given name </summary>
         public static string OrderPath(string name) { return ORDERS_DLL_DIR + "Ord" + name + ".dll"; }
         /// <summary> Returns the default .dll path for the addon with the given name </summary>
-        public static string AddonPath(string name)  { return ADDONS_DLL_DIR + name + ".dll"; }
-        
-        
-        public static void Init() {
+        public static string AddonPath(string name) { return ADDONS_DLL_DIR + name + ".dll"; }
+
+
+        public static void Init()
+        {
             Directory.CreateDirectory(ORDERS_DLL_DIR);
             Directory.CreateDirectory(ADDONS_DLL_DIR);
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAddonAssembly;
@@ -56,17 +57,18 @@ namespace MAX.Scripting
                 return path;
             }
 
-            public static Assembly ResolveAddonReference(string name)
+            /*public static Assembly ResolveAddonReference(string name)
             {
                 return null;
-            }
+            }*/
         }
         // only used for resolving addon DLLs depending on other addon DLLs
-        static Assembly ResolveAddonAssembly(object sender, ResolveEventArgs args) {
+        public static Assembly ResolveAddonAssembly(object sender, ResolveEventArgs args)
+        {
             // This property only exists in .NET framework 4.0 and later
             Assembly requestingAssembly = args.RequestingAssembly;
-            
-            if (requestingAssembly == null)       return null;
+
+            if (requestingAssembly == null) return null;
             if (!IsAddonDLL(requestingAssembly)) return null;
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -77,28 +79,30 @@ namespace MAX.Scripting
                 if (args.Name == assem.FullName) return assem;
             }
 
-            Assembly coreRef = DotNetBackend.ResolveAddonReference(args.Name);
-            if (coreRef != null) return coreRef;
+            //Assembly coreRef = DotNetBackend.ResolveAddonReference(args.Name);
+            //if (coreRef != null) return coreRef;
 
             Logger.Log(LogType.Warning, "Custom order/addon [{0}] tried to load [{1}], but it could not be found",
                        requestingAssembly.FullName, args.Name);
             return null;
         }
 
-        static bool IsAddonDLL(Assembly a) { return string.IsNullOrEmpty(a.Location); }
-        
-        
+        public static bool IsAddonDLL(Assembly a) { return string.IsNullOrEmpty(a.Location); }
+
+
         /// <summary> Constructs instances of all types which derive from T in the given assembly. </summary>
         /// <returns> The list of constructed instances. </returns>
-        public static List<T> LoadTypes<T>(Assembly lib) {
+        public static List<T> LoadTypes<T>(Assembly lib)
+        {
             List<T> instances = new List<T>();
-            
+
             foreach (Type t in lib.GetTypes())
             {
                 if (t.IsAbstract || t.IsInterface || !t.IsSubclassOf(typeof(T))) continue;
                 object instance = Activator.CreateInstance(t);
-                
-                if (instance == null) {
+
+                if (instance == null)
+                {
                     Logger.Log(LogType.Warning, "{0} \"{1}\" could not be loaded", typeof(T).Name, t.Name);
                     throw new BadImageFormatException();
                 }
@@ -106,95 +110,111 @@ namespace MAX.Scripting
             }
             return instances;
         }
-        
+
         /// <summary> Loads the given assembly from disc </summary>
-        public static Assembly LoadAssembly(string path) {
-            byte[] data  = File.ReadAllBytes(path);
+        public static Assembly LoadAssembly(string path)
+        {
+            byte[] data = File.ReadAllBytes(path);
             return Assembly.Load(data);
         }
-        
-        
-        
-        public static void AutoloadOrders() {
-            string[] files = AtomicIO.TryGetFiles(ORDERS_DLL_DIR, "*.dll");
+
+
+
+        public static void AutoloadOrders()
+        {
+            string[] files = FileIO.TryGetFiles(ORDERS_DLL_DIR, "*.dll");
             if (files == null) return;
-            
+
             foreach (string path in files) { AutoloadOrders(path); }
         }
-        
-        static void AutoloadOrders(string path) {
+
+        public static void AutoloadOrders(string path)
+        {
             List<Order> ords;
-            
-            try {
+
+            try
+            {
                 ords = LoadOrder(path);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error loading orders from " + path, ex);
                 return;
             }
-            
+
             Logger.Log(LogType.SystemActivity, "AUTOLOAD: Loaded {0} from {1}",
-                       ords.Join(o => "/" + o.name), Path.GetFileName(path));
+                       ords.Join(o => "/" + o.Name), Path.GetFileName(path));
         }
-        
+
         /// <summary> Loads and registers all the orders from the given .dll path </summary>
-        public static List<Order> LoadOrder(string path) {
+        public static List<Order> LoadOrder(string path)
+        {
             Assembly lib = LoadAssembly(path);
             List<Order> orders = LoadTypes<Order>(lib);
-            
+
             if (orders.Count == 0)
                 throw new InvalidOperationException("No orders in " + path);
-            
+
             foreach (Order ord in orders)
             {
-                if (Order.Find(ord.name) != null)
-                    throw new AlreadyLoadedException("/" + ord.name + " is already loaded");
-                
+                if (Order.Find(ord.Name) != null)
+                    throw new AlreadyLoadedException("/" + ord.Name + " is already loaded");
+
                 Order.Register(ord);
             }
             return orders;
         }
-        
-        public static string DescribeLoadError(string path, Exception ex) {
+
+        public static string DescribeLoadError(string path, Exception ex)
+        {
             string file = Path.GetFileName(path);
-            
-            if (ex is BadImageFormatException) {
+
+            if (ex is BadImageFormatException)
+            {
                 return "&W" + file + " is not a valid assembly, or has an invalid dependency. Details in the error log.";
-            } else if (ex is FileLoadException) {
+            }
+            else if (ex is FileLoadException)
+            {
                 return "&W" + file + " or one of its dependencies could not be loaded. Details in the error log.";
             }
-            
+
             return "&WAn unknown error occured. Details in the error log.";
         }
-        
-        
-        public static void AutoloadAddons() {
-            string[] files = AtomicIO.TryGetFiles(ADDONS_DLL_DIR, "*.dll");
+
+
+        public static void AutoloadAddons()
+        {
+            string[] files = FileIO.TryGetFiles(ADDONS_DLL_DIR, "*.dll");
             if (files == null) return;
-            
+
             // Ensure that addon files are loaded in a consistent order,
             //  in case addons have a dependency on other addons
             Array.Sort(files);
-            
+
             foreach (string path in files)
             {
-                try {
+                try
+                {
                     LoadAddon(path, true);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     Logger.LogError("Error loading addons from " + path, ex);
                 }
             }
         }
-        
+
         /// <summary> Loads all addons from the given .dll path. </summary>
-        public static List<Addon> LoadAddon(string path, bool auto) {
+        public static List<Addon> LoadAddon(string path, bool auto)
+        {
             Assembly lib = LoadAssembly(path);
             List<Addon> addons = LoadTypes<Addon>(lib);
-            
+
             foreach (Addon a in addons)
             {
-                if (Addon.FindCustom(a.name) != null)
-                    throw new AlreadyLoadedException("Addon " + a.name + " is already loaded");
-                
+                if (Addon.FindCustom(a.Name) != null)
+                    throw new AlreadyLoadedException("Addon " + a.Name + " is already loaded");
+
                 Addon.Load(a, auto);
             }
             return addons;

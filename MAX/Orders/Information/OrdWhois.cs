@@ -17,23 +17,27 @@
  */
 using MAX.DB;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdWhois : Order2 
+    public class OrdWhois : Order
     {
-        public override string name { get { return "WhoIs"; } }
-        public override string shortcut { get { return "WhoWas"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        public override OrderPerm[] ExtraPerms {
+        public override string Name { get { return "WhoIs"; } }
+        public override string Shortcut { get { return "WhoWas"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Owner, "can see sensitive player information (e.g. IP)") }; }
         }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new OrderDesignation[] { new OrderDesignation("Info"), new OrderDesignation("i") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 if (p.IsSuper) { SuperRequiresArgs(p, "player name"); return; }
                 message = p.name;
             }
@@ -41,23 +45,29 @@ namespace MAX.Orders.Info
 
             Player who = PlayerInfo.FindMatches(p, message, out int matches);
             if (matches > 1) return;
-            
-            if (matches == 0) {
+
+            if (matches == 0)
+            {
                 p.Message("Searching database for the player..");
                 PlayerData target = PlayerDB.Match(p, message);
                 if (target == null) return;
-                
-                foreach (OfflineStatPrinter printer in OfflineStat.Stats) {
+
+                foreach (OfflineStatPrinter printer in OfflineStat.Stats)
+                {
                     printer(p, target);
                 }
-            } else {
-                foreach (OnlineStatPrinter printer in OnlineStat.Stats) {
+            }
+            else
+            {
+                foreach (OnlineStatPrinter printer in OnlineStat.Stats)
+                {
                     printer(p, who);
                 }
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/WhoIs [player]");
             p.Message("&HDisplays information about that player.");
             p.Message("&HNote: Works for both online and offline players.");

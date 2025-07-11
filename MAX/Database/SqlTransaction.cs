@@ -17,58 +17,75 @@
  */
 using System;
 
-namespace MAX.SQL 
-{    
-    public sealed class SqlTransaction : IDisposable 
+namespace MAX.SQL
+{
+    public class SqlTransaction : IDisposable
     {
-        internal ISqlConnection conn;
-        internal ISqlTransaction transaction;
-        
-        public SqlTransaction() {
+        public ISqlConnection conn;
+        public ISqlTransaction transaction;
+
+        public SqlTransaction()
+        {
             IDatabaseBackend db = Database.Backend;
             conn = db.CreateConnection();
             conn.Open();
-            
+
             if (db.MultipleSchema) conn.ChangeDatabase(Server.Config.MySQLDatabaseName);
             transaction = conn.BeginTransaction();
         }
 
-        public void Commit() {
-            try {
+        public void Commit()
+        {
+            try
+            {
                 transaction.Commit();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error committing SQL transaction", ex);
                 Rollback();
-            } finally {
+            }
+            finally
+            {
                 conn.Close();
             }
         }
-        
-        public bool Rollback() {
-            try {
+
+        public bool Rollback()
+        {
+            try
+            {
                 transaction.Rollback();
                 return true;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error rolling back SQL transaction", ex);
                 return false;
             }
         }
-        
-        public void Dispose() {
+
+        public void Dispose()
+        {
             transaction.Dispose();
             conn.Dispose();
             transaction = null;
             conn = null;
         }
-        
-        public bool Execute(string sql, params object[] args) {
-            try {
-                using (ISqlOrder ord = conn.CreateOrder(sql)) {
+
+        public bool Execute(string sql, params object[] args)
+        {
+            try
+            {
+                using (ISqlOrder ord = conn.CreateOrder(sql))
+                {
                     IDatabaseBackend.FillParams(ord, args);
                     ord.ExecuteNonQuery();
                     return true;
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error executing SQL transaction: " + sql, ex);
                 return false;
             }

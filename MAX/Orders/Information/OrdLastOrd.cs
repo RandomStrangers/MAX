@@ -17,41 +17,50 @@
 */
 using System;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdLastOrd : Order2 
+    public class OrdLastOrd : Order
     {
-        public override string name { get { return "LastOrd"; } }
-        public override string shortcut { get { return "Last"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "LastOrd"; } }
+        public override string Shortcut { get { return "Last"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool UpdatesLastOrd { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 Player[] players = PlayerInfo.Online.Items;
-                foreach (Player pl in players) 
+                foreach (Player pl in players)
                 {
                     if (p.CanSee(pl, data.Rank)) ShowLastOrder(p, pl);
                 }
-            } else {
+            }
+            else
+            {
                 Player who = PlayerInfo.FindMatches(p, message);
                 if (who != null) ShowLastOrder(p, who);
             }
         }
 
-        public static void ShowLastOrder(Player p, Player target) {
-            if (target.lastORD.Length == 0) {
-                p.Message("{0} &Shas not used any orders yet.", 
+        public static void ShowLastOrder(Player p, Player target)
+        {
+            if (target.lastORD.Length == 0)
+            {
+                p.Message("{0} &Shas not used any orders yet.",
                           p.FormatNick(target));
-            } else {
+            }
+            else
+            {
                 TimeSpan delta = DateTime.UtcNow - target.lastOrdTime;
-                p.Message("{0} &Slast used \"{1}\" {2} ago", 
+                p.Message("{0} &Slast used \"{1}\" {2} ago",
                           p.FormatNick(target), target.lastORD, delta.Shorten(true));
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Last [user]");
             p.Message("&H Shows last order used by [user]");
             p.Message("&T/Last");

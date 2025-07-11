@@ -15,32 +15,37 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdWhisper : Order2 
+    public class OrdWhisper : Order
     {
-        public override string name { get { return "Whisper"; } }
-        public override string type { get { return OrderTypes.Chat; } }
+        public override string Name { get { return "Whisper"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
         public override bool SuperUseable { get { return false; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override bool UseableWhenJailed { get { return true; } }
         public override bool MessageBlockRestricted { get { return true; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 p.whisper = !p.whisper; p.whisperTo = "";
                 if (p.whisper) p.Message("All messages sent will now auto-whisper");
                 else p.Message("Whisper chat turned off");
-            } else {
+            }
+            else
+            {
                 Player target = PlayerInfo.FindMatches(p, message);
                 if (target == null) { p.whisperTo = ""; p.whisper = false; return; }
 
-                p.whisper   = true;
+                p.whisper = true;
                 p.whisperTo = target.name;
                 p.Message("Auto-whisper enabled. All messages will now be sent to {0}.", p.FormatNick(target));
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Whisper [name]");
             p.Message("&HMakes all messages act like whispers");
         }

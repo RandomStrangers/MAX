@@ -15,18 +15,18 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.DB;
 using MAX.SQL;
+using System;
 
 namespace MAX.Orders.Chatting
 {
-    public class OrdSend : Order2
+    public class OrdSend : Order
     {
-        public override string name { get { return "Send"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Builder; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override string Name { get { return "Send"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Builder; } }
+        public override bool UseableWhenJailed { get { return true; } }
         public override OrderParallelism Parallelism { get { return OrderParallelism.NoAndWarn; } }
 
         public override void Use(Player p, string message, OrderData data)
@@ -71,7 +71,7 @@ namespace MAX.Orders.Chatting
             }
         }
 
-        static ColumnDesc[] createInbox = new ColumnDesc[] {
+        private static readonly ColumnDesc[] createInbox = new ColumnDesc[] {
             new ColumnDesc("PlayerFrom", ColumnType.Char, 20),
             new ColumnDesc("TimeSent", ColumnType.DateTime),
             new ColumnDesc("Contents", ColumnType.VarChar, 255),

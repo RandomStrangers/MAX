@@ -17,73 +17,87 @@
  */
 using MAX.Events.PlayerEvents;
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdHide : Order2 {
-        public override string name { get { return "Hide"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdHide : Order
+    {
+        public override string Name { get { return "Hide"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool SuperUseable { get { return false; } }
         public override bool UpdatesLastOrd { get { return false; } }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Admin, "can hide silently") }; }
         }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new OrderDesignation[] { new OrderDesignation("XHide", "silent") }; }
         }
 
-        public static void AnnounceOps(Player p, string msg) {
+        public static void AnnounceOps(Player p, string msg)
+        {
             ItemPerms perms = new ItemPerms(p.hideRank);
             Chat.MessageFrom(ChatScope.Perms, p, msg, perms, null, true);
         }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length > 0 && p.possess.Length > 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length > 0 && p.possess.Length > 0)
+            {
                 p.Message("Stop your current possession first."); return;
             }
             bool silent = false;
-            if (message.CaselessEq("silent")) {
+            if (message.CaselessEq("silent"))
+            {
                 if (!CheckExtraPerm(p, data, 1)) return;
                 silent = true;
             }
-            
+
             Order adminchat = Find("AdminChat");
             Order opchat = Find("OpChat");
             Entities.GlobalDespawn(p, false);
-            
+
             p.hidden = !p.hidden;
-            if (p.hidden) {
+            if (p.hidden)
+            {
                 p.hideRank = data.Rank;
-                AnnounceOps(p, "To Ops -λNICK&S- is now &finvisible");               
-                
-                if (!silent) {
+                AnnounceOps(p, "To Ops -λNICK&S- is now &finvisible");
+
+                if (!silent)
+                {
                     string leaveMsg = "&c- λFULL &S" + PlayerInfo.GetLogoutMessage(p);
                     Chat.MessageFrom(ChatScope.All, p, leaveMsg, null, null, true);
                 }
-                
+
                 if (!p.opchat) opchat.Use(p, "", data);
                 Server.hidden.Add(p.name);
                 OnPlayerActionEvent.Call(p, PlayerAction.Hide);
-            } else {
+            }
+            else
+            {
                 AnnounceOps(p, "To Ops -λNICK&S- is now &fvisible");
                 p.hideRank = LevelPermission.Banned;
-                
-                if (!silent) {
+
+                if (!silent)
+                {
                     string joinMsg = "&a+ λFULL &S" + PlayerInfo.GetLoginMessage(p);
                     Chat.MessageFrom(ChatScope.All, p, joinMsg, null, null, true);
                 }
-                
+
                 if (p.opchat) opchat.Use(p, "", data);
                 if (p.adminchat) adminchat.Use(p, "", data);
                 Server.hidden.Remove(p.name);
                 OnPlayerActionEvent.Call(p, PlayerAction.Unhide);
             }
-            
+
             Entities.GlobalSpawn(p, false);
             TabList.Add(p, p, Entities.SelfID);
             Server.hidden.Save(false);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Hide &H- Toggles your visibility to other players, also toggles opchat.");
             p.Message("&T/Hide silent &H- Hides without showing join/leave message");
             p.Message("&HUse &T/OHide &Hto hide other players.");

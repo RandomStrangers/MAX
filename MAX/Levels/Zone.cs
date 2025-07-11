@@ -15,10 +15,10 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Collections.Generic;
 using MAX.Config;
 using MAX.Events.PlayerEvents;
 using MAX.Maths;
+using System.Collections.Generic;
 
 namespace MAX
 {
@@ -111,8 +111,7 @@ namespace MAX
         {
             if (!Shows) return;
 
-            ColorDesc color;
-            Colors.TryParseHex(Config.ShowColor, out color);
+            Colors.TryParseHex(Config.ShowColor, out ColorDesc color);
             color.A = (byte)Config.ShowAlpha;
 
             Vec3U16 min = new Vec3U16(MinX, MinY, MinZ);

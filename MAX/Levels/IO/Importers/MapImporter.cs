@@ -15,12 +15,11 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.Maths;
 using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using MAX.Maths;
-
 namespace MAX.Levels.IO
 {
     //WARNING! DO NOT CHANGE THE WAY THE LEVEL IS SAVED/LOADED!
@@ -30,7 +29,7 @@ namespace MAX.Levels.IO
         public override string Extension { get { return ".map"; } }
         public override string Description { get { return "Map"; } }
         public const int HEADER_SIZE = 18;
-        public static Vec3U8 ReadDimensionsByte(Stream src)
+        public override Vec3U8 ReadDimensionsByte(Stream src)
         {
             using (Stream gs = new GZipStream(src, CompressionMode.Decompress, true))
             {
@@ -42,14 +41,12 @@ namespace MAX.Levels.IO
         {
             return (Vec3U16)ReadDimensionsByte(src);
         }
-
         public override Level Read(Stream src, string name, bool metadata)
         {
             using (Stream gs = new GZipStream(src, CompressionMode.Decompress, true))
             {
                 byte[] header = new byte[HEADER_SIZE];
                 Vec3U8 dims = ReadHeader(gs, header);
-
                 Level lvl = new Level(name, dims.X, dims.Y, dims.Z)
                 {
                     spawnx = (byte)BitConverter.ToUInt16(header, 8),
@@ -58,22 +55,22 @@ namespace MAX.Levels.IO
                     rotx = header[14],
                     roty = header[15]
                 };
-                // pervisit/perbuild permission bytes ignored
-
                 ReadFully(gs, lvl.blocks, lvl.blocks.Length);
                 ReadCustomBlocksSection(lvl, gs);
-                if (!metadata) return lvl;
-
+                if (!metadata)
+                {
+                    return lvl;
+                }
                 for (; ; )
                 {
                     int section = gs.ReadByte();
                     if (section == 0xFC)
-                    { // 'ph'ysics 'c'hecks
-                        ReadPhysicsSection(lvl, gs); 
+                    {
+                        ReadPhysicsSection(lvl, gs);
                         continue;
                     }
                     if (section == 0x51)
-                    { // 'z'one 'l'ist
+                    {
                         ReadZonesSection(lvl, gs);
                         continue;
                     }
@@ -81,29 +78,33 @@ namespace MAX.Levels.IO
                 }
             }
         }
-
         public static Vec3U8 ReadHeader(Stream gs, byte[] header)
         {
             ReadFully(gs, header, HEADER_SIZE);
             int signature = BitConverter.ToUInt16(header, 0);
             if (signature != 255)
+            {
                 throw new InvalidDataException("Invalid .map map signature");
+            }
             Vec3U8 dims;
             dims.X = (byte)BitConverter.ToUInt16(header, 2);
             dims.Z = (byte)BitConverter.ToUInt16(header, 4);
             dims.Y = (byte)BitConverter.ToUInt16(header, 6);
             return dims;
         }
-
         public static void ReadCustomBlocksSection(Level lvl, Stream gs)
         {
             byte[] data = new byte[1];
             int read = gs.Read(data, 0, 1);
-            if (read == 0 || data[0] != 0xBD) return;
-
+            if (read == 0 || data[0] != 0xBD)
+            {
+                return;
+            }
             int index = 0;
             for (int y = 0; y < lvl.ChunksY; y++)
+            {
                 for (int z = 0; z < lvl.ChunksZ; z++)
+                {
                     for (int x = 0; x < lvl.ChunksX; x++)
                     {
                         read = gs.Read(data, 0, 1);
@@ -115,50 +116,55 @@ namespace MAX.Levels.IO
                         }
                         index++;
                     }
+                }
+            }
         }
-
-
         public static void ReadPhysicsSection(Level lvl, Stream gs)
         {
             byte[] buffer = new byte[sizeof(int)];
             int count = TryRead_I16(buffer, gs);
-            if (count == 0) return;
-
+            if (count == 0)
+            {
+                return;
+            }
             lvl.ListCheck.Count = count;
             lvl.ListCheck.Items = new Check[count];
             ReadPhysicsEntries(lvl, gs, count);
         }
-
         public static void ReadPhysicsEntries(Level lvl, Stream gs, int count)
         {
             byte[] buffer = new byte[Math.Min(count, 1024) * 8];
             Check C;
-
             fixed (byte* ptr = buffer)
+            {
                 for (int i = 0; i < count; i += 1024)
                 {
                     int entries = Math.Min(1024, count - i);
                     int read = gs.Read(buffer, 0, entries * 8);
-                    if (read < entries * 8) return;
-
+                    if (read < entries * 8)
+                    {
+                        return;
+                    }
                     int* ptrInt = (int*)ptr;
                     for (int j = 0; j < entries; j++)
                     {
                         C.Index = *ptrInt;
                         ptrInt++;
-                        C.data.Raw = (uint)*ptrInt; 
+                        C.data.Raw = (uint)*ptrInt;
                         ptrInt++;
                         lvl.ListCheck.Items[i + j] = C;
                     }
                 }
+            }
         }
-
         public static void ReadZonesSection(Level lvl, Stream gs)
         {
             byte[] buffer = new byte[sizeof(int)];
             int count = TryRead_I16(buffer, gs);
-            if (count == 0) return;
-
+            if (count == 0)
+            {
+                return;
+            }
             for (int i = 0; i < count; i++)
             {
                 try
@@ -171,43 +177,47 @@ namespace MAX.Levels.IO
                 }
             }
         }
-
         public static void ParseZone(Level lvl, ref byte[] buffer, Stream gs)
         {
-            Zone z = new Zone();
-            z.MinX = Read_U8(buffer, gs); 
-            z.MaxX = Read_U8(buffer, gs);
-            z.MinY = Read_U8(buffer, gs); 
-            z.MaxY = Read_U8(buffer, gs);
-            z.MinZ = Read_U8(buffer, gs); 
-            z.MaxZ = Read_U8(buffer, gs);
-
+            Zone z = new Zone
+            {
+                MinX = Read_U8(buffer, gs),
+                MaxX = Read_U8(buffer, gs),
+                MinY = Read_U8(buffer, gs),
+                MaxY = Read_U8(buffer, gs),
+                MinZ = Read_U8(buffer, gs),
+                MaxZ = Read_U8(buffer, gs)
+            };
             int metaCount = TryRead_I16(buffer, gs);
             ConfigElement[] elems = Server.zoneConfig;
-
             for (int j = 0; j < metaCount; j++)
             {
                 int size = Read_U8(buffer, gs);
-                if (size > buffer.Length) buffer = new byte[size + 16];
+                if (size > buffer.Length)
+                {
+                    buffer = new byte[size + 16];
+                }
                 ReadFully(gs, buffer, size);
-
-                string line = Encoding.UTF8.GetString(buffer, 0, size), key, value;
-                PropertiesFile.ParseLine(line, '=', out key, out value);
-                if (key == null) continue;
-
+                string line = Encoding.UTF8.GetString(buffer, 0, size);
+                PropertiesFile.ParseLine(line, '=', out string key, out string value);
+                if (key == null)
+                {
+                    continue;
+                }
                 value = value.Trim();
                 ConfigElement.Parse(elems, z.Config, key, value);
             }
             z.AddTo(lvl);
         }
-
         public static short TryRead_I16(byte[] buffer, Stream gs)
         {
             int read = gs.Read(buffer, 0, sizeof(short));
-            if (read < sizeof(short)) return 0;
+            if (read < sizeof(short))
+            {
+                return 0;
+            }
             return NetUtils.ReadI16(buffer, 0);
         }
-
         public static byte Read_U8(byte[] buffer, Stream gs)
         {
             ReadFully(gs, buffer, sizeof(byte));

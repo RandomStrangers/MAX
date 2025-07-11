@@ -17,116 +17,139 @@
  */
 using MAX.DB;
 
-namespace MAX 
+namespace MAX
 {
-    public static class PlayerOperations 
-    {        
+    public static class PlayerOperations
+    {
         /// <summary> Attempts to change the login message of the target player </summary>
         /// <remarks> Not allowed when players who cannot speak (e.g. muted) </remarks>
-        public static bool SetLoginMessage(Player p, string target, string message) {
-            if (message.Length == 0) {
+        public static bool SetLoginMessage(Player p, string target, string message)
+        {
+            if (message.Length == 0)
+            {
                 p.Message("Login message of {0} &Swas removed", p.FormatNick(target));
-            } else {
+            }
+            else
+            {
                 // Don't allow changing while muted
                 if (!p.CheckCanSpeak("change login messages")) return false;
-                
+
                 p.Message("Login message of {0} &Swas changed to: {1}",
                           p.FormatNick(target), message);
             }
-            
+
             PlayerDB.SetLoginMessage(target, message);
             return true;
         }
-        
+
         /// <summary> Attempts to change the logout message of the target player </summary>
         /// <remarks> Not allowed when players who cannot speak (e.g. muted) </remarks>
-        public static bool SetLogoutMessage(Player p, string target, string message) {
-            if (message.Length == 0) {
+        public static bool SetLogoutMessage(Player p, string target, string message)
+        {
+            if (message.Length == 0)
+            {
                 p.Message("Logout message of {0} &Swas removed", p.FormatNick(target));
-            } else {
+            }
+            else
+            {
                 // Don't allow changing while muted
                 if (!p.CheckCanSpeak("change logout messages")) return false;
-                
+
                 p.Message("Logout message of {0} &Swas changed to: {1}",
                           p.FormatNick(target), message);
             }
-            
+
             PlayerDB.SetLogoutMessage(target, message);
             return true;
         }
-        
-        
+
+
         /// <summary> Attempts to change the nickname of the target player </summary>
         /// <remarks> Not allowed when players who cannot speak (e.g. muted) </remarks>
-        public static bool SetNick(Player p, string target, string nick) {
-            if (Colors.Strip(nick).Length >= 32767) { 
-                p.Message("Nick must be under 32767 letters."); 
-                return false; 
+        public static bool SetNick(Player p, string target, string nick)
+        {
+            if (Colors.StripUsed(nick).Length >= 32767)
+            {
+                p.Message("Nick must be under 32767 letters.");
+                return false;
             }
             Player who = PlayerInfo.FindExact(target);
-            
-            if (nick.Length == 0) {
+
+            if (nick.Length == 0)
+            {
                 MessageAction(p, target, who, "λACTOR &Sremoved λTARGET nick");
                 nick = Server.ToRawUsername(target);
-            } else {
+            }
+            else
+            {
                 if (!p.CheckCanSpeak("change nicks")) return false;
-                
+
                 // TODO: select color from database?
                 string color = who != null ? who.color : Group.GroupIn(target).Color;
                 MessageAction(p, target, who, "λACTOR &Schanged λTARGET nick to " + color + nick);
             }
-            
+
             if (who != null) who.DisplayName = nick;
             if (who != null) TabList.Update(who, true);
             PlayerDB.SetNick(target, nick);
             return true;
         }
-        
+
         /// <summary> Attempts to change the title of the target player </summary>
         /// <remarks> Not allowed when players who cannot speak (e.g. muted) </remarks>
-        public static bool SetTitle(Player p, string target, string title) {
-            if (title.Length >= 32767) { 
-                p.Message("&WTitle must be under 32767 characters."); 
+        public static bool SetTitle(Player p, string target, string title)
+        {
+            if (Colors.StripUsed(title).Length >= 32767)
+            {
+                p.Message("&WTitle must be under 32767 characters.");
                 return false;
             }
             Player who = PlayerInfo.FindExact(target);
-            
-            if (title.Length == 0) {
+
+            if (title.Length == 0)
+            {
                 MessageAction(p, target, who, "λACTOR &Sremoved λTARGET title");
-            } else {
+            }
+            else
+            {
                 if (!p.CheckCanSpeak("change titles")) return false;
-                
+
                 MessageAction(p, target, who, "λACTOR &Schanged λTARGET title to &b[" + title + "&b]");
             }
-            
+
             if (who != null) who.title = title;
             who?.SetPrefix();
             PlayerDB.Update(target, PlayerData.ColumnTitle, title.UnicodeToCp437());
             return true;
         }
-        
+
         /// <summary> Attempts to change the title color of the target player </summary>
-        public static bool SetTitleColor(Player p, string target, string name) {
+        public static bool SetTitleColor(Player p, string target, string name)
+        {
             string color = "";
             Player who = PlayerInfo.FindExact(target);
-            
-            if (name.Length == 0) {
+
+            if (name.Length == 0)
+            {
                 MessageAction(p, target, who, "λACTOR &Sremoved λTARGET title color");
-            } else  {
+            }
+            else
+            {
                 color = Matcher.FindColor(p, name);
                 if (color == null) return false;
-                
+
                 MessageAction(p, target, who, "λACTOR &Schanged λTARGET title color to " + color + Colors.Name(color));
             }
-            
+
             if (who != null) who.titlecolor = color;
             who?.SetPrefix();
             PlayerDB.Update(target, PlayerData.ColumnTColor, color);
             return true;
         }
-        
+
         /// <summary> Attempts to change the color of the target player </summary>
-        public static bool SetColor(Player p, string target, string name) {
+        public static bool SetColor(Player p, string target, string name)
+        {
             Player who = PlayerInfo.FindExact(target);
 
             string color;
@@ -162,7 +185,7 @@ namespace MAX
             if (actor == who)
             {
                 message = message.Replace("λACTOR", "λNICK")
-                                 .Replace("λTARGET", actor.pronouns.Object);
+                                 .Replace("λTARGET", actor.Pronouns.Object);
                 Chat.MessageFrom(who, message);
             }
             else if (!global)

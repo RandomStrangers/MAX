@@ -19,10 +19,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
+using MAX.Maths;
 using System;
 using System.IO;
 using System.IO.Compression;
-using MAX.Maths;
 
 namespace MAX.Levels.IO
 {
@@ -71,9 +71,10 @@ namespace MAX.Levels.IO
             ReadFully(gs, header, 2);
             ushort ver = BitConverter.ToUInt16(header, 0);
             if (ver != 1874)
+            {
                 Logger.Log(LogType.Debug, "Ver:{0}", ver);
                 //throw new InvalidDataException(".mcf files must have a version of 1874");
-
+            }
             ReadFully(gs, header, 16);
             Vec3U16 dims;
             dims.X = BitConverter.ToUInt16(header, 0);

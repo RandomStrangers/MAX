@@ -16,34 +16,36 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Events.EconomyEvents 
-{      
-    public delegate void OnMoneyChanged(Player p);         
+namespace MAX.Events.EconomyEvents
+{
+    public delegate void OnMoneyChanged(Player p);
     /// <summary> Raised whenever a player's online money changes. </summary>
-    public sealed class OnMoneyChangedEvent : IEvent<OnMoneyChanged> 
+    public class OnMoneyChangedEvent : IEvent<OnMoneyChanged>
     {
-        public static void Call(Player p) {
+        public static void Call(Player p)
+        {
             if (handlers.Count == 0) return;
             CallCommon(pl => pl(p));
         }
     }
-    
-    public sealed class EcoTransaction 
+
+    public class EcoTransaction
     {
         public Player Source;
         public string TargetName, TargetFormatted;
-        
+
         public string ItemDescription, Reason;
         public int Amount;
         public EcoTransactionType Type;
-    }    
+    }
     public enum EcoTransactionType { Give, Payment, Take, Purchase }
-    
-    public delegate void OnEcoTransaction(EcoTransaction transaction);   
+
+    public delegate void OnEcoTransaction(EcoTransaction transaction);
     /// <summary> Raised whenever an economic transaction occurs. </summary>
-    public sealed class OnEcoTransactionEvent : IEvent<OnEcoTransaction> 
+    public class OnEcoTransactionEvent : IEvent<OnEcoTransaction>
     {
-        public static void Call(EcoTransaction transaction) {
+        public static void Call(EcoTransaction transaction)
+        {
             if (handlers.Count == 0) return;
             CallCommon(pl => pl(transaction));
         }

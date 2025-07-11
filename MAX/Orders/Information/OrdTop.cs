@@ -15,49 +15,57 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Collections.Generic;
 using MAX.DB;
+using System.Collections.Generic;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdTop : Order2 
+    public class OrdTop : Order
     {
-        public override string name { get { return "Top"; } }
-        public override string shortcut { get { return "Most"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override OrderDesignation[] Designations {
-            get { return new [] { new OrderDesignation("TopTen", "10"), new OrderDesignation("TopFive", "5"),
-                    new OrderDesignation("Top10", "10"), }; }
+        public override string Name { get { return "Top"; } }
+        public override string Shortcut { get { return "Most"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override OrderDesignation[] Designations
+        {
+            get
+            {
+                return new[] { new OrderDesignation("TopTen", "10"), new OrderDesignation("TopFive", "5"),
+                    new OrderDesignation("Top10", "10"), };
+            }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
             if (args.Length < 2) { Help(p); return; }
-            
+
             int maxResults = 0, offset = 0;
-            if (!OrderParser.GetInt(p, args[0], "MAX results", ref maxResults, 1, 15)) return;
+            if (!OrderParser.GetInt(p, args[0], "Max results", ref maxResults, 1, 15)) return;
 
             TopStat stat = TopStat.Find(args[1]);
-            if (stat == null) {
+            if (stat == null)
+            {
                 p.Message("&WNo stat found with name \"{0}\".", args[1]); return;
             }
-            
-            if (args.Length > 2) {
+
+            if (args.Length > 2)
+            {
                 if (!OrderParser.GetInt(p, args[2], "Offset", ref offset, 0)) return;
             }
-            
+
             List<TopResult> results = stat.GetResults(maxResults, offset);
             p.Message("&a{0}:", stat.Title);
-            
-            for (int i = 0; i < results.Count; i++) 
+
+            for (int i = 0; i < results.Count; i++)
             {
-                p.Message("{0}) {1} &S- {2}", offset + (i + 1), 
-                          stat.FormatName(p, results[i].Name), 
+                p.Message("{0}) {1} &S- {2}", offset + i + 1,
+                          stat.FormatName(p, results[i].Name),
                           stat.Formatter(results[i].Value));
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Top [max results] [stat] <offset>");
             p.Message("&HPrints a list of players who have the " +
                        "most/top of a particular stat. Available stats:");

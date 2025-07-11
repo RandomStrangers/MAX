@@ -17,16 +17,16 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Tasks;
+using System;
 
 namespace MAX.Orders.Maintenance
 {
-    public sealed class OrdShutdown : Order2
+    public class OrdShutdown : Order
     {
-        public override string name { get { return "Shutdown"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
+        public override string Name { get { return "Shutdown"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
 
         public static SchedulerTask shutdownTask;
         public override void Use(Player p, string message, OrderData data)

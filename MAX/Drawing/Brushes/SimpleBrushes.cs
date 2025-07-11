@@ -16,64 +16,70 @@
     permissions and limitations under the Licenses.
  */
 using MAX.Drawing.Ops;
-using BlockID = System.UInt16;
 
-namespace MAX.Drawing.Brushes 
+
+namespace MAX.Drawing.Brushes
 {
-    public sealed class SolidBrush : Brush 
+    public class SolidBrush : Brush
     {
-        public BlockID block;
-        
-        public SolidBrush(BlockID block) {
+        public ushort block;
+
+        public SolidBrush(ushort block)
+        {
             this.block = block;
         }
-        
+
         public override string Name { get { return "Normal"; } }
-        
-        public override BlockID NextBlock(DrawOp op) { return block; }
+
+        public override ushort NextBlock(DrawOp op) { return block; }
     }
-    
+
     // CheckeredPaletteBrush of { b1, b1, b2, b2 }
-    public sealed class StripedBrush : Brush 
+    public class StripedBrush : Brush
     {
-        public BlockID b1, b2;
-        
-        public StripedBrush(BlockID block1, BlockID block2) {
-           b1 = block1; b2 = block2;
+        public ushort b1, b2;
+
+        public StripedBrush(ushort block1, ushort block2)
+        {
+            b1 = block1; b2 = block2;
         }
-        
+
         public override string Name { get { return "Striped"; } }
-        
-        public override BlockID NextBlock(DrawOp op) {
+
+        public override ushort NextBlock(DrawOp op)
+        {
             return ((op.Coords.X + op.Coords.Y + op.Coords.Z) & 3) <= 1 ? b1 : b2;
         }
     }
-    
+
     // CheckeredPaletteBrush of { b1, b2 }
-    public sealed class CheckeredBrush : Brush 
+    public class CheckeredBrush : Brush
     {
-        public BlockID b1, b2;
-        
-        public CheckeredBrush(BlockID block1, BlockID block2) {
+        public ushort b1, b2;
+
+        public CheckeredBrush(ushort block1, ushort block2)
+        {
             b1 = block1; b2 = block2;
         }
-        
+
         public override string Name { get { return "Checkered"; } }
-        
-        public override BlockID NextBlock(DrawOp op) {
+
+        public override ushort NextBlock(DrawOp op)
+        {
             return ((op.Coords.X + op.Coords.Y + op.Coords.Z) & 1) == 0 ? b1 : b2;
         }
     }
-    
-    public class CheckeredPaletteBrush : Brush 
+
+    public class CheckeredPaletteBrush : Brush
     {
-        public BlockID[] blocks;
-        
-        public CheckeredPaletteBrush(BlockID[] blocks) { this.blocks = blocks; }
-        
+        public ushort[] blocks;
+
+        public CheckeredPaletteBrush(ushort[] blocks) { this.blocks = blocks; }
+
         public override string Name { get { return "Checkered"; } }
-        
-        public override BlockID NextBlock(DrawOp op) {
+
+        public override ushort NextBlock(DrawOp op)
+        {
             int i = (op.Coords.X + op.Coords.Y + op.Coords.Z) % blocks.Length;
             if (i < 0) i += blocks.Length;
             return blocks[i];

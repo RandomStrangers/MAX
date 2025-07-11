@@ -1,4 +1,11 @@
-﻿using System;
+﻿using MAX.Config;
+using MAX.Events.PlayerEvents;
+using MAX.Events.ServerEvents;
+using MAX.Games;
+using MAX.Network;
+using MAX.Tasks;
+using MAX.Util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -6,18 +13,11 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using MAX.Config;
-using MAX.Events.PlayerEvents;
-using MAX.Events.ServerEvents;
-using MAX.Games;
-using MAX.Network;
-using MAX.Tasks;
-using MAX.Util;
 
 namespace MAX.Relay.Discord
 {
     /// <summary> Represents an abstract Discord API message </summary>
-    public abstract class DiscordApiMessage
+    public class DiscordApiMessage
     {
         /// <summary> The path/route that will handle this message </summary>
         /// <example> /channels/{channel id}/messages </example>
@@ -26,11 +26,14 @@ namespace MAX.Relay.Discord
         /// <example> POST, PATCH, DELETE </example>
         public string Method = "POST";
         /// <summary> Converts this message into its JSON representation </summary>
-        public abstract JsonObject ToJson();
-        /// <summary> Attempts to combine this message with a prior message to reduce API calls </summary>
-        public virtual bool CombineWith(DiscordApiMessage prior) 
+        public virtual JsonObject ToJson()
         {
-            return false; 
+            return null;
+        }
+        /// <summary> Attempts to combine this message with a prior message to reduce API calls </summary>
+        public virtual bool CombineWith(DiscordApiMessage prior)
+        {
+            return false;
         }
     }
     /// <summary> Message for sending text to a channel </summary>
@@ -59,8 +62,7 @@ namespace MAX.Relay.Discord
         }
         public override bool CombineWith(DiscordApiMessage prior)
         {
-            ChannelSendMessage msg = prior as ChannelSendMessage;
-            if (msg == null || msg.Path != Path)
+            if (!(prior is ChannelSendMessage msg) || msg.Path != Path)
             {
                 return false;
             }
@@ -152,14 +154,14 @@ namespace MAX.Relay.Discord
         {
             DiscordApiMessage msg = null;
             WebResponse res = null;
-            lock (queueLock) 
+            lock (queueLock)
             {
-                msg = GetNextRequest(); 
+                msg = GetNextRequest();
             }
-            if (msg == null) 
-            { 
-                WaitForWork(); 
-                return; 
+            if (msg == null)
+            {
+                WaitForWork();
+                return;
             }
             for (int retry = 0; retry < 10; retry++)
             {
@@ -265,8 +267,7 @@ namespace MAX.Relay.Discord
         {
             string resetAfter = res.Headers["X-RateLimit-Reset-After"];
             string retryAfter = res.Headers["Retry-After"];
-            float delay;
-            if (Utils.TryParseSingle(resetAfter, out delay) && delay > 0)
+            if (Utils.TryParseSingle(resetAfter, out float delay) && delay > 0)
             {
                 // Prefer Discord "X-RateLimit-Reset-After" (millisecond precision)
             }
@@ -310,17 +311,19 @@ namespace MAX.Relay.Discord
         }
         public override void DoConnect()
         {
-            socket = new DiscordWebsocket();
-            socket.Session = session;
-            socket.Token = Config.BotToken;
-            socket.Presence = Config.PresenceEnabled;
-            socket.Status = Config.Status;
-            socket.Activity = Config.Activity;
-            socket.GetStatus = GetStatusMessage;
-            socket.OnReady = HandleReadyEvent;
-            socket.OnResumed = HandleResumedEvent;
-            socket.OnMessageCreate = HandleMessageEvent;
-            socket.OnChannelCreate = HandleChannelEvent;
+            socket = new DiscordWebsocket
+            {
+                Session = session,
+                Token = Config.BotToken,
+                Presence = Config.PresenceEnabled,
+                Status = Config.Status,
+                Activity = Config.Activity,
+                GetStatus = GetStatusMessage,
+                OnReady = HandleReadyEvent,
+                OnResumed = HandleResumedEvent,
+                OnMessageCreate = HandleMessageEvent,
+                OnChannelCreate = HandleChannelEvent
+            };
             socket.Connect();
         }
         // mono wraps exceptions from reading in an AggregateException, e.g:
@@ -366,7 +369,7 @@ namespace MAX.Relay.Discord
             {
                 socket.Disconnect();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogError(ex);
             }
@@ -431,14 +434,12 @@ namespace MAX.Relay.Discord
             {
                 return null;
             }
-            object raw;
-            if (!data.TryGetValue("member", out raw))
+            if (!data.TryGetValue("member", out object raw))
             {
                 return null;
             }
             // Make sure this is really a member object first
-            JsonObject member = raw as JsonObject;
-            if (member == null)
+            if (!(raw is JsonObject member))
             {
                 return null;
             }
@@ -448,8 +449,7 @@ namespace MAX.Relay.Discord
         public string GetUser(JsonObject author)
         {
             // User's chosen display name (configurable)
-            object name = null;
-            author.TryGetValue("global_name", out name);
+            author.TryGetValue("global_name", out object name);
             if (name != null)
             {
                 return (string)name;
@@ -459,9 +459,11 @@ namespace MAX.Relay.Discord
         public RelayUser ExtractUser(JsonObject data)
         {
             JsonObject author = (JsonObject)data["author"];
-            RelayUser user = new RelayUser();
-            user.Nick = GetNick(data) ?? GetUser(author);
-            user.ID = (string)author["id"];
+            RelayUser user = new RelayUser
+            {
+                Nick = GetNick(data) ?? GetUser(author),
+                ID = (string)author["id"]
+            };
             return user;
         }
         public void HandleReadyEvent(JsonObject data)
@@ -475,28 +477,27 @@ namespace MAX.Relay.Discord
             // May not be null when reconnecting
             if (api == null)
             {
-                api = new DiscordApiClient();
-                api.Token = Config.BotToken;
+                api = new DiscordApiClient
+                {
+                    Token = Config.BotToken
+                };
                 api.RunAsync();
             }
             OnReady();
         }
         public void PrintAttachments(RelayUser user, JsonObject data, string channel)
         {
-            object raw;
-            if (!data.TryGetValue("attachments", out raw))
+            if (!data.TryGetValue("attachments", out object raw))
             {
                 return;
             }
-            JsonArray list = raw as JsonArray;
-            if (list == null)
+            if (!(raw is JsonArray list))
             {
                 return;
             }
             foreach (object entry in list)
             {
-                JsonObject attachment = entry as JsonObject;
-                if (attachment == null)
+                if (!(entry is JsonObject attachment))
                 {
                     continue;
                 }
@@ -509,11 +510,6 @@ namespace MAX.Relay.Discord
             RelayUser user = ExtractUser(data);
             string channel = (string)data["channel_id"];
             string message = (string)data["content"];
-            byte type;
-            if (IsProxy(message))
-            {
-                return;
-            }
             // Working out whether a channel is a direct message channel
             //  or not without querying the Discord API is a bit of a pain
             // In v6 api, a CHANNEL_CREATE event was always emitted for
@@ -523,7 +519,7 @@ namespace MAX.Relay.Discord
             //  "Bots no longer receive Channel Create Gateway Event for DMs"
             // Therefore the code is now forced to instead calculate which
             //  channels are probably text channels, and which aren't
-            if (!channelTypes.TryGetValue(channel, out type))
+            if (!channelTypes.TryGetValue(channel, out byte type))
             {
                 type = GuessChannelType(data);
                 // channel is definitely a text/normal channel
@@ -554,21 +550,6 @@ namespace MAX.Relay.Discord
                 HandleChannelMessage(user, channel, message);
                 PrintAttachments(user, data, channel);
             }
-        }
-        public bool IsProxy(string message)
-        {
-            foreach (char letter in message)
-            {
-                if (letter == ' ')
-                {
-                    break;
-                }
-                if (letter == '/')
-                {
-                    return true;
-                }
-            }
-            return false;
         }
         public void HandleChannelEvent(JsonObject data)
         {
@@ -626,7 +607,7 @@ namespace MAX.Relay.Discord
                     continue;
                 }
 
-                sb.Remove(i, 1); 
+                sb.Remove(i, 1);
                 length--;
             }
             StripMarkdown(sb);
@@ -642,7 +623,7 @@ namespace MAX.Relay.Discord
         public DateTime nextUpdate;
         public void UpdateDiscordStatus()
         {
-            TimeSpan delay = default(TimeSpan);
+            TimeSpan delay = default;
             DateTime now = DateTime.UtcNow;
             // websocket gets disconnected with code 4008 if try to send too many updates too quickly
             lock (updateLocker)
@@ -678,12 +659,12 @@ namespace MAX.Relay.Discord
             {
                 return;
             }
-            try 
-            { 
-                s.UpdateStatus(); 
-            } 
-            catch(Exception ex) 
-            { 
+            try
+            {
+                s.UpdateStatus();
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError(ex);
             }
         }
@@ -693,7 +674,7 @@ namespace MAX.Relay.Discord
             List<Player> online = PlayerInfo.GetOnlineCanSee(fakeGuest, fakeGuest.Rank);
             string numOnline = online.Count.ToString();
             string status = Config.StatusMessage.Replace("{PLAYERS}", numOnline)
-                .Replace("{SERVER}", Colors.Strip(Server.Config.Name));
+                .Replace("{SERVER}", Colors.StripUsed(Server.Config.Name));
             return status;
         }
         public override void OnStart()
@@ -717,13 +698,13 @@ namespace MAX.Relay.Discord
             OnPlayerDisconnectEvent.Unregister(HandlePlayerDisconnect);
             OnPlayerActionEvent.Unregister(HandlePlayerAction);
         }
-        public void HandlePlayerConnect(Player p) 
+        public void HandlePlayerConnect(Player p)
         {
-            UpdateDiscordStatus(); 
+            UpdateDiscordStatus();
         }
-        public void HandlePlayerDisconnect(Player p, string reason) 
-        { 
-            UpdateDiscordStatus(); 
+        public void HandlePlayerDisconnect(Player p, string reason)
+        {
+            UpdateDiscordStatus();
         }
         public void HandlePlayerAction(Player p, PlayerAction action, string message, bool stealth)
         {
@@ -750,8 +731,10 @@ namespace MAX.Relay.Discord
             {
                 int partLen = Math.Min(message.Length - offset, MAX_MSG_LEN);
                 string part = message.Substring(offset, partLen);
-                ChannelSendMessage msg = new ChannelSendMessage(channel, part);
-                msg.Allowed = allowed;
+                ChannelSendMessage msg = new ChannelSendMessage(channel, part)
+                {
+                    Allowed = allowed
+                };
                 Send(msg);
             }
         }
@@ -786,9 +769,9 @@ namespace MAX.Relay.Discord
             return message;
         }
         // all users are already verified by Discord
-        public override bool CheckController(string userID, ref string error) 
-        { 
-            return true; 
+        public override bool CheckController(string userID, ref string error)
+        {
+            return true;
         }
         public override string UnescapeFull(Player p)
         {
@@ -801,8 +784,7 @@ namespace MAX.Relay.Discord
         public override void MessagePlayers(RelayPlayer p)
         {
             ChannelSendEmbed embed = new ChannelSendEmbed(p.ChannelID);
-            int total;
-            List<OnlineListEntry> entries = PlayerInfo.GetOnlineList(p, p.Rank, out total);
+            List<OnlineListEntry> entries = PlayerInfo.GetOnlineList(p, p.Rank, out int total);
             embed.Color = Config.EmbedColor;
             embed.Title = string.Format("{0} player{1} currently online",
                                         total, total.Plural());
@@ -818,7 +800,7 @@ namespace MAX.Relay.Discord
                 );
             }
             AddGameStatus(embed);
-            Send(embed); 
+            Send(embed);
         }
         public static string FormatPlayers(Player p, OnlineListEntry e)
         {
@@ -964,28 +946,30 @@ namespace MAX.Relay.Discord
             }
         }
     }
-    public enum PresenceStatus 
-    { 
-        online, dnd, idle, invisible 
+    public enum PresenceStatus
+    {
+        online, dnd, idle, invisible
     }
-    public enum PresenceActivity 
-    { 
-        Playing = 0, Listening = 2, Watching = 3, 
-        Competing = 5, Empty = 6 
+    public enum PresenceActivity
+    {
+        Playing = 0, Listening = 2, Watching = 3,
+        Competing = 5, Empty = 6
     }
     public class DiscordAddon : Addon
     {
-        public override string name { get { return "Discord"; } }
-        public override string MAX_Version { get { return Server.Version; } }
+        public override string Name { get { return "Discord"; } }
+        public override string MAX_Version { get { return Server.InternalVersion; } }
         public static DiscordConfig Config = new DiscordConfig();
         public static DiscordBot Bot = new DiscordBot();
+        public static Order ordDiscordBot = new OrdDiscordBot();
+        public static Order ordDiscordControllers = new OrdDiscordControllers();
         public override void Load(bool startup)
         {
             if (!Directory.Exists("text/discord"))
             {
                 Directory.CreateDirectory("text/discord");
             }
-            Order.Register(new OrdDiscordBot(), new OrdDiscordControllers());
+            Order.Register(ordDiscordBot, ordDiscordControllers);
             Bot.Config = Config;
             Bot.ReloadConfig();
             Bot.Connect();
@@ -995,21 +979,21 @@ namespace MAX.Relay.Discord
         {
             OnConfigUpdatedEvent.Unregister(OnConfigUpdated);
             Bot.Disconnect("Disconnecting Discord bot");
-            Order.Unregister(Order.Find("DiscordBot"), Order.Find("DiscordControllers"));
+            Order.Unregister(ordDiscordBot, ordDiscordControllers);
         }
-        public void OnConfigUpdated() 
-        { 
-            Bot.ReloadConfig(); 
+        public void OnConfigUpdated()
+        {
+            Bot.ReloadConfig();
         }
     }
     public class OrdDiscordBot : RelayBotOrd
     {
-        public override string name { get { return "DiscordBot"; } }
+        public override string Name { get { return "DiscordBot"; } }
         public override RelayBot Bot { get { return DiscordAddon.Bot; } }
     }
     public class OrdDiscordControllers : BotControllersOrd
     {
-        public override string name { get { return "DiscordControllers"; } }
+        public override string Name { get { return "DiscordControllers"; } }
         public override RelayBot Bot { get { return DiscordAddon.Bot; } }
     }
     public class DiscordSession
@@ -1180,8 +1164,7 @@ namespace MAX.Relay.Discord
         public void HandleDispatch(JsonObject obj)
         {
             // update last sequence number
-            object sequence;
-            if (obj.TryGetValue("s", out sequence))
+            if (obj.TryGetValue("s", out object sequence))
             {
                 Session.LastSeq = (string)sequence;
             }
@@ -1211,8 +1194,7 @@ namespace MAX.Relay.Discord
         }
         public void HandleReady(JsonObject data)
         {
-            object session;
-            if (data.TryGetValue("session_id", out session))
+            if (data.TryGetValue("session_id", out object session))
             {
                 Session.ID = (string)session;
             }
@@ -1240,8 +1222,10 @@ namespace MAX.Relay.Discord
         }
         public void SendHeartbeat(SchedulerTask task)
         {
-            JsonObject obj = new JsonObject();
-            obj["op"] = OPCODE_HEARTBEAT;
+            JsonObject obj = new JsonObject
+            {
+                ["op"] = OPCODE_HEARTBEAT
+            };
             if (Session.LastSeq != null)
             {
                 obj["d"] = int.Parse(Session.LastSeq);
@@ -1283,8 +1267,8 @@ namespace MAX.Relay.Discord
             JsonObject props = new JsonObject()
             {
                 { "$os",      "linux" },
-                { "$browser", Server.SoftwareName },
-                { "$device",  Server.SoftwareName }
+                { "$browser", Colors.StripUsed(Server.SoftwareName) },
+                { "$device",  Colors.StripUsed(Server.SoftwareName) }
             };
             return new JsonObject()
             {

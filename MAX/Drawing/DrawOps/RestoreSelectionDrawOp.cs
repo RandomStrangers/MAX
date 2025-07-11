@@ -15,41 +15,44 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.DB;
 using MAX.Drawing.Brushes;
 using MAX.Maths;
+using System;
 
-namespace MAX.Drawing.Ops 
+namespace MAX.Drawing.Ops
 {
-    public class RestoreSelectionDrawOp : DrawOp 
+    public class RestoreSelectionDrawOp : DrawOp
     {
         public override string Name { get { return "RestoreSelection"; } }
-        
-        public override int BlocksAffected(Level lvl, Vec3S32[] marks) {
+
+        public override int BlocksAffected(Level lvl, Vec3S32[] marks)
+        {
             return SizeX * SizeY * SizeZ;
         }
-        
-        public RestoreSelectionDrawOp() {
+
+        public RestoreSelectionDrawOp()
+        {
             Flags = BlockDBFlags.Restored;
             AffectedByTransform = false;
         }
-        
+
         public Level Source;
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
-            Max.X = Math.Min(Max.X, Source.Width  - 1);
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
+            Max.X = Math.Min(Max.X, Source.Width - 1);
             Max.Y = Math.Min(Max.Y, Source.Height - 1);
             Max.Z = Math.Min(Max.Z, Source.Length - 1);
-            
-            Vec3U16 p1 = Clamp(Min), p2 = Clamp(Max);            
+
+            Vec3U16 p1 = Clamp(Min), p2 = Clamp(Max);
             for (ushort y = p1.Y; y <= p2.Y; y++)
                 for (ushort z = p1.Z; z <= p2.Z; z++)
                     for (ushort x = p1.X; x <= p2.X; x++)
-            {
-                output(Place(x, y, z, Source.FastGetBlock(x, y, z)));
-            }
-            
+                    {
+                        output(Place(x, y, z, Source.FastGetBlock(x, y, z)));
+                    }
+
             Source.Dispose();
         }
     }

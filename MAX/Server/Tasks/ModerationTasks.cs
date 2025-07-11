@@ -15,16 +15,19 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.Events;
+using MAX.Orders.Moderation;
 using System;
 using System.Collections.Generic;
-using MAX.Orders.Moderation;
-using MAX.Events;
 
-namespace MAX.Tasks {
-    public static class ModerationTasks {
+namespace MAX.Tasks
+{
+    public static class ModerationTasks
+    {
 
         public static SchedulerTask temprankTask, jailTask, muteTask;
-        public static void QueueTasks() {
+        public static void QueueTasks()
+        {
             temprankTask = Server.MainScheduler.QueueRepeat(
                 TemprankCheckTask, null, NextRun(Server.tempRanks));
             jailTask = Server.MainScheduler.QueueRepeat(
@@ -34,80 +37,91 @@ namespace MAX.Tasks {
         }
 
 
-        public static void TemprankCheckTask(SchedulerTask task) {
+        public static void TemprankCheckTask(SchedulerTask task)
+        {
             DoTask(task, Server.tempRanks, TemprankCallback);
         }
 
         public static void TemprankCalcNextRun() { CalcNextRun(temprankTask, Server.tempRanks); }
 
-        public static void TemprankCallback(string[] args) {
+        public static void TemprankCallback(string[] args)
+        {
             OrdTempRank.Delete(Player.MAX, args[0], Player.MAX.DefaultOrdData);
             // Handle case of old rank no longer existing
-            if (Server.tempRanks.Remove(args[0])) {
+            if (Server.tempRanks.Remove(args[0]))
+            {
                 Server.tempRanks.Save();
             }
         }
 
 
-        public static void JailCheckTask(SchedulerTask task) {
+        public static void JailCheckTask(SchedulerTask task)
+        {
             DoTask(task, Server.jailed, JailCallback);
         }
 
         public static void JailCalcNextRun() { CalcNextRun(jailTask, Server.jailed); }
 
-        public static void JailCallback(string[] args) {
+        public static void JailCallback(string[] args)
+        {
             ModAction action = new ModAction(args[0], Player.MAX, ModActionType.Unjailed, "auto unjail");
             OnModActionEvent.Call(action);
         }
 
 
-        public static void MuteCheckTask(SchedulerTask task) {
+        public static void MuteCheckTask(SchedulerTask task)
+        {
             DoTask(task, Server.muted, MuteCallback);
         }
 
         public static void MuteCalcNextRun() { CalcNextRun(muteTask, Server.muted); }
 
-        public static void MuteCallback(string[] args) {
+        public static void MuteCallback(string[] args)
+        {
             ModAction action = new ModAction(args[0], Player.MAX, ModActionType.Unmuted, "auto unmute");
             OnModActionEvent.Call(action);
         }
 
 
-        public static void DoTask(SchedulerTask task, PlayerExtList list, Action<string[]> callback) {
+        public static void DoTask(SchedulerTask task, PlayerExtList list, Action<string[]> callback)
+        {
             List<string> lines = list.AllLines();
-            foreach (string line in lines) {
+            foreach (string line in lines)
+            {
                 string[] args = line.SplitSpaces();
                 if (args.Length < 4) continue;
 
-                int expiry;
-                if (!int.TryParse(args[3], out expiry)) continue;
+                if (!int.TryParse(args[3], out int expiry)) continue;
                 if (DateTime.UtcNow < expiry.FromUnixTime()) continue;
-                
+
                 callback(args);
             }
             task.Delay = NextRun(list);
         }
 
-        public static void CalcNextRun(SchedulerTask task, PlayerExtList list) {
+        public static void CalcNextRun(SchedulerTask task, PlayerExtList list)
+        {
             task.Delay = NextRun(list);
             task.NextRun = DateTime.UtcNow.Add(task.Delay);
             Server.MainScheduler.Recheck();
         }
 
-        public static TimeSpan NextRun(PlayerExtList list) {
+        public static TimeSpan NextRun(PlayerExtList list)
+        {
             DateTime nextRun = DateTime.MaxValue.AddYears(-1);
             // Lock because we want to ensure list not modified from under us
-            lock (list.locker) {
+            lock (list.locker)
+            {
                 List<string> lines = list.AllLines();
                 // Line format: name assigner assigntime expiretime [whatever other data, we don't care]
-                
-                foreach (string line in lines) {
+
+                foreach (string line in lines)
+                {
                     string[] args = line.SplitSpaces();
                     if (args.Length < 4) continue;
 
-                    int expiry;
-                    if (!int.TryParse(args[3], out expiry)) continue;
-                    
+                    if (!int.TryParse(args[3], out int expiry)) continue;
+
                     DateTime expireTime = expiry.FromUnixTime();
                     if (expireTime < nextRun)
                         nextRun = expireTime;

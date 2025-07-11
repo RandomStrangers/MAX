@@ -17,19 +17,18 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using MAX.DB;
 using MAX.Events;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MAX.Orders.Moderation
 {
-    public sealed class OrdReport : Order2
+    public class OrdReport : Order
     {
-        public override string name { get { return "Report"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
+        public override string Name { get { return "Report"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
         public override OrderPerm[] ExtraPerms
         {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can manage reports") }; }
@@ -53,7 +52,7 @@ namespace MAX.Orders.Moderation
             }
             else if (cmd.CaselessEq("clear"))
             {
-                HandleClear(p, args, data);
+                HandleClear(p, data);
             }
             else if (IsDeleteOrder(cmd))
             {
@@ -69,7 +68,7 @@ namespace MAX.Orders.Moderation
             }
         }
 
-        void HandleList(Player p, string[] args, OrderData data)
+        public void HandleList(Player p, string[] args, OrderData data)
         {
             if (!CheckExtraPerm(p, data, 1)) return;
             string[] users = GetReportedUsers();
@@ -90,7 +89,7 @@ namespace MAX.Orders.Moderation
             }
         }
 
-        void HandleCheck(Player p, string[] args, OrderData data)
+        public void HandleCheck(Player p, string[] args, OrderData data)
         {
             if (args.Length != 2)
             {
@@ -111,7 +110,7 @@ namespace MAX.Orders.Moderation
 
             if (!HasReports(target))
             {
-                p.Message("{0} &Shas not been reported.", nick); 
+                p.Message("{0} &Shas not been reported.", nick);
                 return;
             }
 
@@ -119,7 +118,7 @@ namespace MAX.Orders.Moderation
             p.MessageLines(reports);
         }
 
-        void HandleDelete(Player p, string[] args, OrderData data)
+        public void HandleDelete(Player p, string[] args, OrderData data)
         {
             if (args.Length != 2)
             {
@@ -144,7 +143,7 @@ namespace MAX.Orders.Moderation
             Logger.Log(LogType.UserActivity, "Reports on {1} were deleted by {0}", p.name, target);
         }
 
-        void HandleClear(Player p, string[] args, OrderData data)
+        public void HandleClear(Player p, OrderData data)
         {
             if (!CheckExtraPerm(p, data, 1)) return;
             if (!Directory.Exists("extra/reportedbackups"))
@@ -158,7 +157,7 @@ namespace MAX.Orders.Moderation
             Logger.Log(LogType.UserActivity, p.name + " cleared ALL reports!");
         }
 
-        void HandleAdd(Player p, string[] args)
+        public void HandleAdd(Player p, string[] args)
         {
             if (args.Length != 2)
             {
@@ -174,12 +173,12 @@ namespace MAX.Orders.Moderation
             {
                 reports = Utils.ReadAllLinesList(ReportPath(target));
             }
-            ItemPerms checkPerms = Orders.OrderExtraPerms.Find(name, 1);
+            ItemPerms checkPerms = Orders.OrderExtraPerms.Find(Name, 1);
 
             if (reports.Count >= 5)
             {
                 p.Message("{0} &Walready has 5 reports! Please wait until an {1} &Whas reviewed these reports first!",
-                          nick, Orders.OrderExtraPerms.Find(name, 1).Describe());
+                          nick, Orders.OrderExtraPerms.Find(Name, 1).Describe());
                 return;
             }
 
@@ -202,18 +201,18 @@ namespace MAX.Orders.Moderation
         }
 
 
-        static bool HasReports(string user)
+        public static bool HasReports(string user)
         {
             return File.Exists(ReportPath(user));
         }
-        static string ReportPath(string user)
+        public static string ReportPath(string user)
         {
             return "extra/reported/" + user + ".txt";
         }
 
-        static string[] GetReportedUsers()
+        public static string[] GetReportedUsers()
         {
-            string[] users = Directory.GetFiles("extra/reported", "*.txt");
+            string[] users = FileIO.TryGetFiles("extra/reported", "*.txt");
             for (int i = 0; i < users.Length; i++)
             {
                 users[i] = Path.GetFileNameWithoutExtension(users[i]);
@@ -221,11 +220,11 @@ namespace MAX.Orders.Moderation
             return users;
         }
 
-        static void DeleteReport(string user)
+        public static void DeleteReport(string user)
         {
             string backup = "extra/reportedbackups/" + user + ".txt";
-            AtomicIO.TryDelete(backup);
-            File.Move(ReportPath(user), backup);
+            FileIO.TryDelete(backup);
+            FileIO.TryMove(ReportPath(user), backup);
         }
 
         public override void Help(Player p)

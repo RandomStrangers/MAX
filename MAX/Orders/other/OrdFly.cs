@@ -15,27 +15,31 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
 using MAX.Maths;
 using MAX.Tasks;
+using System;
+using System.Collections.Generic;
 
-namespace MAX.Orders.Misc {
-    public sealed class OrdFly : Order2 {
-        public override string name { get { return "Fly"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Misc
+{
+    public class OrdFly : Order
+    {
+        public override string Name { get { return "Fly"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (!Hacks.CanUseFly(p)) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (!Hacks.CanUseFly(p))
+            {
                 p.Message("You cannot use &T/Fly &Son this map.");
                 p.isFlying = false; return;
             }
-            
+
             p.isFlying = !p.isFlying;
             if (!p.isFlying) return;
-            
+
             p.Message("You are now flying. &cJump!");
 
             FlyState state = new FlyState
@@ -46,26 +50,30 @@ namespace MAX.Orders.Misc {
             p.CriticalTasks.Add(task);
         }
 
-        public class FlyState {
+        public class FlyState
+        {
             public Player player;
             public Position oldPos = default;
             public List<Vec3U16> lastGlass = new List<Vec3U16>();
             public List<Vec3U16> glassCoords = new List<Vec3U16>();
         }
 
-        public static void FlyCallback(SchedulerTask task) {
+        public static void FlyCallback(SchedulerTask task)
+        {
             FlyState state = (FlyState)task.State;
             Player p = state.player;
             if (state.player.isFlying) { DoFly(state); return; }
-            
-            foreach (Vec3U16 pos in state.lastGlass) {
+
+            foreach (Vec3U16 pos in state.lastGlass)
+            {
                 p.SendBlockchange(pos.X, pos.Y, pos.Z, Block.Air);
-            }            
+            }
             p.Message("Stopped flying");
             task.Repeating = false;
         }
 
-        public static void DoFly(FlyState state) {
+        public static void DoFly(FlyState state)
+        {
             Player p = state.player;
             if (p.Pos == state.oldPos) return;
 
@@ -75,31 +83,34 @@ namespace MAX.Orders.Misc {
             for (int yy = y - 1; yy <= y; yy++)
                 for (int zz = z - 2; zz <= z + 2; zz++)
                     for (int xx = x - 2; xx <= x + 2; xx++)
+                    {
+                        Vec3U16 pos;
+                        pos.X = (ushort)xx; pos.Y = (ushort)yy; pos.Z = (ushort)zz;
+                        if (p.level.IsAirAt(pos.X, pos.Y, pos.Z)) state.glassCoords.Add(pos);
+                    }
+
+            foreach (Vec3U16 P in state.glassCoords)
             {
-                Vec3U16 pos;
-                pos.X = (ushort)xx; pos.Y = (ushort)yy; pos.Z = (ushort)zz;
-                if (p.level.IsAirAt(pos.X, pos.Y, pos.Z)) state.glassCoords.Add(pos);
-            }
-            
-            foreach (Vec3U16 P in state.glassCoords) {
                 if (state.lastGlass.Contains(P)) continue;
                 state.lastGlass.Add(P);
                 p.SendBlockchange(P.X, P.Y, P.Z, Block.Glass);
             }
-            
-            for (int i = 0; i < state.lastGlass.Count; i++) {
+
+            for (int i = 0; i < state.lastGlass.Count; i++)
+            {
                 Vec3U16 P = state.lastGlass[i];
                 if (state.glassCoords.Contains(P)) continue;
-                
+
                 p.RevertBlock(P.X, P.Y, P.Z);
                 state.lastGlass.RemoveAt(i); i--;
             }
-            
+
             state.glassCoords.Clear();
             state.oldPos = p.Pos;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             string name = Group.GetColoredName(LevelPermission.Operator);
             p.Message("&T/Fly");
             p.Message("&HCreates a glass platform underneath you that moves with you.");

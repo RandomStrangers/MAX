@@ -15,42 +15,47 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.DB;
 using MAX.Drawing.Brushes;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System;
 
-namespace MAX.Drawing.Ops 
+
+namespace MAX.Drawing.Ops
 {
-    public class RedoSelfDrawOp : DrawOp 
+    public class RedoSelfDrawOp : DrawOp
     {
         public override string Name { get { return "RedoSelf"; } }
-        
+
         /// <summary> Point in time that the /undo should go backwards up to. </summary>
         public DateTime Start = DateTime.MinValue;
-        
+
         /// <summary> Point in time that the /undo should start updating blocks. </summary>
         public DateTime End = DateTime.MaxValue;
-        
-        public RedoSelfDrawOp() {
+
+        public RedoSelfDrawOp()
+        {
             Flags = BlockDBFlags.RedoSelf;
             AffectedByTransform = false;
         }
-        
+
         public override int BlocksAffected(Level lvl, Vec3S32[] marks) { return -1; }
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
             int[] ids = NameConverter.FindIds(Player.name);
             if (ids.Length == 0) return;
-            
+
             this.output = output;
             // can't use "using" as it creates a local var, and read lock reference may be changed by DrawOpPerformer class
-            try {
+            try
+            {
                 BlockDBReadLock = Level.BlockDB.Locker.AccquireRead();
                 if (Level.BlockDB.FindChangesBy(ids, Start, End, out dims, RedoBlock)) return;
-            } finally {
-                if (BlockDBReadLock != null) BlockDBReadLock.Dispose();
+            }
+            finally
+            {
+                BlockDBReadLock?.Dispose();
             }
             this.output = null;
         }
@@ -58,11 +63,12 @@ namespace MAX.Drawing.Ops
         public DrawOpOutput output;
         public Vec3U16 dims;
 
-        public void RedoBlock(BlockDBEntry e) {
-            BlockID block = e.OldBlock;
+        public void RedoBlock(BlockDBEntry e)
+        {
+            ushort block = e.OldBlock;
             if (block == Block.Invalid) return; // Exported BlockDB SQL table entries don't have previous block
             if ((e.Flags & BlockDBFlags.UndoSelf) == 0) return; // not an undo
-            
+
             int x = e.Index % dims.X;
             int y = e.Index / dims.X / dims.Z;
             int z = e.Index / dims.X % dims.Z;

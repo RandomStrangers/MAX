@@ -1,23 +1,43 @@
-﻿using System;
+﻿using MAX.UI;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using MAX.UI;
+using Context = System.Environment;
 using Terminal = System.Console;
+using TerminalCancelEventArgs = System.ConsoleCancelEventArgs;
 using TerminalColor = System.ConsoleColor;
 using TerminalSpecialKey = System.ConsoleSpecialKey;
-using Context = System.Environment;
-using TerminalCancelEventArgs = System.ConsoleCancelEventArgs;
 namespace MAX
 {
     public static class Program
     {
+        public static string FileName = "MAX";
         [STAThread]
         public static void Main(string[] args)
         {
+            Terminal.WriteLine(args);
+            Terminal.Clear();
             SetCurrentDirectory();
             EnableTLIMode();
-            StartTLI();
+            string file = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            if (!Server.RestartPath.StartsWith(FileName))
+            {
+                string ext = Path.GetExtension(file);
+                bool movedfile = FileIO.TryMove(file, FileName + ext);
+                if (movedfile)
+                {
+                    SetCurrentDirectory();
+                    EnableTLIMode();
+                    StartTLI();
+                }
+                else
+                {
+                    Terminal.WriteLine("Failed to move {0} to {1}. Please ensure you have write permissions in the current directory.", file, FileName);
+                    Terminal.WriteLine("You can manually rename the file to " + FileName + " and run it again.");
+                    Server.Stop(true, "Wrong file name, expected " + FileName + " but got " + file);
+                }
+            }
         }
         public static void SetCurrentDirectory()
         {
@@ -52,7 +72,7 @@ namespace MAX
                 Updater.NewerVersionDetected += LogNewerVersionDetected;
                 EnableTLIMode();
                 Server.Start();
-                Terminal.Title = Colors.Strip(Server.Config.Name) + " - " + Colors.Strip(Server.SoftwareNameVersioned);
+                Terminal.Title = Colors.StripUsed(Server.Config.Name) + " - " + Colors.StripUsed(Server.NameVersioned);
                 Terminal.CancelKeyPress += OnCancelKeyPress;
                 CheckNameVerification();
                 TerminalLoop();
@@ -92,15 +112,19 @@ namespace MAX
         }
         public static void GlobalExHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            LogAndRestart((Exception)e.ExceptionObject);
+            Exception ex = (Exception)e.ExceptionObject;
+            LogAndRestart(ex);
         }
-        public static string CurrentDate() 
-        { 
-            return DateTime.Now.ToString("(HH:mm:ss) "); 
+        public static string CurrentDate()
+        {
+            return DateTime.Now.ToString("(HH:mm:ss) ");
         }
         public static void LogMessage(LogType type, string message)
         {
-            if (!Server.Config.MAXLogging) return;
+            if (!Server.Config.MAXLogging)
+            {
+                return;
+            }
             switch (type)
             {
                 case LogType.Error:
@@ -121,20 +145,29 @@ namespace MAX
         public static string ExtractErrorMessage(string raw)
         {
             int beg = raw.IndexOf(msgPrefix);
-            if (beg == -1) return "";
+            if (beg == -1)
+            {
+                return "";
+            }
             beg += msgPrefix.Length;
             int end = raw.IndexOf(Context.NewLine, beg);
-            if (end == -1) return "";
+            if (end == -1)
+            {
+                return "";
+            }
             return " (" + raw.Substring(beg, end - beg) + ")";
         }
         public static void CheckNameVerification()
         {
-            if (Server.Config.VerifyNames) return;
+            if (Server.Config.VerifyNames)
+            {
+                return;
+            }
             Write("&4WARNING: Name verification is disabled! This means players can login as anyone, including YOU");
         }
         public static void LogNewerVersionDetected(object sender, EventArgs e)
         {
-            Write(Colors.Strip(Server.SoftwareName) + " &4update available! Update by replacing with the files from " + Updater.UploadsURL);
+            Write(Colors.StripUsed(Server.SoftwareNameConst) + " &4update available! Update by replacing with the files from " + Updater.UploadsURL);
         }
         public static void TerminalLoop()
         {
@@ -147,10 +180,10 @@ namespace MAX
                     if (msg == null)
                     {
                         eofs++;
-                        if (eofs >= 15) 
-                        { 
-                            Write("&e** EOF, terminal no longer accepts input **"); 
-                            break; 
+                        if (eofs >= 15)
+                        {
+                            Write("&e** EOF, terminal no longer accepts input **");
+                            break;
                         }
                         continue;
                     }
@@ -183,7 +216,10 @@ namespace MAX
             {
                 char curCol = col;
                 string part = UIHelpers.OutputPart(ref col, ref index, message);
-                if (part.Length == 0) continue;
+                if (part.Length == 0)
+                {
+                    continue;
+                }
                 TerminalColor color = GetTerminalColor(curCol);
                 if (color == TerminalColor.White)
                 {
@@ -200,29 +236,54 @@ namespace MAX
         }
         public static TerminalColor GetTerminalColor(char c)
         {
-            if (c == 'M') return TerminalColor.DarkRed;
-            if (c == 'S') return TerminalColor.White;
+            if (c == 'M')
+            {
+                return TerminalColor.DarkRed;
+            }
+            if (c == 'S')
+            {
+                return TerminalColor.White;
+            }
             Colors.Map(ref c);
             switch (c)
             {
-                case '0': return TerminalColor.DarkGray;
-                case '1': return TerminalColor.DarkBlue;
-                case '2': return TerminalColor.DarkGreen;
-                case '3': return TerminalColor.DarkCyan;
-                case '4': return TerminalColor.DarkRed;
-                case '5': return TerminalColor.DarkMagenta;
-                case '6': return TerminalColor.DarkYellow;
-                case '7': return TerminalColor.Gray;
-                case '8': return TerminalColor.DarkGray;
-                case '9': return TerminalColor.Blue;
-                case 'a': return TerminalColor.Green;
-                case 'b': return TerminalColor.Cyan;
-                case 'c': return TerminalColor.Red;
-                case 'd': return TerminalColor.Magenta;
-                case 'e': return TerminalColor.Yellow;
-                case 'f': return TerminalColor.White;
+                case '0':
+                    return TerminalColor.DarkGray;
+                case '1':
+                    return TerminalColor.DarkBlue;
+                case '2':
+                    return TerminalColor.DarkGreen;
+                case '3':
+                    return TerminalColor.DarkCyan;
+                case '4':
+                    return TerminalColor.DarkRed;
+                case '5':
+                    return TerminalColor.DarkMagenta;
+                case '6':
+                    return TerminalColor.DarkYellow;
+                case '7':
+                    return TerminalColor.Gray;
+                case '8':
+                    return TerminalColor.DarkGray;
+                case '9':
+                    return TerminalColor.Blue;
+                case 'a':
+                    return TerminalColor.Green;
+                case 'b':
+                    return TerminalColor.Cyan;
+                case 'c':
+                    return TerminalColor.Red;
+                case 'd':
+                    return TerminalColor.Magenta;
+                case 'e':
+                    return TerminalColor.Yellow;
+                case 'f':
+                    return TerminalColor.White;
                 default:
-                    if (!Colors.IsDefined(c)) return TerminalColor.DarkRed;
+                    if (!Colors.IsDefined(c))
+                    {
+                        return TerminalColor.DarkRed;
+                    }
                     return GetTerminalColor(Colors.Get(c).Fallback);
             }
         }

@@ -15,10 +15,10 @@
    or implied. See the Licenses for the specific language governing
    permissions and limitations under the Licenses.
 */
-using System;
-using System.IO;
 using fNbt;
 using MAX.Maths;
+using System;
+using System.IO;
 
 namespace MAX.Levels.IO
 {
@@ -38,8 +38,7 @@ namespace MAX.Levels.IO
             NbtFile file = new NbtFile();
             file.LoadFromStream(src);
 
-            Level lvl;
-            ReadData(file.RootTag, name, out lvl);
+            ReadData(file.RootTag, name, out Level lvl);
             if (!metadata) return lvl;
 
             ReadMetadata(file.RootTag, lvl);

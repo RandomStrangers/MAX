@@ -20,85 +20,89 @@
 //Full use to all StormCom Server System codes (in regards to minecraft classic) have been granted to MCForge without restriction.
 //
 // ~Merlin33069
-using System;
 using MAX.Drawing.Brushes;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System;
 
-namespace MAX.Drawing.Ops 
+
+namespace MAX.Drawing.Ops
 {
-    public class AdvHollowConeDrawOp : AdvDrawOp 
+    public class AdvHollowConeDrawOp : AdvDrawOp
     {
         public override string Name { get { return "Adv Hollow Cone"; } }
         public AdvHollowConeDrawOp(bool invert = false) { Invert = invert; }
-        
-        public override int BlocksAffected(Level lvl, Vec3S32[] marks) {
+
+        public override int BlocksAffected(Level lvl, Vec3S32[] marks)
+        {
             int R = Radius, H = Height;
             double outer = (int)(Math.PI / 3 * (R * R * H));
             double inner = (int)(Math.PI / 3 * ((R - 1) * (R - 1) * (H - 1)));
             return (int)(outer - inner);
         }
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
             Vec3U16 p1 = Clamp(Min), p2 = Clamp(Max);
-            Vec3S32 C  = (Min + Max) / 2;
+            Vec3S32 C = (Min + Max) / 2;
             int height = Height;
 
             for (ushort y = p1.Y; y <= p2.Y; y++)
             {
-                int dy         = Invert ? y - Min.Y : Max.Y - y;
-                int curRadius  = Radius * (dy + 1) / height;
-                int curRadius2 = Radius * (dy    ) / height;
-                
+                int dy = Invert ? y - Min.Y : Max.Y - y;
+                int curRadius = Radius * (dy + 1) / height;
+                int curRadius2 = Radius * dy / height;
+
                 for (ushort z = p1.Z; z <= p2.Z; z++)
                     for (ushort x = p1.X; x <= p2.X; x++)
-                {
-                    int dx   = C.X - x, dz = C.Z - z;
-                    int dist = dx * dx + dz * dz;
-                    if (dist > curRadius * curRadius) continue;
-                    
-                    if (dist <= (curRadius - 1) * (curRadius - 1) &&
-                        dist <= (curRadius2)    * (curRadius2)  ) continue;
-                    output(Place(x, y, z, brush));
-                }
+                    {
+                        int dx = C.X - x, dz = C.Z - z;
+                        int dist = dx * dx + dz * dz;
+                        if (dist > curRadius * curRadius) continue;
+
+                        if (dist <= (curRadius - 1) * (curRadius - 1) &&
+                            dist <= curRadius2 * curRadius2) continue;
+                        output(Place(x, y, z, brush));
+                    }
             }
         }
     }
-    
-    public class AdvVolcanoDrawOp : AdvDrawOp 
+
+    public class AdvVolcanoDrawOp : AdvDrawOp
     {
         public override string Name { get { return "Adv Volcano"; } }
-        
-        public override int BlocksAffected(Level lvl, Vec3S32[] marks) {
+
+        public override int BlocksAffected(Level lvl, Vec3S32[] marks)
+        {
             int R = Radius, H = Height;
             return (int)(Math.PI / 3 * (R * R * H));
         }
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
             Vec3U16 p1 = Clamp(Min), p2 = Clamp(Max);
-            Vec3S32 C  = (Min + Max) / 2;
+            Vec3S32 C = (Min + Max) / 2;
             int height = Height;
 
             for (ushort y = p1.Y; y <= p2.Y; y++)
             {
-                int dy         = Max.Y - y;
-                int curRadius  = Radius * (dy + 1) / height;
-                int curRadius2 = Radius * (dy    ) / height;
-                
+                int dy = Max.Y - y;
+                int curRadius = Radius * (dy + 1) / height;
+                int curRadius2 = Radius * dy / height;
+
                 for (ushort z = p1.Z; z <= p2.Z; z++)
                     for (ushort x = p1.X; x <= p2.X; x++)
-                {
-                    int dx   = C.X - x, dz = C.Z - z;
-                    int dist = dx * dx + dz * dz;
-                    if (dist > curRadius * curRadius) continue;
-                    
-                    bool layer = curRadius == 0 ||
-                        !(dist <= (curRadius - 1) * (curRadius - 1) &&
-                          dist <= (curRadius2   ) * (curRadius2   ) );
+                    {
+                        int dx = C.X - x, dz = C.Z - z;
+                        int dist = dx * dx + dz * dz;
+                        if (dist > curRadius * curRadius) continue;
 
-                    BlockID block = layer ? Block.Grass : Block.StillLava;
-                    output(Place(x, y, z, block));
-                }
+                        bool layer = curRadius == 0 ||
+                            !(dist <= (curRadius - 1) * (curRadius - 1) &&
+                              dist <= curRadius2 * curRadius2);
+
+                        ushort block = layer ? Block.Grass : Block.StillLava;
+                        output(Place(x, y, z, block));
+                    }
             }
         }
     }

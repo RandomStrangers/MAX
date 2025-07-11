@@ -17,53 +17,60 @@
  */
 using MAX.Blocks.Extended;
 using MAX.Blocks.Physics;
-using BlockID = System.UInt16;
 
-namespace MAX.Blocks {
-    public static class WalkthroughBehaviour {
+namespace MAX.Blocks
+{
+    public static class WalkthroughBehaviour
+    {
 
-        public static bool Door(Player p, BlockID block, ushort x, ushort y, ushort z) {
-            if (p.level.physics == 0) return true;
+        public static bool Door(Player p, ushort block, ushort x, ushort y, ushort z)
+        {
+            if (p.level.Physics == 0) return true;
 
-            BlockID physForm;
-            PhysicsArgs args = ActivateablePhysics.GetDoorArgs(block, out physForm);
+            PhysicsArgs args = ActivateablePhysics.GetDoorArgs(block, out ushort physForm);
             p.level.Blockchange(x, y, z, physForm, false, args);
             return true;
         }
 
-        public static bool Train(Player p, BlockID block, ushort x, ushort y, ushort z) {
+        public static bool Train(Player p, ushort _, ushort __, ushort ___, ushort ____)
+        {
             if (!p.trainInvincible && p.level.Config.KillerBlocks) p.HandleDeath(Block.Train);
             return true;
         }
 
-        public static bool DoPortal(Player p, BlockID block, ushort x, ushort y, ushort z) {
+        public static bool DoPortal(Player p, ushort _, ushort x, ushort y, ushort z)
+        {
             if (p.level.PosToInt(x, y, z) == p.lastWalkthrough) return true;
             return Portal.Handle(p, x, y, z);
         }
 
-        public static bool DoMessageBlock(Player p, BlockID block, ushort x, ushort y, ushort z) {
+        public static bool DoMessageBlock(Player p, ushort _, ushort x, ushort y, ushort z)
+        {
             if (p.level.PosToInt(x, y, z) == p.lastWalkthrough) return true;
             return MessageBlock.Handle(p, x, y, z, false);
         }
 
-        public static bool Checkpoint(Player p, BlockID block, ushort x, ushort y, ushort z) {
+        public static bool Checkpoint(Player p, ushort _, ushort x, ushort y, ushort z)
+        {
             p.useCheckpointSpawn = true;
             p.checkpointX = x; p.checkpointY = (ushort)(y + 1); p.checkpointZ = z;
             p.checkpointRotX = p.Rot.RotY; p.checkpointRotY = p.Rot.HeadX;
-            
+
             int index = p.level.PosToInt(x, y, z);
-            if (index != p.lastCheckpointIndex) {
+            if (index != p.lastCheckpointIndex)
+            {
                 Position pos = p.Pos;
                 pos.X = x * 32 + 16; pos.Z = z * 32 + 16;
 
-                if (Server.Config.CheckpointsRespawnClientside) {
+                if (Server.Config.CheckpointsRespawnClientside)
+                {
                     p.Session.SendSetSpawnpoint(pos, p.Rot);
                     p.Message("Your spawnpoint was updated.");
                 }
                 p.lastCheckpointIndex = index;
                 return true;
             }
-            
+
             // allow activating other blocks (e.g. /mb message above it)
             return false;
         }

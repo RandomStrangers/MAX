@@ -19,17 +19,19 @@ using MAX.Drawing.Brushes;
 using MAX.Drawing.Ops;
 using MAX.Maths;
 
-namespace MAX.Drawing.Transforms 
+namespace MAX.Drawing.Transforms
 {
-    public abstract class Transform 
+    public class Transform
     {
-        public abstract string Name { get; }
+        public virtual string Name { get; }
         public virtual void Configure(DrawOp op, Player p) { }
-        
+
         /// <summary> Estimates the total number of blocks that the drawing orders affects,
         /// after this transformation (e.g. scaling) has been applied to it. </summary>
         public virtual void GetBlocksAffected(ref int affected) { }
-        
-        public abstract void Perform(Vec3S32[] marks, DrawOp op, Brush brush, DrawOpOutput output);
+
+        public virtual void Perform(Vec3S32[] marks, DrawOp op, Brush brush, DrawOpOutput output)
+        {
+        }
     }
 }

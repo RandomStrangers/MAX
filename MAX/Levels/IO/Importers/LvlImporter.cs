@@ -15,11 +15,11 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.Maths;
 using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using MAX.Maths;
 
 namespace MAX.Levels.IO
 {
@@ -66,7 +66,7 @@ namespace MAX.Levels.IO
                     int section = gs.ReadByte();
                     if (section == 0xFC)
                     { // 'ph'ysics 'c'hecks
-                        ReadPhysicsSection(lvl, gs); 
+                        ReadPhysicsSection(lvl, gs);
                         continue;
                     }
                     if (section == 0x51)
@@ -144,7 +144,7 @@ namespace MAX.Levels.IO
                     {
                         C.Index = *ptrInt;
                         ptrInt++;
-                        C.data.Raw = (uint)*ptrInt; 
+                        C.data.Raw = (uint)*ptrInt;
                         ptrInt++;
                         lvl.ListCheck.Items[i + j] = C;
                     }
@@ -172,10 +172,15 @@ namespace MAX.Levels.IO
 
         public static void ParseZone(Level lvl, ref byte[] buffer, Stream gs)
         {
-            Zone z = new Zone();
-            z.MinX = Read_U16(buffer, gs); z.MaxX = Read_U16(buffer, gs);
-            z.MinY = Read_U16(buffer, gs); z.MaxY = Read_U16(buffer, gs);
-            z.MinZ = Read_U16(buffer, gs); z.MaxZ = Read_U16(buffer, gs);
+            Zone z = new Zone
+            {
+                MinX = Read_U16(buffer, gs),
+                MaxX = Read_U16(buffer, gs),
+                MinY = Read_U16(buffer, gs),
+                MaxY = Read_U16(buffer, gs),
+                MinZ = Read_U16(buffer, gs),
+                MaxZ = Read_U16(buffer, gs)
+            };
 
             int metaCount = TryRead_I32(buffer, gs);
             ConfigElement[] elems = Server.zoneConfig;
@@ -186,8 +191,8 @@ namespace MAX.Levels.IO
                 if (size > buffer.Length) buffer = new byte[size + 16];
                 ReadFully(gs, buffer, size);
 
-                string line = Encoding.UTF8.GetString(buffer, 0, size), key, value;
-                PropertiesFile.ParseLine(line, '=', out key, out value);
+                string line = Encoding.UTF8.GetString(buffer, 0, size);
+                PropertiesFile.ParseLine(line, '=', out string key, out string value);
                 if (key == null) continue;
 
                 value = value.Trim();

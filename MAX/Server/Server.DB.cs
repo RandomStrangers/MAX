@@ -15,10 +15,10 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.SQL;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MAX.SQL;
 
 namespace MAX
 {
@@ -51,12 +51,16 @@ namespace MAX
             new ColumnDesc("Ordmsg", ColumnType.VarChar, 40),
         };
 
-        public static void InitDatabase() {
+        public static void InitDatabase()
+        {
             if (!Directory.Exists("blockdb")) Directory.CreateDirectory("blockdb");
 
-            try {
+            try
+            {
                 Database.Backend.CreateDatabase();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Logger.LogError(e);
                 Logger.Log(LogType.Warning, "MySQL settings have not been set! Please Setup using the properties window.");
                 return;
@@ -64,10 +68,11 @@ namespace MAX
 
             Database.CreateTable("Opstats", opstatsTable);
             Database.CreateTable("Players", playersTable);
-            
+
             //since MCForge 5.5.11 we are cleaning up the table Playerords
             //if Playerords exists copy-filter to Opstats and remove Playerords
-            if (Database.TableExists("Playerords")) {
+            if (Database.TableExists("Playerords"))
+            {
                 const string sql = "INSERT INTO Opstats (Time, Name, Ord, Ordmsg) SELECT Time, Name, Ord, Ordmsg FROM Playerords WHERE {0};";
                 foreach (string ord in Opstats)
                     Database.Execute(string.Format(sql, "ord = '" + ord + "'"));
@@ -77,20 +82,25 @@ namespace MAX
 
             List<string> columns = Database.Backend.ColumnNames("Players");
             if (columns.Count == 0) return;
-            
-            if (!columns.CaselessContains("Color")) {
+
+            if (!columns.CaselessContains("Color"))
+            {
                 Database.AddColumn("Players", new ColumnDesc("color", ColumnType.VarChar, 6), "totalKicked");
             }
-            if (!columns.CaselessContains("Title_Color")) {
+            if (!columns.CaselessContains("Title_Color"))
+            {
                 Database.AddColumn("Players", new ColumnDesc("title_color", ColumnType.VarChar, 6), "color");
             }
-            if (!columns.CaselessContains("TimeSpent")) {
+            if (!columns.CaselessContains("TimeSpent"))
+            {
                 Database.AddColumn("Players", new ColumnDesc("TimeSpent", ColumnType.VarChar, 20), "totalKicked");
             }
-            if (!columns.CaselessContains("TotalCuboided")) {
+            if (!columns.CaselessContains("TotalCuboided"))
+            {
                 Database.AddColumn("Players", new ColumnDesc("totalCuboided", ColumnType.Int32), "totalBlocks");
             }
-            if (!columns.CaselessContains("Messages")) {
+            if (!columns.CaselessContains("Messages"))
+            {
                 Database.AddColumn("Players", new ColumnDesc("Messages", ColumnType.UInt24), "title_color");
             }
         }

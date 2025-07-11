@@ -16,29 +16,33 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.World {
-    public sealed class OrdDeleteLvl : Order2 {
-        public override string name { get { return "DeleteLvl"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        public override OrderDesignation[] Designations {
+namespace MAX.Orders.World
+{
+    public class OrdDeleteLvl : Order
+    {
+        public override string Name { get { return "DeleteLvl"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("WDelete"), new OrderDesignation("WorldDelete"), new OrderDesignation("WRemove") }; }
         }
         public override bool MessageBlockRestricted { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0 || message.SplitSpaces().Length > 1) { Help(p); return; }
             string map = Matcher.FindMaps(p, message);
-            LevelConfig cfg;
-            
-            if (map == null) return;            
-            if (!LevelInfo.Check(p, data.Rank, map, "delete this map",out cfg)) return;
+
+            if (map == null) return;
+            if (!LevelInfo.Check(p, data.Rank, map, "delete this map", out LevelConfig cfg)) return;
 
             if (!LevelActions.Delete(p, map)) return;
             Chat.MessageGlobal("Level {0} &Swas deleted", cfg.Color + map);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/DeleteLvl [level]");
             p.Message("&HCompletely deletes [level] (portals, MBs, everything)");
             p.Message("&HA backup of the level is made in the levels/deleted folder");

@@ -16,27 +16,31 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdLoginMessage : EntityPropertyOrd
+    public class OrdLoginMessage : EntityPropertyOrd
     {
-        public override string name { get { return "LoginMessage"; } }
-        public override string shortcut { get { return "LoginMsg"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
-        public override OrderPerm[] ExtraPerms {
+        public override string Name { get { return "LoginMessage"; } }
+        public override string Shortcut { get { return "LoginMsg"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can change the login message of others") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             UsePlayer(p, data, message, "login message");
         }
 
-        public override void SetPlayerData(Player p, string target, string msg) {
+        public override void SetPlayerData(Player p, string target, string msg)
+        {
             PlayerOperations.SetLoginMessage(p, target, msg);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/LoginMessage [player] [message]");
             p.Message("&HSets the login message shown for that player.");
         }

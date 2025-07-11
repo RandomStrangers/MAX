@@ -17,29 +17,31 @@
  */
 using System;
 
-namespace MAX.Events.PlayerDBEvents 
-{    
+namespace MAX.Events.PlayerDBEvents
+{
     public delegate void OnInfoSave(Player p, ref bool cancel);
     /// <summary> Called whenever the server saves player's stats to the database. </summary>
-    public sealed class OnInfoSaveEvent : IEvent<OnInfoSave> 
-    {       
-        public static void Call(Player p, ref bool cancel) {
+    public class OnInfoSaveEvent : IEvent<OnInfoSave>
+    {
+        public static void Call(Player p, ref bool cancel)
+        {
             IEvent<OnInfoSave>[] items = handlers.Items;
-            for (int i = 0; i < items.Length; i++) 
+            for (int i = 0; i < items.Length; i++)
             {
-                try { items[i].method(p, ref cancel); } 
+                try { items[i].method(p, ref cancel); }
                 catch (Exception ex) { LogHandlerException(ex, items[i]); }
             }
         }
     }
-        
+
     public delegate void OnInfoSwap(string src, string dst);
     /// <summary> Called when the information of two players is being swapped. </summary>
-    public sealed class OnInfoSwapEvent : IEvent<OnInfoSwap> 
-    {        
-        public static void Call(string src, string dst) {
+    public class OnInfoSwapEvent : IEvent<OnInfoSwap>
+    {
+        public static void Call(string src, string dst)
+        {
             if (handlers.Count == 0) return;
             CallCommon(pl => pl(src, dst));
-        }        
+        }
     }
 }

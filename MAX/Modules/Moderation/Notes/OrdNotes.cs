@@ -20,67 +20,76 @@ using System.Collections.Generic;
 
 namespace MAX.Modules.Moderation.Notes
 {
-    public class OrdNotes : Order2
+    public class OrdNotes : Order
     {
-        public override string name { get { return "Notes"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "Notes"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
-            string name   = args[0];
-            
+            string name = args[0];
+
             if (CheckSuper(p, name, "player name")) return;
             if (name.Length == 0) name = p.name;
-            
+
             name = PlayerInfo.FindMatchesPreferOnline(p, name);
             if (name == null) return;
-            
+
             string modifier = args.Length > 1 ? args[1] : "";
             PrintNotes(p, "Notes " + name, name, modifier);
         }
 
-        public static void PrintNotes(Player p, string ord, string name, string modifier) {
-            if (!Server.Config.LogNotes) {
+        public static void PrintNotes(Player p, string ord, string name, string modifier)
+        {
+            if (!Server.Config.LogNotes)
+            {
                 p.Message("The server does not have notes logging enabled."); return;
             }
-            
+
             List<string> notes = Server.Notes.FindAllExact(name);
             string nick = p.FormatNick(name);
-            
-            if (notes.Count == 0) {
+
+            if (notes.Count == 0)
+            {
                 p.Message("{0} &Shas no notes.", nick); return;
-            } else {
+            }
+            else
+            {
                 p.Message("  Notes for {0}:", nick);
             }
-            
+
             // special case "/Notes" to show latest notes by default
-            if (modifier.Length == 0) {
-            	Paginator.Output(p, notes, PrintNote, ord, "Notes", 
-            	                 (1 + (notes.Count - 8)).ToString());
-            	p.Message("To see all Notes, use &T/{0} all", ord);
-            	return;
+            if (modifier.Length == 0)
+            {
+                Paginator.Output(p, notes, PrintNote, ord, "Notes",
+                                 (1 + (notes.Count - 8)).ToString());
+                p.Message("To see all Notes, use &T/{0} all", ord);
+                return;
             }
-            
+
             Paginator.Output(p, notes, PrintNote,
                              ord, "Notes", modifier);
         }
 
-        public static void PrintNote(Player p, string line) {
+        public static void PrintNote(Player p, string line)
+        {
             string[] args = line.SplitSpaces();
             if (args.Length <= 3) return;
-            
+
             string reason = args.Length > 4 ? args[4] : "";
             long duration = 0;
             if (args.Length > 5) long.TryParse(args[5], out duration);
-            
+
             p.Message("{0} by {1} &Son {2}{3}{4}",
                       Action(args[1]), p.FormatNick(args[2]), args[3],
-                      duration      == 0 ? "" : " for " + TimeSpan.FromTicks(duration).Shorten(true),
-                      reason.Length == 0 ? "" : " - "   + reason.Replace("%20", " "));
+                      duration == 0 ? "" : " for " + TimeSpan.FromTicks(duration).Shorten(true),
+                      reason.Length == 0 ? "" : " - " + reason.Replace("%20", " "));
         }
 
-        public static string Action(string arg) {
+        public static string Action(string arg)
+        {
             if (arg.CaselessEq("W")) return "Warned";
             if (arg.CaselessEq("K")) return "Kicked";
             if (arg.CaselessEq("M")) return "Muted";
@@ -91,7 +100,8 @@ namespace MAX.Modules.Moderation.Notes
             return arg;
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Notes [name] &H- views that player's notes.");
             p.Message("&HNotes are things such as bans, kicks, warns, mutes.");
         }
@@ -99,16 +109,18 @@ namespace MAX.Modules.Moderation.Notes
 
     public class OrdMyNotes : OrdNotes
     {
-        public override string name { get { return "MyNotes"; } }
-        public override string type { get { return OrderTypes.Other; } }
+        public override string Name { get { return "MyNotes"; } }
+        public override string Type { get { return OrderTypes.Other; } }
         public override bool SuperUseable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Guest; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override LevelPermission DefaultRank { get { return LevelPermission.Guest; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             PrintNotes(p, "MyNotes", p.name, message);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/MyNotes &H- views your own notes.");
             p.Message("&HNotes are things such as bans, kicks, warns, mutes.");
         }

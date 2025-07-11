@@ -15,36 +15,39 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Events;
+using System;
 
-namespace MAX.Orders.Moderation 
+namespace MAX.Orders.Moderation
 {
-    public sealed class OrdMute : Order2 
+    public class OrdMute : Order
     {
-        public override string name { get { return "Mute"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "Mute"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
         public const string UNMUTE_FLAG = "-unmute";
 
         public override OrderDesignation[] Designations
         { get { return new[] { new OrderDesignation("Unmute", UNMUTE_FLAG) }; } }
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces(3);
             string target;
 
-            if (args[0].CaselessEq(UNMUTE_FLAG)) {
+            if (args[0].CaselessEq(UNMUTE_FLAG))
+            {
                 if (args.Length == 1) { Help(p); return; }
                 target = PlayerInfo.FindMatchesPreferOnline(p, args[1]);
                 if (target == null) return;
 
-                if (!Server.muted.Contains(target)) {
+                if (!Server.muted.Contains(target))
+                {
                     p.Message("{0}&S is not muted.", p.FormatNick(target));
                     return;
                 }
-                
+
                 DoUnmute(p, target, args.Length > 2 ? args[2] : "");
                 return;
             }
@@ -52,41 +55,48 @@ namespace MAX.Orders.Moderation
             target = PlayerInfo.FindMatchesPreferOnline(p, args[0]);
             if (target == null) return;
 
-            if (Server.muted.Contains(target)) {
+            if (Server.muted.Contains(target))
+            {
                 p.Message("{0}&S is already muted.", p.FormatNick(target));
                 p.Message("You may unmute them with &T/Unmute {0}", target);
-            } else {            
+            }
+            else
+            {
                 Group group = ModActionOrd.CheckTarget(p, data, "mute", target);
                 if (group == null) return;
-                
+
                 DoMute(p, target, args);
             }
         }
 
-        public void DoMute(Player p, string target, string[] args) {
+        public void DoMute(Player p, string target, string[] args)
+        {
             TimeSpan duration = Server.Config.ChatSpamMuteTime;
-            if (args.Length > 1) {
+            if (args.Length > 1)
+            {
                 if (!OrderParser.GetTimespan(p, args[1], ref duration, "mute for", "s")) return;
             }
-            
+
             string reason = args.Length > 2 ? args[2] : "";
             reason = ModActionOrd.ExpandReason(p, reason);
             if (reason == null) return;
-            
+
             ModAction action = new ModAction(target, p, ModActionType.Muted, reason, duration);
             OnModActionEvent.Call(action);
         }
 
-        public void DoUnmute(Player p, string target, string reason) {
+        public void DoUnmute(Player p, string target, string reason)
+        {
             reason = ModActionOrd.ExpandReason(p, reason);
             if (reason == null) return;
             if (p.name == target) { p.Message("You cannot unmute yourself."); return; }
-            
+
             ModAction action = new ModAction(target, p, ModActionType.Unmuted, reason);
             OnModActionEvent.Call(action);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Mute [player] <timespan> <reason>");
             p.Message("&H Mutes player for <timespan>, which defaults to");
             p.Message("&H the auto-mute timespan.");

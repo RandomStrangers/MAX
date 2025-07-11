@@ -15,10 +15,10 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
 using MAX.Network;
 using MAX.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace MAX
 {
@@ -64,9 +64,9 @@ namespace MAX
         }
 
         /// <summary> Removes all block updates from the queue. </summary>
-        public void ClearAll() 
-        { 
-            lock (locker) Clear(); 
+        public void ClearAll()
+        {
+            lock (locker) Clear();
         }
 
         public void Process(Level lvl)
@@ -74,10 +74,10 @@ namespace MAX
             try
             {
                 if (Count == 0) return;
-                if (!lvl.HasPlayers()) 
-                { 
+                if (!lvl.HasPlayers())
+                {
                     Clear();
-                    return; 
+                    return;
                 }
 
                 bulkSender.level = lvl;

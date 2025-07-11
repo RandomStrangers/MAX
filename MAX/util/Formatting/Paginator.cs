@@ -28,67 +28,88 @@ namespace MAX
         /// <summary> Outputs a large range of values across a number of 'pages' </summary>
         /// <remarks> Items are printed combined with a comma separator between them </remarks>
         public static void Output<T>(Player p, IList<T> items, StringFormatter<T> formatter,
-                                     string ord, string type, string modifier) {
+                                     string ord, string type, string modifier)
+        {
             Output(p, items, formatter, null, ord, type, modifier, 30);
         }
-        
+
         /// <summary> Outputs a large range of values across a number of 'pages' </summary>
         /// <remarks> Each item is printed on a separate line </param>
         public static void Output<T>(Player p, IList<T> items, ItemPrinter<T> printer,
-                                     string ord, string type, string modifier) {
+                                     string ord, string type, string modifier)
+        {
             Output(p, items, null, printer, ord, type, modifier, 8);
         }
 
         public static void Output<T>(Player p, IList<T> items,
                               StringFormatter<T> formatter, ItemPrinter<T> printer,
-                              string ord, string type, string modifier, int perPage) {
-            int page, total = items.Count;
-            
-            if (modifier.Length == 0) {
+                              string ord, string type, string modifier, int perPage)
+        {
+            int total = items.Count;
+
+            if (modifier.Length == 0)
+            {
                 OutputPage(p, items, formatter, printer, ord, type, 1, perPage);
                 if (total <= perPage) return;
                 p.Message("To see all {0}, use &T/{1} all", type, ord);
-            } else if (modifier.CaselessEq("all")) {
+            }
+            else if (modifier.CaselessEq("all"))
+            {
                 OutputItems(p, items, 0, items.Count, formatter, printer);
                 p.Message("Showing {0} 1-{1} (out of {1})", type, items.Count);
-            } else if (!int.TryParse(modifier, out page)) {
+            }
+            else if (!int.TryParse(modifier, out int page))
+            {
                 p.Message("Input must be either \"all\" or an integer.");
-            } else {
+            }
+            else
+            {
                 OutputPage(p, items, formatter, printer, ord, type, page, perPage);
             }
         }
 
         public static void OutputPage<T>(Player p, IList<T> items,
                                   StringFormatter<T> formatter, ItemPrinter<T> printer,
-                                  string ord, string type, int start, int perPage) {
+                                  string ord, string type, int start, int perPage)
+        {
             start = Utils.Clamp(start - 1, 0, items.Count - 1); // want item numbers to start at 1
             int end = Math.Min(start + perPage, items.Count);
             OutputItems(p, items, start, end, formatter, printer);
-            
-            if (items.Count == 0) {
+
+            if (items.Count == 0)
+            {
                 p.Message("Showing {0} 0-0 (out of 0)", type);
-            } else if (end < items.Count) {
+            }
+            else if (end < items.Count)
+            {
                 p.Message("Showing {0} {1}-{2} (out of {3}) Next: &T/{4} {5}",
                           type, start + 1, end, items.Count, ord, start + 1 + perPage);
-            } else {
+            }
+            else
+            {
                 p.Message("Showing {0} {1}-{2} (out of {3})",
                           type, start + 1, end, items.Count);
             }
         }
 
         public static void OutputItems<T>(Player p, IList<T> items, int beg, int end,
-                                   StringFormatter<T> formatter, ItemPrinter<T> printer) {
-            if (printer != null) {
+                                   StringFormatter<T> formatter, ItemPrinter<T> printer)
+        {
+            if (printer != null)
+            {
                 for (int i = beg; i < end; i++)
                     printer(p, items[i]);
-            } else {
+            }
+            else
+            {
                 IEnumerable<string> output = Subset(items, beg, end, formatter);
                 p.Message(output.Join());
             }
         }
 
         public static IEnumerable<string> Subset<T>(IList<T> items, int start, int end,
-                                             StringFormatter<T> formatter) {
+                                             StringFormatter<T> formatter)
+        {
             for (int i = start; i < end; i++)
                 yield return formatter(items[i]);
             yield break;

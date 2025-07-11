@@ -25,69 +25,87 @@ namespace MAX.Scripting
 {
     public static class ScriptingOperations
     {
-        public static bool LoadOrders(Player p, string path) {
-            if (!File.Exists(path)) {
+        public static bool LoadOrders(Player p, string path)
+        {
+            if (!File.Exists(path))
+            {
                 p.Message("File &9{0} &Snot found.", path);
                 return false;
             }
-            
-            try {
+
+            try
+            {
                 List<Order> ords = IScripting.LoadOrder(path);
-                
+
                 p.Message("Successfully loaded &T{0}",
-                          ords.Join(o => "/" + o.name));
+                          ords.Join(o => "/" + o.Name));
                 return true;
-            } catch (AlreadyLoadedException ex) {
+            }
+            catch (AlreadyLoadedException ex)
+            {
                 p.Message(ex.Message);
                 return false;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 p.Message(IScripting.DescribeLoadError(path, ex));
                 Logger.LogError("Error loading orders from " + path, ex);
                 return false;
             }
         }
 
-        public static bool LoadAddons(Player p, string path) {
-            if (!File.Exists(path)) {
+        public static bool LoadAddons(Player p, string path)
+        {
+            if (!File.Exists(path))
+            {
                 p.Message("File &9{0} &Snot found.", path);
                 return false;
             }
-            
-            try {
+
+            try
+            {
                 List<Addon> addons = IScripting.LoadAddon(path, false);
-                
+
                 p.Message("Addon {0} loaded successfully",
-                          addons.Join(a => a.name));
+                          addons.Join(a => a.Name));
                 return true;
-            } catch (AlreadyLoadedException ex) {
+            }
+            catch (AlreadyLoadedException ex)
+            {
                 p.Message(ex.Message);
                 return false;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 p.Message(IScripting.DescribeLoadError(path, ex));
                 Logger.LogError("Error loading addons from " + path, ex);
                 return false;
             }
         }
-        
-        
-        public static bool UnloadOrder(Player p, Order ord) {          
-            if (Order.IsCore(ord)) {
-                p.Message("&T/{0} &Sis a core order, you cannot unload it.", ord.name); 
+
+
+        public static bool UnloadOrder(Player p, Order ord)
+        {
+            if (Order.IsCore(ord))
+            {
+                p.Message("&T/{0} &Sis a core order, you cannot unload it.", ord.Name);
                 return false;
             }
-   
+
             Order.Unregister(ord);
-            p.Message("Order &T/{0} &Sunloaded successfully", ord.name);
+            p.Message("Order &T/{0} &Sunloaded successfully", ord.Name);
             return true;
         }
-        
-        public static bool UnloadAddon(Player p, Addon addon) {
-            if (!Addon.Unload(addon)) {
+
+        public static bool UnloadAddon(Player p, Addon addon)
+        {
+            if (!Addon.Unload(addon))
+            {
                 p.Message("&WError unloading addon. See error logs for more information.");
                 return false;
             }
-            
-            p.Message("Addon {0} &Sunloaded successfully", addon.name);
+
+            p.Message("Addon {0} &Sunloaded successfully", addon.Name);
             return true;
         }
     }

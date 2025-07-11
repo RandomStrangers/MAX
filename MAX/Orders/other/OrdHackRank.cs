@@ -20,33 +20,39 @@
  */
 using MAX.Tasks;
 
-namespace MAX.Orders.Misc {
-    
-    public sealed class OrdHackRank : Order2 {
-        public override string name { get { return "HackRank"; } }
-        public override string type { get { return OrderTypes.Other; } }
+namespace MAX.Orders.Misc
+{
+
+    public class OrdHackRank : Order
+    {
+        public override string Name { get { return "HackRank"; } }
+        public override string Type { get { return OrderTypes.Other; } }
         public override bool MessageBlockRestricted { get { return true; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
-            
-            if (p.hackrank) {
+
+            if (p.hackrank)
+            {
                 p.Message("&WYou have already hacked a rank!"); return;
             }
-            
+
             Group grp = Matcher.FindRanks(p, message);
             if (grp == null) return;
             DoFakeRank(p, grp);
         }
 
-        public void DoFakeRank(Player p, Group newRank) {
+        public void DoFakeRank(Player p, Group newRank)
+        {
             p.hackrank = true;
-            OrdFakeRank.DoFakerank(p, p, newRank);
+            OrdFakeRank.DoFakerank(p, newRank);
             DoKick(p, newRank);
         }
 
-        public void DoKick(Player p, Group newRank) {
+        public void DoKick(Player p, Group newRank)
+        {
             if (!Server.Config.HackrankKicks) return;
             HackRankArgs args = new HackRankArgs
             {
@@ -54,11 +60,12 @@ namespace MAX.Orders.Misc {
                 newRank = newRank
             };
 
-            Server.MainScheduler.QueueOnce(HackRankCallback, args, 
+            Server.MainScheduler.QueueOnce(HackRankCallback, args,
                                            Server.Config.HackrankKickDelay);
         }
 
-        public void HackRankCallback(SchedulerTask task) {
+        public void HackRankCallback(SchedulerTask task)
+        {
             HackRankArgs args = (HackRankArgs)task.State;
             Player who = PlayerInfo.FindExact(args.name);
             if (who == null) return;
@@ -68,8 +75,9 @@ namespace MAX.Orders.Misc {
         }
 
         public class HackRankArgs { public string name; public Group newRank; }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/HackRank [rank] &H- Hacks a rank");
             p.Message("&HTo see available ranks, type &T/ViewRanks");
         }

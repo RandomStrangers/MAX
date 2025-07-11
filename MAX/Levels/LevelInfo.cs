@@ -15,13 +15,12 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.IO;
 using MAX.DB;
 using MAX.Events.LevelEvents;
 using MAX.SQL;
-using MAX;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MAX
 {
@@ -60,9 +59,12 @@ namespace MAX
         public static string[] AllMapFiles()
         {
             List<string> Files = new List<string>();
-            Files.AddRange(Directory.GetFiles("levels", "*.lvl"));
-            Files.AddRange(Directory.GetFiles("levels", "*.mcf"));
-            Files.AddRange(Directory.GetFiles("levels", "*.cw"));
+            Files.AddRange(FileIO.TryGetFiles("levels", "*.lvl"));
+            Files.AddRange(FileIO.TryGetFiles("levels", "*.mcf"));
+            Files.AddRange(FileIO.TryGetFiles("levels", "*.map"));
+            Files.AddRange(FileIO.TryGetFiles("levels", "*.pklvl"));
+            Files.AddRange(FileIO.TryGetFiles("levels", "*.flvl"));
+            //Files.AddRange(FileIO.TryGetFiles("levels", "*.cw"));
             return Files.ToArray();
         }
 
@@ -83,15 +85,30 @@ namespace MAX
         public static string Name(string name)
         {
             bool mcf = File.Exists("levels/" + name.ToLower() + ".mcf");
-            bool cw = File.Exists("levels/" + name.ToLower() + ".cw");
+            bool map = File.Exists("levels/" + name.ToLower() + ".map");
+            bool pklvl = File.Exists("levels/" + name.ToLower() + ".pklvl");
+            bool flvl = File.Exists("levels/" + name.ToLower() + ".flvl");
+            //bool cw = File.Exists("levels/" + name.ToLower() + ".cw");
             if (mcf)
             {
                 return name.ToLower() + ".mcf";
             }
-            else if (cw)
+            else if (map)
+            {
+                return name.ToLower() + ".map";
+            }
+            else if (pklvl)
+            {
+                return name.ToLower() + ".pklvl";
+            }
+            else if (flvl)
+            {
+                return name.ToLower() + ".flvl";
+            }
+            /*else if (cw)
             {
                 return name.ToLower() + ".cw";
-            }
+            }*/
             else
             {
                 return name.ToLower() + ".lvl";
@@ -120,15 +137,30 @@ namespace MAX
         public static string BackupFilePath(string name, string backup)
         {
             bool mcf = File.Exists("levels/" + name.ToLower() + ".mcf");
-            bool cw = File.Exists("levels/" + name.ToLower() + ".cw");
+            bool map = File.Exists("levels/" + name.ToLower() + ".map");
+            bool pklvl = File.Exists("levels/" + name.ToLower() + ".pklvl");
+            bool flvl = File.Exists("levels/" + name.ToLower() + ".flvl");
+            //bool cw = File.Exists("levels/" + name.ToLower() + ".cw");
             if (mcf)
             {
                 return BackupDirPath(name, backup) + "/" + name + ".mcf";
             }
-            else if (cw)
+            else if (map)
+            {
+                return BackupDirPath(name, backup) + "/" + name + ".map";
+            }
+            if (pklvl)
+            {
+                return BackupDirPath(name, backup) + "/" + name + ".pklvl";
+            }
+            if (flvl)
+            {
+                return BackupDirPath(name, backup) + "/" + name + ".flvl";
+            }
+            /*else if (cw)
             {
                 return BackupDirPath(name, backup) + "/" + name + ".cw";
-            }
+            }*/
             else
             {
                 return BackupDirPath(name, backup) + "/" + name + ".lvl";
@@ -149,9 +181,8 @@ namespace MAX
             foreach (string path in backups)
             {
                 string backupName = BackupNameFrom(path);
-                int num;
 
-                if (!int.TryParse(backupName, out num)) continue;
+                if (!int.TryParse(backupName, out int num)) continue;
                 latest = Math.Max(num, latest);
             }
             return latest;
@@ -173,8 +204,7 @@ namespace MAX
 
         public static LevelConfig GetConfig(string map)
         {
-            Level lvl;
-            return GetConfig(map, out lvl);
+            return GetConfig(map, out Level _);
         }
 
         public static LevelConfig GetConfig(string map, out Level lvl)
@@ -190,7 +220,7 @@ namespace MAX
 
         public static bool Check(Player p, LevelPermission plRank, string map, string action, out LevelConfig cfg)
         {
-            Level lvl; cfg = GetConfig(map, out lvl);
+            cfg = GetConfig(map, out Level lvl);
             if (p.IsMAX) return true;
             if (lvl != null) return Check(p, plRank, lvl, action);
 
@@ -206,8 +236,7 @@ namespace MAX
 
         public static bool Check(Player p, LevelPermission plRank, string map, string action)
         {
-            LevelConfig ignored;
-            return Check(p, plRank, map, action, out ignored);
+            return Check(p, plRank, map, action, out LevelConfig _);
         }
 
         public static bool Check(Player p, LevelPermission plRank, Level lvl, string action)

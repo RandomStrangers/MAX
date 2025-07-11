@@ -17,16 +17,17 @@
 */
 using MAX.Drawing.Transforms;
 
-namespace MAX.Orders.Building 
+namespace MAX.Orders.Building
 {
-    public sealed class OrdAbort : Order2 
+    public class OrdAbort : Order
     {
-        public override string name { get { return "Abort"; } }
-        public override string shortcut { get { return "a"; } }
-        public override string type { get { return OrderTypes.Building; } }
+        public override string Name { get { return "Abort"; } }
+        public override string Shortcut { get { return "a"; } }
+        public override string Type { get { return OrderTypes.Building; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             p.ClearBlockchange();
             p.painting = false;
             p.checkingBotInfo = false;
@@ -34,17 +35,18 @@ namespace MAX.Orders.Building
             p.staticOrders = false;
             p.deleteMode = false;
             p.ModeBlock = Block.Invalid;
-            p.onTrain   = false;
-            p.isFlying  = false;
+            p.onTrain = false;
+            p.isFlying = false;
             p.BrushName = "normal";
             p.DefaultBrushArgs = "";
             p.Transform = NoTransform.Instance;
-            
-            if (p.weapon != null) p.weapon.Disable();
+
+            p.weapon?.Disable();
             p.Message("Every toggle or action was aborted.");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Abort");
             p.Message("&HCancels an action.");
         }

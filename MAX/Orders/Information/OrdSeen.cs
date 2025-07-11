@@ -15,19 +15,21 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.DB;
+using System;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdSeen : Order2 
+    public class OrdSeen : Order
     {
-        public override string name { get { return "Seen"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+        public override string Name { get { return "Seen"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 if (p.IsSuper) { SuperRequiresArgs(p, "player name"); return; }
                 message = p.name;
             }
@@ -35,7 +37,8 @@ namespace MAX.Orders.Info
 
             Player pl = PlayerInfo.FindMatches(p, message, out int matches);
             if (matches > 1) return;
-            if (matches == 1) {
+            if (matches == 1)
+            {
                 Show(p, pl.ColoredName, pl.FirstLogin, pl.LastLogin);
                 p.Message("{0} &Sis currently online.", p.FormatNick(pl));
                 return;
@@ -47,16 +50,18 @@ namespace MAX.Orders.Info
             Show(p, target.Name, target.FirstLogin, target.LastLogin);
         }
 
-        public static void Show(Player p, string name, DateTime first, DateTime last) {
+        public static void Show(Player p, string name, DateTime first, DateTime last)
+        {
             TimeSpan firstDelta = DateTime.Now - first;
-            TimeSpan lastDelta  = DateTime.Now - last;
-            
+            TimeSpan lastDelta = DateTime.Now - last;
+
             name = p.FormatNick(name);
             p.Message("{0} &Swas first seen at {1:H:mm} on {1:yyyy-MM-dd} ({2} ago)", name, first, firstDelta.Shorten());
-            p.Message("{0} &Swas last seen at {1:H:mm} on {1:yyyy-MM-dd} ({2} ago)",  name, last,  lastDelta.Shorten());
+            p.Message("{0} &Swas last seen at {1:H:mm} on {1:yyyy-MM-dd} ({2} ago)", name, last, lastDelta.Shorten());
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Seen [player]");
             p.Message("&HSays when a player was first and last seen on the server");
         }

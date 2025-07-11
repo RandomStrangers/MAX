@@ -20,87 +20,172 @@ using System;
 namespace MAX.SQL
 {
     /// <summary> Abstracts a connection to a SQL database </summary>
-    public abstract class ISqlConnection : IDisposable
+    public class ISqlConnection : IDisposable
     {
-        public abstract ISqlTransaction BeginTransaction();
-        public abstract ISqlOrder CreateOrder(string sql);
+        public virtual ISqlTransaction BeginTransaction()
+        {
+            return null;
+        }
+        public virtual ISqlOrder CreateOrder(string sql)
+        {
+            return null;
+        }
 
-        public abstract void Open();
-        public abstract void ChangeDatabase(string name);
-        public abstract void Close();
-        public abstract void Dispose();
+        public virtual void Open()
+        {
+        }
+        public virtual void ChangeDatabase(string name)
+        {
+        }
+        public virtual void Close()
+        {
+        }
+        public virtual void Dispose()
+        {
+        }
     }
 
     /// <summary> Abstracts a SQL order/statement </summary>
-    public abstract class ISqlOrder : IDisposable
+    public class ISqlOrder : IDisposable
     {
-        public abstract void ClearParameters();
-        public abstract void AddParameter(string name, object value);
+        public virtual void ClearParameters()
+        {
+        }
+        public virtual void AddParameter(string name, object value)
+        {
+        }
 
-        public abstract void Prepare();
+        public virtual void Prepare()
+        {
+        }
         /// <summary> Executes this order and returns the number of rows affected </summary>
-        public abstract int ExecuteNonQuery();
+        public virtual int ExecuteNonQuery()
+        {
+            return 0;
+        }
         /// <summary> Executes this order and returns an ISqlReader for reading the results </summary>
-        public abstract ISqlReader ExecuteReader();
-        public abstract void Dispose();
+        public virtual ISqlReader ExecuteReader()
+        {
+            return null;
+        }
+        public virtual void Dispose()
+        {
+        }
     }
 
-    public abstract class ISqlTransaction : IDisposable
+    public class ISqlTransaction : IDisposable
     {
-        public abstract void Commit();
-        public abstract void Rollback();
-        public abstract void Dispose();
+        public virtual void Commit()
+        {
+        }
+        public virtual void Rollback()
+        {
+        }
+        public virtual void Dispose()
+        {
+        }
     }
 
     /// <summary> Abstracts iterating over the results from executing a SQL order </summary>
-    public abstract class ISqlReader : ISqlRecord, IDisposable
+    public class ISqlReader : ISqlRecord, IDisposable
     {
-        public abstract int RowsAffected { get; }
-        public abstract void Close();
-        public abstract bool Read();
-        public abstract void Dispose();
+        public virtual int RowsAffected { get; }
+        public virtual void Close()
+        {
+        }
+        public virtual bool Read()
+        {
+            return false;
+        }
+        public virtual void Dispose()
+        {
+        }
     }
 
-    public abstract class ISqlRecord
+    public class ISqlRecord
     {
-        public abstract int FieldCount { get; }
-        public abstract string GetName(int i);
-        public abstract int GetOrdinal(string name);
+        public virtual int FieldCount { get; }
+        public virtual string GetName(int i)
+        {
+            return null;
+        }
+        public virtual int GetOrdinal(string name)
+        {
+            return 0;
+        }
 
-        public abstract byte[] GetBytes(int i);
-        public abstract bool GetBoolean(int i);
-        public abstract int GetInt32(int i);
-        public abstract long GetInt64(int i);
-        public abstract double GetDouble(int i);
-        public abstract string GetString(int i);
-        public abstract DateTime GetDateTime(int i);
-        public abstract bool IsDBNull(int i);
+        public virtual byte[] GetBytes(int i)
+        {
+            return null;
+        }
+        public virtual bool GetBoolean(int i)
+        {
+            return false;
+        }
+        public virtual int GetInt32(int i)
+        {
+            return 0;
+        }
+        public virtual long GetInt64(int i)
+        {
+            return 0;
+        }
+        public virtual double GetDouble(int i)
+        {
+            return 0;
+        }
+        public virtual string GetString(int i)
+        {
+            return null;
+        }
+        public virtual DateTime GetDateTime(int i)
+        {
+            return DateTime.UtcNow;
+        }
+        public virtual bool IsDBNull(int i)
+        {
+            return false;
+        }
 
-        public abstract object GetValue(int i);
-        public abstract string GetStringValue(int col);
-        public abstract string DumpValue(int col);
+        public virtual object GetValue(int i)
+        {
+            return null;
+        }
+        public virtual string GetStringValue(int col)
+        {
+            return null;
+        }
+        public virtual string DumpValue(int col)
+        {
+            return null;
+        }
 
 
-        public string GetText(int col) {
+        public string GetText(int col)
+        {
             return IsDBNull(col) ? "" : GetString(col);
         }
 
-        public string GetText(string name) {
+        public string GetText(string name)
+        {
             int col = GetOrdinal(name);
             return IsDBNull(col) ? "" : GetString(col);
         }
 
-        public int GetInt(string name) {
+        public int GetInt(string name)
+        {
             int col = GetOrdinal(name);
             return IsDBNull(col) ? 0 : GetInt32(col);
         }
 
-        public long GetLong(string name) {
+        public long GetLong(string name)
+        {
             int col = GetOrdinal(name);
             return IsDBNull(col) ? 0 : GetInt64(col);
         }
 
-        protected static string Quote(string value) {
+        public static string Quote(string value)
+        {
             if (value.IndexOf('\'') >= 0) // escape '
                 value = value.Replace("'", "''");
             return "'" + value + "'";

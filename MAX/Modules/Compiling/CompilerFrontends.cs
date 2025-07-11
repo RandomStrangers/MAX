@@ -26,6 +26,7 @@ namespace MAX.Compiling
         public override string ShortName { get { return "C#"; } }
         public override string FullName { get { return "CSharp"; } }
 
+#if !MAX_DOTNET
         public override ICompilerErrors DoCompile(string[] srcPaths, string dstPath)
         {
             List<string> referenced = ProcessInput(srcPaths, "//");
@@ -33,6 +34,23 @@ namespace MAX.Compiling
             OrderLineCompiler compiler = new ClassicCSharpCompiler();
             return compiler.Compile(srcPaths, dstPath, referenced);
         }
+#else
+        public override ICompilerErrors DoCompile(string[] srcPaths, string dstPath) {
+            List<string> referenced = ProcessInput(srcPaths, "//");
+            referenced.Add("System.Collections.dll");    // needed for List<> etc
+            referenced.Add("System.IO.Compression.dll"); // needed for GZip compression
+            referenced.Add("System.Net.Primitives.dll"); // needed for IPAddress etc
+
+            OrderLineCompiler compiler = new RoslynCSharpCompiler();
+            return compiler.Compile(srcPaths, dstPath, referenced);
+        }
+
+        public override void ProcessInputLine(string line, List<string> referenced) {
+            if (!line.CaselessStarts("//dotnetref")) return;
+
+            referenced.Add(GetDLL(line));
+        }
+#endif
 
         public override string OrderSkeleton
         {
@@ -53,21 +71,21 @@ using MAX;
 public class Ord{0} : Order
 {{
 \t// The order's name (what you put after a slash to use this order)
-\tpublic override string name {{ get {{ return ""{0}""; }} }}
+\tpublic override string Name {{ get {{ return ""{0}""; }} }}
 
 \t// Order's shortcut, can be left blank (e.g. ""/Copy"" has a shortcut of ""c"")
-\tpublic override string shortcut {{ get {{ return """"; }} }}
+\tpublic override string Shortcut {{ get {{ return """"; }} }}
 
 \t// Which submenu this order displays in under /Help
-\tpublic override string type {{ get {{ return ""other""; }} }}
+\tpublic override string Type {{ get {{ return OrderTypes.Other; }} }}
 
 \t// Whether or not this order can be used in a museum. Block/map altering orders should return false to avoid errors.
-\tpublic override bool museumUsable {{ get {{ return true; }} }}
+\tpublic override bool MuseumUsable {{ get {{ return true; }} }}
 
 \t// The default rank required to use this order. Valid values are:
 \t//   LevelPermission.Guest, LevelPermission.Builder, LevelPermission.AdvBuilder,
 \t//   LevelPermission.Operator, LevelPermission.Admin, LevelPermission.Owner
-\tpublic override LevelPermission defaultRank {{ get {{ return LevelPermission.Guest; }} }}
+\tpublic override LevelPermission DefaultRank {{ get {{ return LevelPermission.Guest; }} }}
 
 \t// This is for when a player executes this order by doing /{0}
 \t//   p is the player object for the player executing the order. 
@@ -104,16 +122,16 @@ namespace MAX
 \tpublic class {0} : Addon
 \t{{
 \t\t// The addon's name (i.e what shows in /Addons)
-\t\tpublic override string name {{ get {{ return ""{0}""; }} }}
+\t\tpublic override string Name {{ get {{ return ""{0}""; }} }}
 
 \t\t// The oldest version of MAX this addon is compatible with
 \t\tpublic override string MAX_Version {{ get {{ return ""{2}""; }} }}
 
 \t\t// Message displayed in server logs when this addon is loaded
-\t\tpublic override string welcome {{ get {{ return ""Loaded Message!""; }} }}
+\t\tpublic override string Welcome {{ get {{ return ""Loaded Message!""; }} }}
 
 \t\t// Who created/authored this addon
-\t\tpublic override string creator {{ get {{ return ""{1}""; }} }}
+\t\tpublic override string Creator {{ get {{ return ""{1}""; }} }}
 
 \t\t// Called when this addon is being loaded (e.g. on server startup)
 \t\tpublic override void Load(bool startup)

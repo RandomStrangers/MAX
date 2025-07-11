@@ -15,50 +15,59 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-using BlockID = System.UInt16;
 
-namespace MAX.Orders.Building 
+
+namespace MAX.Orders.Building
 {
-    public sealed class OrdBind : Order2 
+    public class OrdBind : Order
     {
-        public override string name { get { return "Bind"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "Bind"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces();
             if (args.Length > 2) { Help(p); return; }
-            
-            if (args[0].CaselessEq("clear")) {
-                for (int b = 0; b < p.BlockBindings.Length; b++) {
-                    p.BlockBindings[b] = (BlockID)b;
+
+            if (args[0].CaselessEq("clear"))
+            {
+                for (int b = 0; b < p.BlockBindings.Length; b++)
+                {
+                    p.BlockBindings[b] = (ushort)b;
                 }
                 p.Message("All bindings were unbound.");
                 return;
             }
 
             if (!OrderParser.GetBlock(p, args[0], out ushort src)) return;
-            if (Block.IsPhysicsType(src)) {
-                p.Message("Physics blocks cannot be bound to another block."); return; 
+            if (Block.IsPhysicsType(src))
+            {
+                p.Message("Physics blocks cannot be bound to another block."); return;
             }
 
-            if (args.Length == 2) {
+            if (args.Length == 2)
+            {
                 if (!OrderParser.GetBlockIfAllowed(p, args[1], "bind a block to", out ushort dst)) return;
 
                 p.BlockBindings[src] = dst;
                 p.Message("{0} bound to {1}", Block.GetName(p, src), Block.GetName(p, dst));
-            } else {
-                if (p.BlockBindings[src] == src) { 
+            }
+            else
+            {
+                if (p.BlockBindings[src] == src)
+                {
                     p.Message("{0} is not bound.", Block.GetName(p, src)); return;
                 }
-                p.BlockBindings[src] = src; 
+                p.BlockBindings[src] = src;
                 p.Message("Unbound {0}.", Block.GetName(p, src));
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Bind [block] [replacement block]");
             p.Message("&HCauses [replacement] to be placed, whenever you place [block].");
             p.Message("&T/Bind [block] &H- Removes binding for [block].");

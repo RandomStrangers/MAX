@@ -14,21 +14,23 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-    <IntermediateOutputPath>..\obj\$(Configuration)\</IntermediateOutputPath>
+    <IntermediateOutputPath>..\obj\</IntermediateOutputPath>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>False</Optimize>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <BaseAddress>4194304</BaseAddress>
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
+    <LangVersion>7.3</LangVersion>
     <DefineConstants>
     </DefineConstants>
   </PropertyGroup>
@@ -47,8 +49,6 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="1.9.3.9\MultiPageOutput.cs" />
-    <Compile Include="1.9.3.9\Scripting\Addon_Simple.cs" />
     <Compile Include="Blocks\Behaviour\BlockBehaviour.cs" />
     <Compile Include="Blocks\Behaviour\DeleteBehaviour.cs" />
     <Compile Include="Blocks\Behaviour\PlaceBehaviour.cs" />
@@ -79,6 +79,13 @@
     <Compile Include="Chat\ChatTokens.cs" />
     <Compile Include="Chat\LineWrapper.cs" />
     <Compile Include="Chat\ProfanityFilter.cs" />
+    <Compile Include="Config\OtherNumberAttributes.cs" />
+    <Compile Include="Config\UnsignedNumberAttributes.cs" />
+    <Compile Include="Levels\IO\Exporters\FLvlExporter.cs" />
+    <Compile Include="Levels\IO\Exporters\MapExporter.cs" />
+    <Compile Include="Levels\IO\Exporters\PKLvlExporter.cs" />
+    <Compile Include="Levels\IO\Importers\FLvlImporter.cs" />
+    <Compile Include="Levels\IO\Importers\PKLvlImporter.cs" />
     <Compile Include="Orders\Added\OrdBye.cs" />
     <Compile Include="Orders\Added\OrdCCBeat.cs" />
     <Compile Include="Orders\Added\OrdDisconnect.cs" />
@@ -324,7 +331,7 @@
     <Compile Include="Orders\World\PermissionOrds.cs" />
     <Compile Include="Config\ConfigAttribute.cs" />
     <Compile Include="Config\JSON.cs" />
-    <Compile Include="Config\NumberAttributes.cs" />
+    <Compile Include="Config\SignedNumberAttributes.cs" />
     <Compile Include="Config\OtherAttributes.cs" />
     <Compile Include="Config\ConfigElement.cs" />
     <Compile Include="Config\Permissions\BlockPerms.cs" />
@@ -596,6 +603,7 @@
     <Compile Include="Server\Maintenance\ZipWriter.cs" />
     <Compile Include="util\Formatting\Wildcard.cs" />
     <Compile Include="util\ImageUtils.cs" />
+    <Compile Include="util\NumberUtils.cs" />
     <Compile Include="util\OperatingSystem.cs" />
     <Compile Include="Server\Server.cs" />
     <Compile Include="Server\Server.DB.cs" />
@@ -644,6 +652,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

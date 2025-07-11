@@ -12,69 +12,78 @@ BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied. See the Licenses for the specific language governing
 permissions and limitations under the Licenses.
  */
+using MAX.Events;
 using System;
 using System.Collections.Generic;
-using MAX.Events;
 
-namespace MAX {
-    public class SpamChecker {
-        
-        public SpamChecker(Player p) {
+namespace MAX
+{
+    public class SpamChecker
+    {
+
+        public SpamChecker(Player p)
+        {
             this.p = p;
             blockLog = new List<DateTime>(Server.Config.BlockSpamCount);
-            chatLog  = new List<DateTime>(Server.Config.ChatSpamCount);
-            ordLog   = new List<DateTime>(Server.Config.OrdSpamCount);
+            chatLog = new List<DateTime>(Server.Config.ChatSpamCount);
+            ordLog = new List<DateTime>(Server.Config.OrdSpamCount);
         }
 
         public Player p;
         public object chatLock = new object(), ordLock = new object();
         public List<DateTime> blockLog, chatLog, ordLog;
-        
-        public void Clear() {
+
+        public void Clear()
+        {
             blockLog.Clear();
             lock (chatLock)
                 chatLog.Clear();
             lock (ordLock)
                 ordLog.Clear();
         }
-        
-        public bool CheckBlockSpam() {
+
+        public bool CheckBlockSpam()
+        {
             if (p.ignoreGrief || !Server.Config.BlockSpamCheck) return false;
-            if (blockLog.AddSpamEntry(Server.Config.BlockSpamCount, Server.Config.BlockSpamInterval)) 
+            if (blockLog.AddSpamEntry(Server.Config.BlockSpamCount, Server.Config.BlockSpamInterval))
                 return false;
 
             TimeSpan oldestDelta = DateTime.UtcNow - blockLog[0];
             Chat.MessageFromOps(p, "λNICK &Wwas kicked for suspected griefing.");
 
-            Logger.Log(LogType.SuspiciousActivity, 
+            Logger.Log(LogType.SuspiciousActivity,
                        "{0} was kicked for block spam ({1} blocks in {2} seconds)",
                        p.name, blockLog.Count, oldestDelta);
             p.Kick("You were kicked by antigrief system. Slow down.");
-            return true;            
+            return true;
         }
-        
-        public bool CheckChatSpam() {
+
+        public bool CheckChatSpam()
+        {
             Player.lastMSG = p.name;
             if (!Server.Config.ChatSpamCheck || p.IsSuper) return false;
-            
-            lock (chatLock) {
-                if (chatLog.AddSpamEntry(Server.Config.ChatSpamCount, Server.Config.ChatSpamInterval)) 
+
+            lock (chatLock)
+            {
+                if (chatLog.AddSpamEntry(Server.Config.ChatSpamCount, Server.Config.ChatSpamInterval))
                     return false;
-                
+
                 TimeSpan duration = Server.Config.ChatSpamMuteTime;
                 ModAction action = new ModAction(p.name, Player.MAX, ModActionType.Muted, "&0Auto mute for spamming", duration);
                 OnModActionEvent.Call(action);
                 return true;
             }
         }
-        
-        public bool CheckOrderSpam() {
+
+        public bool CheckOrderSpam()
+        {
             if (!Server.Config.OrdSpamCheck || p.IsSuper) return false;
-            
-            lock (ordLock) {
-                if (ordLog.AddSpamEntry(Server.Config.OrdSpamCount, Server.Config.OrdSpamInterval)) 
+
+            lock (ordLock)
+            {
+                if (ordLog.AddSpamEntry(Server.Config.OrdSpamCount, Server.Config.OrdSpamInterval))
                     return false;
-                
+
                 string blockTime = Server.Config.OrdSpamBlockTime.Shorten(true, true);
                 p.Message("You have been blocked from using orders for "
                           + blockTime + " due to spamming");

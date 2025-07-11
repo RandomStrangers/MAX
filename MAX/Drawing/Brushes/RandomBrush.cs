@@ -15,27 +15,29 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Drawing.Ops;
-using BlockID = System.UInt16;
+using System;
 
-namespace MAX.Drawing.Brushes 
-{   
-    public sealed class RandomBrush : Brush 
+
+namespace MAX.Drawing.Brushes
+{
+    public class RandomBrush : Brush
     {
-        public BlockID[] blocks;
+        public ushort[] blocks;
         public int seed;
-        
-        public RandomBrush(BlockID[] blocks) {
+
+        public RandomBrush(ushort[] blocks)
+        {
             this.blocks = blocks;
             seed = new Random().Next();
         }
-        
+
         public override string Name { get { return "Random"; } }
 
         public int next;
         public const int mask = 0x7fffffff;
-        public override BlockID NextBlock(DrawOp op) {
+        public override ushort NextBlock(DrawOp op)
+        {
             // Sourced from http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
             int n = (op.Coords.X + 1217 * op.Coords.Y + 4751 * op.Coords.Z + 673 * seed) & mask;
             n = (n >> 13) ^ n;

@@ -21,11 +21,11 @@ namespace MAX.Compiling
 {
     public class OrdOrdCreate : OrdCompile
     {
-        public override string name { get { return "OrdCreate"; } }
-        public override string shortcut { get { return ""; } }
+        public override string Name { get { return "OrdCreate"; } }
+        public override string Shortcut { get { return ""; } }
         public override OrderDesignation[] Designations
         {
-            get { return new[] { new OrderDesignation("PCreate", "addon") }; }
+            get { return new[] { new OrderDesignation("ACreate", "addon") }; }
         }
 
         public override void CompileOrder(Player p, string[] paths, ICompiler compiler)
@@ -50,7 +50,7 @@ namespace MAX.Compiling
             p.Message("&HCreates an example C# order named Ord[name]");
             p.Message("&H  This can be used as the basis for creating a new order");
             p.Message("&T/OrdCreate addon [name]");
-            p.Message("&HCreate an example C# addon named [name]");
+            p.Message("&HCreates an example C# addon named [name]");
         }
     }
 }

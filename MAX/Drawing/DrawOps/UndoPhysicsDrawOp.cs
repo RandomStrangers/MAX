@@ -15,59 +15,73 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using MAX.Blocks.Physics;
 using MAX.Drawing.Brushes;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System;
 
-namespace MAX.Drawing.Ops 
+
+namespace MAX.Drawing.Ops
 {
-    public class UndoPhysicsDrawOp : DrawOp 
+    public class UndoPhysicsDrawOp : DrawOp
     {
         public override string Name { get { return "UndoPhysics"; } }
         public DateTime Start;
 
-        public UndoPhysicsDrawOp() {
+        public UndoPhysicsDrawOp()
+        {
             AffectedByTransform = false;
         }
-        
+
         public override int BlocksAffected(Level lvl, Vec3S32[] marks) { return -1; }
-        
-        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output) {
-            if (Level.UndoBuffer.Count != Server.Config.PhysicsUndo) {
+
+        public override void Perform(Vec3S32[] marks, Brush brush, DrawOpOutput output)
+        {
+            if (Level.UndoBuffer.Count != Server.Config.PhysicsUndo)
+            {
                 int count = Level.currentUndo;
-                for (int i = count; i >= 0; i--) {
-                    try {
-                        if (!CheckBlockPhysics(Player, Level, i)) break;
-                    } catch { }
+                for (int i = count; i >= 0; i--)
+                {
+                    try
+                    {
+                        if (!CheckBlockPhysics(Level, i)) break;
+                    }
+                    catch { }
                 }
-            } else {
+            }
+            else
+            {
                 int count = Level.currentUndo;
-                for (int i = count; i >= 0; i--) {
-                    try {
-                        if (!CheckBlockPhysics(Player, Level, i)) break;
-                    } catch { }
+                for (int i = count; i >= 0; i--)
+                {
+                    try
+                    {
+                        if (!CheckBlockPhysics(Level, i)) break;
+                    }
+                    catch { }
                 }
-                for (int i = Level.UndoBuffer.Count - 1; i > count; i--) {
-                    try {
-                        if (!CheckBlockPhysics(Player, Level, i)) break;
-                    } catch { }
+                for (int i = Level.UndoBuffer.Count - 1; i > count; i--)
+                {
+                    try
+                    {
+                        if (!CheckBlockPhysics(Level, i)) break;
+                    }
+                    catch { }
                 }
             }
         }
 
-        public bool CheckBlockPhysics(Player p, Level lvl, int i) {
+        public bool CheckBlockPhysics(Level lvl, int i)
+        {
             Level.UndoPos undo = lvl.UndoBuffer[i];
             if (undo.Time < Start) return false;
-            
-            ushort x, y, z;
-            lvl.IntToPos(undo.Index, out x, out y, out z);
-            BlockID cur = lvl.GetBlock(x, y, z);
-            
-            BlockID newBlock = undo.NewBlock;
-            if (cur == newBlock || Block.Convert(cur) == Block.Water || Block.Convert(cur) == Block.Lava) {
-                lvl.Blockchange(x, y, z, undo.OldBlock, true, default(PhysicsArgs), false);
+
+            lvl.IntToPos(undo.Index, out ushort x, out ushort y, out ushort z);
+            ushort cur = lvl.GetBlock(x, y, z);
+
+            ushort newBlock = undo.NewBlock;
+            if (cur == newBlock || Block.Convert(cur) == Block.Water || Block.Convert(cur) == Block.Lava)
+            {
+                lvl.Blockchange(x, y, z, undo.OldBlock, true, default, false);
             }
             return true;
         }

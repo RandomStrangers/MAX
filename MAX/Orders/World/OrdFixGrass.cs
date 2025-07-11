@@ -18,30 +18,42 @@
  */
 using MAX.Drawing.Ops;
 using MAX.Maths;
-using BlockID = System.UInt16;
 
-namespace MAX.Orders.World {
-    public sealed class OrdFixGrass : Order2 {
-        public override string name { get { return "FixGrass"; } }
-        public override string shortcut { get { return "fg"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+
+namespace MAX.Orders.World
+{
+    public class OrdFixGrass : Order
+    {
+        public override string Name { get { return "FixGrass"; } }
+        public override string Shortcut { get { return "fg"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             FixGrassDrawOp op = new FixGrassDrawOp();
-            
-            if (message.Length == 0) {
-                op.FixDirt   = true;
-                op.FixGrass  = true;
-            } else if (message.CaselessEq("light")) {
+
+            if (message.Length == 0)
+            {
+                op.FixDirt = true;
+                op.FixGrass = true;
+            }
+            else if (message.CaselessEq("light"))
+            {
                 op.LightMode = true;
-            } else if (message.CaselessEq("grass")) {
-                op.FixGrass  = true;
-            } else if (message.CaselessEq("dirt")) {
-                op.FixDirt   = true;
-            } else {
+            }
+            else if (message.CaselessEq("grass"))
+            {
+                op.FixGrass = true;
+            }
+            else if (message.CaselessEq("dirt"))
+            {
+                op.FixDirt = true;
+            }
+            else
+            {
                 Help(p); return;
             }
 
@@ -49,15 +61,17 @@ namespace MAX.Orders.World {
             p.MakeSelection(2, "Selecting corners for &SFixGrass", op, DoFixGrass);
         }
 
-        public bool DoFixGrass(Player p, Vec3S32[] marks, object state, BlockID block) {
+        public bool DoFixGrass(Player p, Vec3S32[] marks, object state, ushort block)
+        {
             FixGrassDrawOp op = (FixGrassDrawOp)state;
             op.AlwaysUsable = true;
-            
+
             DrawOpPerformer.Do(op, null, p, marks, false);
             return false;
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/FixGrass &H- Turns grass with something on top to dirt, and turns dirt with nothing on top to grass");
             p.Message("&T/FixGrass light &H- Only dirt/grass in sunlight becomes grass");
             p.Message("&T/FixGrass grass &H- Turns grass with something on top to dirt");

@@ -15,24 +15,27 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.IO;
 using MAX.Blocks;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System.IO;
 
-namespace MAX 
+
+namespace MAX
 {
-    public static partial class Block 
+    public static partial class Block
     {
-        public static bool Walkthrough(BlockID block) {
+        public static bool Walkthrough(ushort block)
+        {
             return block == Air || block == Sapling || block == Snow
                 || block == Fire || block == Rope
                 || (block >= Water && block <= StillLava)
                 || (block >= Dandelion && block <= RedMushroom);
         }
 
-        public static bool AllowBreak(BlockID block) {
-            switch (block) {
+        public static bool AllowBreak(ushort block)
+        {
+            switch (block)
+            {
                 case Portal_Blue:
                 case Portal_Orange:
 
@@ -87,8 +90,10 @@ namespace MAX
             return false;
         }
 
-        public static bool LightPass(BlockID block) {
-            switch (Convert(block)) {
+        public static bool LightPass(ushort block)
+        {
+            switch (Convert(block))
+            {
                 case Air:
                 case Glass:
                 case Leaves:
@@ -103,7 +108,8 @@ namespace MAX
             return false;
         }
 
-        public static bool NeedRestart(BlockID block) {
+        public static bool NeedRestart(ushort block)
+        {
             switch (block)
             {
                 case Train:
@@ -115,7 +121,7 @@ namespace MAX
                 case Air_FloodDown:
                 case Air_FloodUp:
                 case Air_FloodLayer:
-                    
+
                 case LavaFire:
                 case RocketHead:
                 case Fireworks:
@@ -144,71 +150,83 @@ namespace MAX
             }
             return false;
         }
-        
-        public static AABB BlockAABB(BlockID block, Level lvl) {
+
+        public static AABB BlockAABB(ushort block, Level lvl)
+        {
             BlockDefinition def = lvl.GetBlockDef(block);
-            if (def != null) {
+            if (def != null)
+            {
                 return new AABB(def.MinX * 2, def.MinZ * 2, def.MinY * 2,
                                 def.MaxX * 2, def.MaxZ * 2, def.MaxY * 2);
             }
-            
+
             if (block >= Extended) return new AABB(0, 0, 0, 32, 32, 32);
-            BlockID core = Convert(block);
+            ushort core = Convert(block);
             return new AABB(0, 0, 0, 32, DefaultSet.Height(core) * 2, 32);
-        }        
-        
-        public static void SetBlocks() {
+        }
+
+        public static void SetBlocks()
+        {
             BlockProps[] props = Props;
-            for (int b = 0; b < props.Length; b++) 
+            for (int b = 0; b < props.Length; b++)
             {
-                props[b] = MakeDefaultProps((BlockID)b);
+                props[b] = MakeDefaultProps((ushort)b);
             }
-            
+
             SetDefaultNames();
             string propsPath = Paths.BlockPropsPath("default");
-                
+
             // backwards compatibility with older versions
-            if (!File.Exists(propsPath)) {
-                BlockProps.Load("core",    Props, 1, false);
-                BlockProps.Load("global",  Props, 1, true);
-            } else {
+            if (!File.Exists(propsPath))
+            {
+                BlockProps.Load("core", Props, 1, false);
+                BlockProps.Load("global", Props, 1, true);
+            }
+            else
+            {
                 BlockProps.Load("default", Props, 1, false);
             }
-            
+
             UpdateLoadedLevels();
         }
-        
-        public static void UpdateLoadedLevels() {
+
+        public static void UpdateLoadedLevels()
+        {
             Level[] loaded = LevelInfo.Loaded.Items;
-            foreach (Level lvl in loaded) 
+            foreach (Level lvl in loaded)
             {
                 lvl.UpdateBlockProps();
                 lvl.UpdateAllBlockHandlers();
             }
         }
-        
+
         /// <summary> Converts a raw/client block ID to a server block ID </summary>
-        public static BlockID FromRaw(BlockID raw) {
-            return raw < CPE_COUNT ? raw : (BlockID)(raw + Extended);
+        public static ushort FromRaw(ushort raw)
+        {
+            return raw < CPE_COUNT ? raw : (ushort)(raw + Extended);
         }
-        
+
         /// <summary> Converts a server block ID to a raw/client block ID </summary>
         /// <remarks> Undefined behaviour for physics block IDs </remarks>
-        public static BlockID ToRaw(BlockID raw) {
-            return raw < CPE_COUNT ? raw : (BlockID)(raw - Extended);
+        public static ushort ToRaw(ushort raw)
+        {
+            return raw < CPE_COUNT ? raw : (ushort)(raw - Extended);
         }
-        
-        public static BlockID MapOldRaw(BlockID raw) {
+
+        public static ushort MapOldRaw(ushort raw)
+        {
             // old raw form was: 0 - 65 core block ids, 66 - 255 custom block ids
             // 256+ remain unchanged
-            return IsPhysicsType(raw) ? ((BlockID)(raw + Extended)) : raw;
+            return IsPhysicsType(raw) ? ((ushort)(raw + Extended)) : raw;
         }
-        
-        public static bool IsPhysicsType(BlockID block) {
+
+        public static bool IsPhysicsType(ushort block)
+        {
             return block >= CPE_COUNT && block < Extended;
         }
-        
-        public static bool VisuallyEquals(BlockID a, BlockID b) {
+
+        public static bool VisuallyEquals(ushort a, ushort b)
+        {
             return Convert(a) == Convert(b);
         }
     }

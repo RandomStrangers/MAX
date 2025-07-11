@@ -29,32 +29,42 @@ using SixLabors.ImageSharp.Processing.Processors.Transforms;
 #endif
 using System.IO;
 
-namespace MAX.Util 
+namespace MAX.Util
 {
     public delegate Pixel PixelGet(int x, int y);
-    public delegate void  PixelSet(int x, int y, Pixel pixel);
+    public delegate void PixelSet(int x, int y, Pixel pixel);
     public struct Pixel { public byte A, R, G, B; }
 
     /// <summary> Represents a 2D image </summary>
     /// <remarks> Backing implementation depends on whether running on dotnet or .NET </remarks>
-    public abstract class IBitmap2D : IDisposable
+    public class IBitmap2D : IDisposable
     {
         public int Width, Height;
         public PixelGet Get;
         public PixelSet Set;
-        
+
         /// <summary> Retrieves the raw underlying image representation </summary>
-        public abstract object RawImage { get; }
+        public virtual object RawImage { get; }
 
-        public abstract void Decode(byte[] data);
+        public virtual void Decode(byte[] data)
+        {
+        }
 
-        public abstract void Resize(int width, int height, bool highQuality);
+        public virtual void Resize(int width, int height, bool highQuality)
+        {
+        }
 
-        public abstract void LockBits();
+        public virtual void LockBits()
+        {
+        }
 
-        public abstract void UnlockBits();
+        public virtual void UnlockBits()
+        {
+        }
 
-        public abstract void Dispose();
+        public virtual void Dispose()
+        {
+        }
 
 #if !MAX_DOTNET
         public static IBitmap2D Create() { return new GDIPlusBitmap(); }
@@ -63,19 +73,19 @@ namespace MAX.Util
 #endif
     }
 
-    public static class ImageUtils 
-    {       
-        public static IBitmap2D DecodeImage(byte[] data, Player p) 
+    public static class ImageUtils
+    {
+        public static IBitmap2D DecodeImage(byte[] data, Player p)
         {
             IBitmap2D bmp = null;
-            try 
+            try
             {
                 bmp = IBitmap2D.Create();
                 bmp.Decode(data);
                 return bmp;
-            } 
-           catch (ArgumentException ex) 
-           {
+            }
+            catch (ArgumentException ex)
+            {
                 // GDI+ throws ArgumentException when data is not an image
                 // This is a fairly expected error - e.g. when a user tries to /imgprint
                 //   the webpage an image is hosted on, instead of the actual image itself. 
@@ -83,18 +93,18 @@ namespace MAX.Util
                 Logger.Log(LogType.Warning, "Error decoding image: " + ex.Message);
                 OnDecodeError(p, bmp);
                 return null;
-            } 
-           catch (Exception ex) 
-           {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error decoding image", ex);
                 OnDecodeError(p, bmp);
                 return null;
             }
         }
 
-        public static void OnDecodeError(Player p, IBitmap2D bmp) 
+        public static void OnDecodeError(Player p, IBitmap2D bmp)
         {
-            if (bmp != null) bmp.Dispose();
+            bmp?.Dispose();
             // TODO failed to decode the image. make sure you are using the URL of the image directly, not just the webpage it is hosted on              
             p.Message("&WThere was an error reading the downloaded image.");
             p.Message("&WThe url may need to end with its extension (such as .jpg).");
@@ -103,30 +113,30 @@ namespace MAX.Util
 
 
 #if !MAX_DOTNET
-    public unsafe sealed class GDIPlusBitmap : IBitmap2D
+    public unsafe class GDIPlusBitmap : IBitmap2D
     {
         public Image img;
         public Bitmap bmp;
         public BitmapData data;
         public byte* scan0;
         public int stride;
-        
+
         public override object RawImage { get { return bmp; } }
 
-        public override void Decode(byte[] data) 
+        public override void Decode(byte[] data)
         {
             Image tmp = Image.FromStream(new MemoryStream(data));
             SetBitmap(tmp);
         }
 
-        public override void Resize(int width, int height, bool hq) 
+        public override void Resize(int width, int height, bool hq)
         {
             Bitmap resized = new Bitmap(width, height);
             // https://photosauce.net/blog/post/image-scaling-with-gdi-part-3-drawimage-and-the-settings-that-affect-it
-            using (Graphics g = Graphics.FromImage(resized)) 
+            using (Graphics g = Graphics.FromImage(resized))
             {
                 g.InterpolationMode = hq ? InterpolationMode.HighQualityBicubic : InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode   = hq ? PixelOffsetMode.HighQuality          : PixelOffsetMode.None;
+                g.PixelOffsetMode = hq ? PixelOffsetMode.HighQuality : PixelOffsetMode.None;
                 g.DrawImage(bmp, 0, 0, width, height);
             }
 
@@ -134,7 +144,7 @@ namespace MAX.Util
             SetBitmap(resized);
         }
 
-        public void SetBitmap(Image src) 
+        public void SetBitmap(Image src)
         {
             img = src;
             // although rare, possible src might actually be a Metafile instead
@@ -142,88 +152,88 @@ namespace MAX.Util
 
             // NOTE: sometimes Mono will return an invalid bitmap instance that
             //  throws ArgumentNullException when trying to access Width/Height
-            Width  = src.Width;
+            Width = src.Width;
             Height = src.Height;
         }
 
-        public override void Dispose() 
+        public override void Dispose()
         {
             UnlockBits();
-            if (img != null) img.Dispose();
+            img?.Dispose();
 
             img = null;
             bmp = null;
         }
 
 
-        public override void LockBits() 
+        public override void LockBits()
         {
             bool fastPath = bmp.PixelFormat == PixelFormat.Format32bppRgb
                          || bmp.PixelFormat == PixelFormat.Format32bppArgb
                          || bmp.PixelFormat == PixelFormat.Format24bppRgb;
-            
+
             Get = GetGenericPixel;
             Set = SetGenericPixel;
             if (!fastPath) return;
             // We can only use the fast path for 24bpp or 32bpp bitmaps
-            
+
             Rectangle r = new Rectangle(0, 0, bmp.Width, bmp.Height);
-            data   = bmp.LockBits(r, ImageLockMode.ReadOnly, bmp.PixelFormat);
-            scan0  = (byte*)data.Scan0;
+            data = bmp.LockBits(r, ImageLockMode.ReadOnly, bmp.PixelFormat);
+            scan0 = (byte*)data.Scan0;
             stride = data.Stride;
-            
-            if (bmp.PixelFormat == PixelFormat.Format24bppRgb) 
+
+            if (bmp.PixelFormat == PixelFormat.Format24bppRgb)
             {
                 Get = Get24BppPixel;
-            } 
-            else 
+            }
+            else
             {
                 Get = Get32BppPixel;
             }
         }
 
-        public override void UnlockBits() 
+        public override void UnlockBits()
         {
             if (data != null) bmp.UnlockBits(data);
             data = null;
         }
-        
-        
-        Pixel GetGenericPixel(int x, int y) 
+
+
+        public Pixel GetGenericPixel(int x, int y)
         {
             Pixel p;
             int argb = bmp.GetPixel(x, y).ToArgb(); // R/G/B properties incur overhead  
-            
+
             p.A = (byte)(argb >> 24);
             p.R = (byte)(argb >> 16);
             p.G = (byte)(argb >> 8);
             p.B = (byte)argb;
             return p;
         }
-        
-        public void SetGenericPixel(int x, int y, Pixel p) 
+
+        public void SetGenericPixel(int x, int y, Pixel p)
         {
             bmp.SetPixel(x, y, Color.FromArgb(p.A, p.R, p.G, p.B));
         }
-        
-        Pixel Get24BppPixel(int x, int y) 
+
+        public Pixel Get24BppPixel(int x, int y)
         {
             Pixel p;
-            byte* ptr = (scan0 + y * stride) + (x * 3);
+            byte* ptr = scan0 + y * stride + (x * 3);
             p.B = ptr[0]; p.G = ptr[1]; p.R = ptr[2]; p.A = 255;
             return p;
         }
-        
-        Pixel Get32BppPixel(int x, int y) 
+
+        public Pixel Get32BppPixel(int x, int y)
         {
             Pixel p;
-            byte* ptr = (scan0 + y * stride) + (x * 4);            
+            byte* ptr = scan0 + y * stride + (x * 4);
             p.B = ptr[0]; p.G = ptr[1]; p.R = ptr[2]; p.A = ptr[3];
             return p;
         }
     }
 #else
-    public unsafe sealed class ImageSharpBitmap : IBitmap2D
+    public unsafe class ImageSharpBitmap : IBitmap2D
     {
         public Image<Rgba32> img;
         
@@ -251,7 +261,7 @@ namespace MAX.Util
             Height = img.Height;
         }
 
-        Pixel GetPixel(int x, int y) 
+        public Pixel GetPixel(int x, int y) 
         {
             Pixel p;
             Rgba32 src = img[x, y];

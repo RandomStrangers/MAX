@@ -15,81 +15,107 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.IO;
 using MAX.Orders;
 using MAX.SQL;
+using System;
+using System.IO;
 
-namespace MAX 
+namespace MAX
 {
-    public static class SrvProperties 
+    public static class SrvProperties
     {
-        public static void Load() {
+        public static void Load()
+        {
             old = new OldPerms();
             PropertiesFile.Read(Paths.ServerPropsFile, ref old, LineProcessor);
-            
+
             ApplyChanges();
             Save();
         }
-        
-        public static void ApplyChanges() {
+
+        public static void ApplyChanges()
+        {
             if (!Directory.Exists(Server.Config.BackupDirectory))
                 Server.Config.BackupDirectory = "levels/backups";
-            
+
             Server.SettingsUpdate();
             Database.UpdateActiveBackend();
             Server.SetMainLevel(Server.Config.MainLevel);
         }
 
-        public static void LineProcessor(string key, string value, ref OldPerms perms) {
+        public static void LineProcessor(string key, string value, ref OldPerms perms)
+        {
             // Backwards compatibility: some order extra permissions used to be part of server.properties
             // Backwards compatibility: map generation volume used to be part of server.properties
-            if (key.CaselessEq("review-view-perm")) {
+            if (key.CaselessEq("review-view-perm"))
+            {
                 perms.viewPerm = int.Parse(value);
-            } else if (key.CaselessEq("review-next-perm")) {
+            }
+            else if (key.CaselessEq("review-next-perm"))
+            {
                 perms.nextPerm = int.Parse(value);
-            } else if (key.CaselessEq("review-clear-perm")) {
+            }
+            else if (key.CaselessEq("review-clear-perm"))
+            {
                 perms.clearPerm = int.Parse(value);
-            } else if (key.CaselessEq("opchat-perm")) {
+            }
+            else if (key.CaselessEq("opchat-perm"))
+            {
                 perms.opchatPerm = int.Parse(value);
-            } else if (key.CaselessEq("adminchat-perm")) {
+            }
+            else if (key.CaselessEq("adminchat-perm"))
+            {
                 perms.adminchatPerm = int.Parse(value);
-            } else if (key.CaselessEq("map-gen-limit-admin")) {
+            }
+            else if (key.CaselessEq("map-gen-limit-admin"))
+            {
                 perms.mapGenLimitAdmin = int.Parse(value);
-            } else if (key.CaselessEq("map-gen-limit")) {
+            }
+            else if (key.CaselessEq("map-gen-limit"))
+            {
                 perms.mapGenLimit = int.Parse(value);
-            } else if (key.CaselessEq("afk-kick")) {
+            }
+            else if (key.CaselessEq("afk-kick"))
+            {
                 perms.afkKickMins = int.Parse(value);
-            } else if (key.CaselessEq("afk-kick-perm")) {
+            }
+            else if (key.CaselessEq("afk-kick-perm"))
+            {
                 perms.afkKickMax = Group.ParsePermOrName(value, LevelPermission.AdvBuilder);
-            } else {
+            }
+            else
+            {
                 ConfigElement.Parse(Server.serverConfig, Server.Config, key, value);
             }
         }
 
 
         public static OldPerms old;
-        public class OldPerms {
+        public class OldPerms
+        {
             public int viewPerm = -1, nextPerm = -1, clearPerm = -1, opchatPerm = -1, adminchatPerm = -1;
             public int mapGenLimit = -1, mapGenLimitAdmin = -1;
             public int afkKickMins = -1; public LevelPermission afkKickMax = LevelPermission.Banned;
         }
 
-        public static void FixupOldPerms() {
+        public static void FixupOldPerms()
+        {
             SetOldReview();
             if (old.mapGenLimit != -1) SetOldGenVolume();
             if (old.mapGenLimitAdmin != -1) SetOldGenVolumeAdmin();
             if (old.afkKickMins != -1) SetOldAfkKick();
-            
-            if (old.mapGenLimit != -1 || old.mapGenLimitAdmin != -1 || old.afkKickMins != -1) {
+
+            if (old.mapGenLimit != -1 || old.mapGenLimitAdmin != -1 || old.afkKickMins != -1)
+            {
                 Group.SaveAll(Group.GroupList);
             }
         }
 
-        public static void SetOldReview() {
+        public static void SetOldReview()
+        {
             if (old.clearPerm == -1 && old.nextPerm == -1 && old.viewPerm == -1
                 && old.opchatPerm == -1 && old.adminchatPerm == -1) return;
-            
+
             // Apply backwards compatibility
             if (old.viewPerm != -1)
                 OrderExtraPerms.Find("Review", 1).MinRank = (LevelPermission)old.viewPerm;
@@ -98,30 +124,38 @@ namespace MAX
             if (old.clearPerm != -1)
                 OrderExtraPerms.Find("Review", 3).MinRank = (LevelPermission)old.clearPerm;
             if (old.opchatPerm != -1)
-                Chat.OpchatPerms.MinRank    = (LevelPermission)old.opchatPerm;
+                Chat.OpchatPerms.MinRank = (LevelPermission)old.opchatPerm;
             if (old.adminchatPerm != -1)
                 Chat.AdminchatPerms.MinRank = (LevelPermission)old.adminchatPerm;
             OrderExtraPerms.Save();
         }
 
-        public static void SetOldGenVolume() {
-            foreach (Group grp in Group.GroupList) {
-                if (grp.Permission < LevelPermission.Admin) {
+        public static void SetOldGenVolume()
+        {
+            foreach (Group grp in Group.GroupList)
+            {
+                if (grp.Permission < LevelPermission.Admin)
+                {
                     grp.GenVolume = old.mapGenLimit;
                 }
             }
         }
 
-        public static void SetOldGenVolumeAdmin() {
-            foreach (Group grp in Group.GroupList) {
-                if (grp.Permission >= LevelPermission.Admin) {
+        public static void SetOldGenVolumeAdmin()
+        {
+            foreach (Group grp in Group.GroupList)
+            {
+                if (grp.Permission >= LevelPermission.Admin)
+                {
                     grp.GenVolume = old.mapGenLimitAdmin;
                 }
             }
         }
 
-        public static void SetOldAfkKick() {
-            foreach (Group grp in Group.GroupList) {
+        public static void SetOldAfkKick()
+        {
+            foreach (Group grp in Group.GroupList)
+            {
                 grp.AfkKickTime = TimeSpan.FromMinutes(old.afkKickMins);
                 // 0 minutes had the special meaning of 'not AFK kicked'
                 grp.AfkKicked = old.afkKickMins > 0 && grp.Permission < old.afkKickMax;
@@ -130,18 +164,24 @@ namespace MAX
 
 
         public static object saveLock = new object();
-        public static void Save() {
-            try {
-                lock (saveLock) {
+        public static void Save()
+        {
+            try
+            {
+                lock (saveLock)
+                {
                     using (StreamWriter w = new StreamWriter(Paths.ServerPropsFile))
                         SaveProps(w);
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.LogError("Error saving " + Paths.ServerPropsFile, ex);
             }
         }
 
-        public static void SaveProps(StreamWriter w) {
+        public static void SaveProps(StreamWriter w)
+        {
             w.WriteLine("# Edit the settings below to modify how your server operates.");
             w.WriteLine("#");
             w.WriteLine("# Explanation of Server settings:");
@@ -162,7 +202,7 @@ namespace MAX
             w.WriteLine("#   irc-channel                   = The channel to join");
             w.WriteLine("#   irc-opchannel                 = The channel to join (posts OpChat)");
             w.WriteLine("#   irc-port                      = The port to use to connect");
-            w.WriteLine("#   irc-identify                  = (true/false)    Do you want the IRC bot to Identify itself with nickserv. Note: You will need to register it's name with nickserv manually.");
+            w.WriteLine("#   irc-identify                  = (true/false)    Do you want the IRC bot to Identify itself with nickserv. Note: You will need to register its name with nickserv manually.");
             w.WriteLine("#   irc-password                  = The password you want to use if you're identifying with nickserv");
             w.WriteLine("# Explanation of Backup settings:");
             w.WriteLine("#   backup-time                   = The number of seconds between automatic backups");
@@ -199,7 +239,7 @@ namespace MAX
             w.WriteLine("#   spam-mute-time                = 60");
             w.WriteLine("#   spam-counter-reset-time       = 2");
             w.WriteLine();
-            
+
             ConfigElement.Serialise(Server.serverConfig, w, Server.Config);
         }
     }

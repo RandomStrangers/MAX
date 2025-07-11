@@ -17,24 +17,31 @@
  */
 using System.IO;
 
-namespace MAX.Orders.World {
-    public sealed class OrdRestore : Order2 {        
-        public override string name { get { return "Restore"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.World
+{
+    public class OrdRestore : Order
+    {
+        public override string Name { get { return "Restore"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool MessageBlockRestricted { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { LevelOperations.OutputBackups(p, p.level); return; }
-            
+
             Level lvl;
             string[] args = message.SplitSpaces();
-            if (args.Length >= 2) {
+            if (args.Length >= 2)
+            {
                 lvl = Matcher.FindLevels(p, args[1]);
                 if (lvl == null) return;
-            } else {
-                if (p.IsSuper) {
+            }
+            else
+            {
+                if (p.IsSuper)
+                {
                     SuperRequiresArgs(p, "level name"); return;
                 }
                 lvl = p.level;
@@ -42,31 +49,40 @@ namespace MAX.Orders.World {
 
             if (!LevelInfo.Check(p, data.Rank, lvl, "restore a backup of this level")) return;
             string path = LevelInfo.BackupFilePath(lvl.name, args[0]);
-            
-            if (File.Exists(path)) {
+
+            if (File.Exists(path))
+            {
                 DoRestore(lvl, args[0]);
-            } else {
-                p.Message("Backup {0} does not exist.", args[0]); 
+            }
+            else
+            {
+                p.Message("Backup {0} does not exist.", args[0]);
                 LevelOperations.OutputBackups(p, lvl);
             }
         }
 
-        public static void DoRestore(Level lvl, string backup) {
-            lock (lvl.saveLock) {
+        public static void DoRestore(Level lvl, string backup)
+        {
+            lock (lvl.saveLock)
+            {
                 File.Copy(LevelInfo.BackupFilePath(lvl.name, backup), LevelInfo.MapPath(lvl.name), true);
                 lvl.SaveChanges = false;
             }
-            
+
             Level restore = Level.Load(lvl.name);
-            if (restore != null) {
+            if (restore != null)
+            {
                 LevelActions.Replace(lvl, restore);
-            } else {
+            }
+            else
+            {
                 Logger.Log(LogType.Warning, "Restore nulled");
                 File.Copy(LevelInfo.MapPath(lvl.name) + ".backup", LevelInfo.MapPath(lvl.name), true);
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Restore &H- lists all backups for the current level");
             p.Message("&T/Restore [number] <level>");
             p.Message("&HRestores a previous backup for the given level.");

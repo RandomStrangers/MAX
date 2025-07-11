@@ -12,13 +12,13 @@ BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied. See the Licenses for the specific language governing
 permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using MAX.Events.PlayerEvents;
 using MAX.Events.ServerEvents;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
 
 namespace MAX.Network
 {
@@ -61,9 +61,9 @@ namespace MAX.Network
             }
         }
 
-        public BlockID ReadBlock(byte[] buffer, int offset)
+        public ushort ReadBlock(byte[] buffer, int offset)
         {
-            BlockID block;
+            ushort block;
             if (hasExtBlocks)
             {
                 block = NetUtils.ReadU16(buffer, offset);
@@ -130,7 +130,7 @@ namespace MAX.Network
                 player.Leave("Unknown block action!", true); return left;
             }
 
-            BlockID held = ReadBlock(buffer, offset + 8);
+            ushort held = ReadBlock(buffer, offset + 8);
             player.ProcessBlockchange(x, y, z, action, held);
             return size;
         }
@@ -192,7 +192,6 @@ namespace MAX.Network
             CpeExt ext = FindExtension(extName);
             return ext != null && ext.ClientVersion == version;
         }
-
         public CpeExt FindExtension(string extName)
         {
             foreach (CpeExt ext in extensions)
@@ -436,9 +435,8 @@ namespace MAX.Network
 
         public override void SendChat(string message)
         {
-            int bufferLen;
             // See comment in CleanupColors
-            char[] buffer = LineWrapper.CleanupColors(message, out bufferLen,
+            char[] buffer = LineWrapper.CleanupColors(message, out int bufferLen,
                                                       hasTextColors, hasTextColors);
             List<string> lines = LineWrapper.Wordwrap(buffer, bufferLen, hasEmoteFix);
 
@@ -504,11 +502,11 @@ namespace MAX.Network
             return true;
         }
 
-        public override bool SendHoldThis(BlockID block, bool locked)
+        public override bool SendHoldThis(ushort block, bool locked)
         {
             if (!hasHeldBlock) return false;
 
-            BlockID raw = ConvertBlock(block);
+            ushort raw = ConvertBlock(block);
             Send(Packet.HoldThis(raw, locked, hasExtBlocks));
             return true;
         }
@@ -517,8 +515,7 @@ namespace MAX.Network
         {
             if (!Supports(CpeExt.EnvColors)) return false;
 
-            ColorDesc c;
-            if (Colors.TryParseHex(hex, out c))
+            if (Colors.TryParseHex(hex, out ColorDesc c))
             {
                 Send(Packet.EnvColor(type, c.R, c.G, c.B));
             }
@@ -531,10 +528,9 @@ namespace MAX.Network
 
         public override void SendChangeModel(byte id, string model)
         {
-            BlockID raw;
-            if (BlockID.TryParse(model, out raw) && raw > MaxRawBlock)
+            if (ushort.TryParse(model, out ushort raw) && raw > MaxRawBlock)
             {
-                BlockID block = Block.FromRaw(raw);
+                ushort block = Block.FromRaw(raw);
                 if (block >= Block.SUPPORTED_COUNT)
                 {
                     model = "humanoid"; // invalid block ids
@@ -727,7 +723,7 @@ namespace MAX.Network
         #endregion
 
 
-        public override void SendBlockchange(ushort x, ushort y, ushort z, BlockID block)
+        public override void SendBlockchange(ushort x, ushort y, ushort z, ushort block)
         {
             byte[] buffer = new byte[hasExtBlocks ? 9 : 8];
             buffer[0] = Opcode.SetBlock;
@@ -735,7 +731,7 @@ namespace MAX.Network
             NetUtils.WriteU16(y, buffer, 3);
             NetUtils.WriteU16(z, buffer, 5);
 
-            BlockID raw = ConvertBlock(block);
+            ushort raw = ConvertBlock(block);
             NetUtils.WriteBlock(raw, buffer, 7, hasExtBlocks);
             socket.Send(buffer, SendFlags.LowPriority);
         }
@@ -779,7 +775,7 @@ namespace MAX.Network
         }
 
         // TODO modularise and move common code back into Entities.cs
-        public unsafe override void UpdatePlayerPositions()
+        public override unsafe void UpdatePlayerPositions()
         {
             Player[] players = PlayerInfo.Online.Items;
             byte* src = stackalloc byte[16 * 256]; // 16 = size of absolute update, with extended positions

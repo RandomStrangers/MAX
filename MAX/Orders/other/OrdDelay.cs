@@ -18,26 +18,32 @@
 using System;
 using System.Threading;
 
-namespace MAX.Orders.Misc {
-    public sealed class OrdDelay : Order2 {
-        public override string name { get { return "Delay"; } }
-        public override string type { get { return OrderTypes.Other; } }
+namespace MAX.Orders.Misc
+{
+    public class OrdDelay : Order
+    {
+        public override string Name { get { return "Delay"; } }
+        public override string Type { get { return OrderTypes.Other; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             TimeSpan duration = TimeSpan.Zero;
             if (!OrderParser.GetTimespan(p, message, ref duration, "wait for", "ms")) return;
-            
-            if (duration.TotalSeconds > 60) {
+
+            if (duration.TotalSeconds > 60)
+            {
                 p.Message("&WCan only wait for a minute at most."); return;
             }
 
-            if (data.Context != OrderContext.MessageBlock) {
+            if (data.Context != OrderContext.MessageBlock)
+            {
                 p.Message("&WThis order can only be used in message blocks."); return;
             }
             Thread.Sleep((int)duration.TotalMilliseconds);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Delay [timespan]");
             p.Message("&HWaits for a certain amount of time.");
             p.Message("&HUse to run a order after a certain delay in a &T/MB");

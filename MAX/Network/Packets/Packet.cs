@@ -15,9 +15,9 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System;
+
 
 namespace MAX.Network
 {
@@ -172,7 +172,7 @@ namespace MAX.Network
             return buffer;
         }
 
-        public static byte[] HoldThis(BlockID raw, bool locked, bool extBlocks)
+        public static byte[] HoldThis(ushort raw, bool locked, bool extBlocks)
         {
             byte[] buffer = new byte[extBlocks ? 4 : 3];
             buffer[0] = Opcode.CpeHoldThis;
@@ -268,14 +268,14 @@ namespace MAX.Network
             return buffer;
         }
 
-        public static byte[] BlockPermission(BlockID raw, bool place, bool delete, bool extBlocks)
+        public static byte[] BlockPermission(ushort raw, bool place, bool delete, bool extBlocks)
         {
             byte[] buffer = new byte[extBlocks ? 5 : 4];
             WriteBlockPermission(raw, place, delete, extBlocks, buffer, 0);
             return buffer;
         }
 
-        public static void WriteBlockPermission(BlockID raw, bool place, bool delete, bool extBlocks, byte[] buffer, int index)
+        public static void WriteBlockPermission(ushort raw, bool place, bool delete, bool extBlocks, byte[] buffer, int index)
         {
             buffer[index++] = Opcode.CpeSetBlockPermission;
             NetUtils.WriteBlock(raw, buffer, index, extBlocks);
@@ -418,7 +418,7 @@ namespace MAX.Network
             return buffer;
         }
 
-        public static byte[] SetInventoryOrder(BlockID rawId, BlockID rawOrder, bool extBlocks)
+        public static byte[] SetInventoryOrder(ushort rawId, ushort rawOrder, bool extBlocks)
         {
             byte[] buffer = new byte[extBlocks ? 5 : 3];
             buffer[0] = Opcode.CpeSetInventoryOrder;
@@ -427,7 +427,7 @@ namespace MAX.Network
             return buffer;
         }
 
-        public static byte[] SetHotbar(BlockID rawId, byte slot, bool extBlocks)
+        public static byte[] SetHotbar(ushort rawId, byte slot, bool extBlocks)
         {
             byte[] buffer = new byte[extBlocks ? 4 : 3];
             buffer[0] = Opcode.CpeSetHotbar;
@@ -615,7 +615,7 @@ namespace MAX.Network
 
             for (int j = 0; j < MaxCustomModelAnims; j++)
             {
-                var anim = part.anims[j];
+                CustomModelAnim anim = part.anims[j];
 
                 buffer[i++] = (byte)(
                     ((byte)anim.type & 0x3F) | ((byte)anim.axis << 6)

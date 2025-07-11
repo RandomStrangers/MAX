@@ -18,41 +18,50 @@
 using MAX.Bots;
 
 namespace MAX.Orders.Chatting
-{    
-    public class OrdColor : EntityPropertyOrd 
+{
+    public class OrdColor : EntityPropertyOrd
     {
-        public override string name { get { return "Color"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
-        public override OrderPerm[] ExtraPerms {
-            get { return new[] { new OrderPerm(LevelPermission.Operator, "can change the color of others"),
-                    new OrderPerm(LevelPermission.AdvBuilder, "can change the color of bots") }; }
+        public override string Name { get { return "Color"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override OrderPerm[] ExtraPerms
+        {
+            get
+            {
+                return new[] { new OrderPerm(LevelPermission.Operator, "can change the color of others"),
+                    new OrderPerm(LevelPermission.AdvBuilder, "can change the color of bots") };
+            }
         }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("Colour"), new OrderDesignation("XColor", "-own") }; }
-        }        
-        public override void Use(Player p, string message, OrderData data) { 
-            UseBotOrPlayer(p, data, message, "color"); 
+        }
+        public override void Use(Player p, string message, OrderData data)
+        {
+            UseBotOrPlayer(p, data, message, "color");
         }
 
-        public override void SetBotData(Player p, PlayerBot bot, string colName) {
+        public override void SetBotData(Player p, PlayerBot bot, string colName)
+        {
             string color = colName.Length == 0 ? "&1" : Matcher.FindColor(p, colName);
             if (color == null) return;
-            
-            p.Message("You changed the color of bot " + bot.ColoredName + 
+
+            p.Message("You changed the color of bot " + bot.ColoredName +
                       " &Sto " + color + Colors.Name(color));
             bot.color = color;
-            
+
             bot.GlobalDespawn();
             bot.GlobalSpawn();
             BotsFile.Save(p.level);
         }
 
-        public override void SetPlayerData(Player p, string target, string colName) {
+        public override void SetPlayerData(Player p, string target, string colName)
+        {
             PlayerOperations.SetColor(p, target, colName);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Color [player] [color]");
             p.Message("&HSets the nick color of that player");
             p.Message("&H  If [color] is not given, reverts to player's rank color.");

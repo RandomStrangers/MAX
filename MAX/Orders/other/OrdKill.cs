@@ -17,41 +17,48 @@
  */
 using MAX.Orders.Chatting;
 
-namespace MAX.Orders.Misc {
-    public sealed class OrdKill : Order2 {
-        public override string name { get { return "Kill"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Misc
+{
+    public class OrdKill : Order
+    {
+        public override string Name { get { return "Kill"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
-            if (!MessageOrd.CanSpeak(p, name)) return; // do not allow using kill to spam every 2 secs
-            
+            if (!MessageOrd.CanSpeak(p, Name)) return; // do not allow using kill to spam every 2 secs
+
             string[] args = message.SplitSpaces(2);
             Player target = PlayerInfo.FindMatches(p, args[0]);
-            
-            if (target == null) {
-                p?.HandleDeath(Block.Stone, "@p &Skilled "+ p.pronouns.Reflexive +" in " + p.pronouns.Object + " confusion");
+
+            if (target == null)
+            {
+                p?.HandleDeath(Block.Stone, "@p &Skilled " + p.Pronouns.Reflexive + " in " + p.Pronouns.Object + " confusion");
                 return;
             }
             if (!CheckRank(p, data, target, "kill", false)) return;
-            
+
             bool explode = false;
             string deathMsg = GetDeathMessage(args, p.ColoredName, ref explode);
             target.HandleDeath(Block.Stone, deathMsg, explode);
         }
 
-        public static string GetDeathMessage(string[] args, string killer, ref bool explode) {
+        public static string GetDeathMessage(string[] args, string killer, ref bool explode)
+        {
             if (args.Length < 2) return "@p &Swas killed by " + killer;
-            
-            if (args[1].CaselessEq("explode")) {
+
+            if (args[1].CaselessEq("explode"))
+            {
                 explode = true;
                 return "@p &Swas exploded by " + killer;
             }
             return "@p &S" + args[1];
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Kill [name] <message>");
             p.Message("&HKills [name], with <message> if given.");
             p.Message("&HCauses an explosion if \"explode\" is used for <message>");

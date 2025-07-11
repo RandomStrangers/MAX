@@ -17,121 +17,131 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.Scripting;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using MAX.Scripting;
 
-namespace MAX.Compiling 
+namespace MAX.Compiling
 {
     /// <summary> Compiles source code files for a particular programming language into a .dll </summary>
-    public abstract class ICompiler 
-    {   
+    public class ICompiler
+    {
         public const string ORDERS_SOURCE_DIR = "extra/orders/";
-        public const string ADDONS_SOURCE_DIR  = "addons/";
-        public const string ERROR_LOG_PATH      = "logs/errors/compiler.log";
-        
+        public const string ADDONS_SOURCE_DIR = "addons/";
+        public const string ERROR_LOG_PATH = "logs/errors/compiler.log";
+
         /// <summary> Default file extension used for source code files </summary>
         /// <example> .cs, .vb </example>
-        public abstract string FileExtension { get; }
+        public virtual string FileExtension { get; }
         /// <summary> The short name of this programming language </summary>
         /// <example> C#, VB </example>
-        public abstract string ShortName { get; }
+        public virtual string ShortName { get; }
         /// <summary> The full name of this programming language </summary>
         /// <example> CSharp, Visual Basic </example>
-        public abstract string FullName { get; }
+        public virtual string FullName { get; }
         /// <summary> Returns source code for an example Order </summary>
-        public abstract string OrderSkeleton { get; }
+        public virtual string OrderSkeleton { get; }
         /// <summary> Returns source code for an example Addon </summary>
-        public abstract string AddonSkeleton { get; }
-        
+        public virtual string AddonSkeleton { get; }
+
         public string OrderPath(string name) { return ORDERS_SOURCE_DIR + "Ord" + name + FileExtension; }
-        public string AddonPath(string name)  { return ADDONS_SOURCE_DIR  + name + FileExtension; }
-        
-        public static List<ICompiler> Compilers = new List<ICompiler>() { 
+        public string AddonPath(string name) { return ADDONS_SOURCE_DIR + name + FileExtension; }
+
+        public static List<ICompiler> Compilers = new List<ICompiler>() {
             new CSCompiler()
         };
 
 
-        public static string FormatSource(string source, params string[] args) {
+        public static string FormatSource(string source, params string[] args)
+        {
             // Always use \r\n line endings so it looks correct in Notepad
             source = source.Replace(@"\t", "\t");
             source = source.Replace("\n", "\r\n");
             return string.Format(source, args);
         }
-        
+
         /// <summary> Generates source code for an example order, 
         /// preformatted with the given order name </summary>
-        public string GenExampleOrder(string ordName) {
+        public string GenExampleOrder(string ordName)
+        {
             ordName = ordName.ToLower().Capitalize();
             return FormatSource(OrderSkeleton, ordName);
         }
-        
+
         /// <summary> Generates source code for an example addon, 
         /// preformatted with the given name and creator </summary>
-        public string GenExampleAddon(string addon, string creator) {
-            return FormatSource(AddonSkeleton, addon, creator, Server.Version);
+        public string GenExampleAddon(string addon, string creator)
+        {
+            return FormatSource(AddonSkeleton, addon, creator, Server.InternalVersion);
         }
 
 
         /// <summary> Attempts to compile the given source code files to a .dll file. </summary>
         /// <param name="logErrors"> Whether to log compile errors to ERROR_LOG_PATH </param>
-        public ICompilerErrors Compile(string[] srcPaths, string dstPath, bool logErrors) {
+        public ICompilerErrors Compile(string[] srcPaths, string dstPath, bool logErrors)
+        {
             ICompilerErrors errors = DoCompile(srcPaths, dstPath);
             if (!errors.HasErrors || !logErrors) return errors;
-            
+
             SourceMap sources = new SourceMap(srcPaths);
-            StringBuilder sb  = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("############################################################");
             sb.AppendLine("Errors when compiling " + srcPaths.Join());
             sb.AppendLine("############################################################");
             sb.AppendLine();
-            
-            foreach (ICompilerError err in errors) 
+
+            foreach (ICompilerError err in errors)
             {
                 string type = err.IsWarning ? "Warning" : "Error";
                 sb.AppendLine(DescribeError(err, srcPaths, "") + ":");
-                
+
                 if (err.Line > 0) sb.AppendLine(sources.Get(err.FileName, err.Line - 1));
                 if (err.Column > 0) sb.Append(' ', err.Column - 1);
                 sb.AppendLine("^-- " + type + " #" + err.ErrorNumber + " - " + err.ErrorText);
-                
+
                 sb.AppendLine();
                 sb.AppendLine("-------------------------");
                 sb.AppendLine();
             }
-            
-            using (StreamWriter w = new StreamWriter(ERROR_LOG_PATH, true)) {
+
+            using (StreamWriter w = new StreamWriter(ERROR_LOG_PATH, true))
+            {
                 w.Write(sb.ToString());
             }
             return errors;
         }
 
-        public static string DescribeError(ICompilerError err, string[] srcs, string text) {
+        public static string DescribeError(ICompilerError err, string[] srcs, string text)
+        {
             string type = err.IsWarning ? "Warning" : "Error";
             string file = Path.GetFileName(err.FileName);
-            
+
             // Include filename if compiling multiple source code files
             return string.Format("{0}{1}{2}{3}", type, text,
-                                 err.Line    > 0 ? " on line " + err.Line : "",
-                                 srcs.Length > 1 ? " in " + file          : "");
+                                 err.Line > 0 ? " on line " + err.Line : "",
+                                 srcs.Length > 1 ? " in " + file : "");
         }
 
 
         /// <summary> Compiles the given source code. </summary>
-        public abstract ICompilerErrors DoCompile(string[] srcPaths, string dstPath);
+        public virtual ICompilerErrors DoCompile(string[] srcPaths, string dstPath)
+        {
+            return null;
+        }
 
 
         /// <summary> Converts source file paths to full paths, 
         /// then returns list of parsed referenced assemblies </summary>
-        public List<string> ProcessInput(string[] srcPaths, string commentPrefix) {
+        public List<string> ProcessInput(string[] srcPaths, string commentPrefix)
+        {
             List<string> referenced = new List<string>();
-            
-            for (int i = 0; i < srcPaths.Length; i++) 
+
+            for (int i = 0; i < srcPaths.Length; i++)
             {
                 // CodeDomProvider doesn't work properly with relative paths
                 string path = Path.GetFullPath(srcPaths[i]);
-                
+
                 AddReferences(path, commentPrefix, referenced);
                 srcPaths[i] = path;
             }
@@ -140,21 +150,28 @@ namespace MAX.Compiling
             return referenced;
         }
 
-        public void AddReferences(string path, string commentPrefix, List<string> referenced) {
+        public void AddReferences(string path, string commentPrefix, List<string> referenced)
+        {
             // Allow referencing other assemblies using '//reference [assembly name]' at top of the file
-            using (StreamReader r = new StreamReader(path)) {
+            using (StreamReader r = new StreamReader(path))
+            {
                 string refPrefix = commentPrefix + "reference ";
                 string addPrefix = commentPrefix + "addonref ";
                 string line;
-                
-                while ((line = r.ReadLine()) != null) 
+
+                while ((line = r.ReadLine()) != null)
                 {
-                    if (line.CaselessStarts(refPrefix)) {
+                    if (line.CaselessStarts(refPrefix))
+                    {
                         referenced.Add(GetDLL(line));
-                    } else if (line.CaselessStarts(addPrefix)) {
+                    }
+                    else if (line.CaselessStarts(addPrefix))
+                    {
                         path = Path.Combine(IScripting.ADDONS_DLL_DIR, GetDLL(line));
                         referenced.Add(Path.GetFullPath(path));
-                    } else {
+                    }
+                    else
+                    {
                         ProcessInputLine(line, referenced);
                     }
                 }
@@ -163,7 +180,8 @@ namespace MAX.Compiling
 
         public virtual void ProcessInputLine(string line, List<string> referenced) { }
 
-        public static string GetDLL(string line) {
+        public static string GetDLL(string line)
+        {
             int index = line.IndexOf(' ') + 1;
             // For consistency with C#, treat '//reference X.dll;' as '//reference X.dll'
             return line.Substring(index).Replace(";", "");
@@ -172,7 +190,8 @@ namespace MAX.Compiling
 
     public class ICompilerErrors : List<ICompilerError>
     {
-        public bool HasErrors {
+        public bool HasErrors
+        {
             get { return FindIndex(ce => !ce.IsWarning) >= 0; }
         }
     }
@@ -186,38 +205,45 @@ namespace MAX.Compiling
     }
 
 
-    public class SourceMap 
+    public class SourceMap
     {
         public string[] files;
         public List<string>[] sources;
-        
-        public SourceMap(string[] paths) {
-            files   = paths;
+
+        public SourceMap(string[] paths)
+        {
+            files = paths;
             sources = new List<string>[paths.Length];
         }
 
-        public int FindFile(string file) {
-            for (int i = 0; i < files.Length; i++) 
+        public int FindFile(string file)
+        {
+            for (int i = 0; i < files.Length; i++)
             {
                 if (file.CaselessEq(files[i])) return i;
             }
             return -1;
         }
-        
+
         /// <summary> Returns the given line in the given source code file </summary>
-        public string Get(string file, int line) {
+        public string Get(string file, int line)
+        {
             int i = FindFile(file);
             if (i == -1) return "";
-            
+
             List<string> source = sources[i];
-            if (source == null) {
-                try {
+            if (source == null)
+            {
+                try
+                {
                     source = Utils.ReadAllLinesList(file);
-                } catch {
+                }
+                catch
+                {
                     source = new List<string>();
                 }
                 sources[i] = source;
-            }            
+            }
             return line < source.Count ? source[line] : "";
         }
     }

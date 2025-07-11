@@ -24,7 +24,7 @@ namespace MAX.Core
     {
 
         public static void HandleOnChat(ChatScope scope, Player source, string msg,
-                                          object arg, ref ChatMessageFilter filter, bool irc)
+                                          object _, ref ChatMessageFilter __, bool ___)
         {
             msg = msg.Replace("λFULL", source.name).Replace("λNICK", source.name);
             LogType logType = LogType.PlayerChat;
@@ -41,7 +41,7 @@ namespace MAX.Core
             if (scope != ChatScope.PM) Logger.Log(logType, msg);
         }
 
-        public static void HandleOrder(Player p, string ord, string args, OrderData data)
+        public static void HandleOrder(Player p, string ord, string _, OrderData __)
         {
             if (!Server.Config.CoreSecretOrders) return;
             // DO NOT REMOVE THE TWO ORDERS BELOW, /PONY AND /RAINBOWDASHLIKESCOOLTHINGS. -EricKilla

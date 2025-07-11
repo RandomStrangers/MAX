@@ -15,36 +15,43 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.IO;
 using MAX.Drawing.Ops;
 using MAX.Levels.IO;
 using MAX.Maths;
-using BlockID = System.UInt16;
+using System.IO;
 
-namespace MAX.Orders.Moderation {    
-    public sealed class OrdRestoreSelection : Order2 {        
-        public override string name { get { return "RS"; } }
-        public override string shortcut { get { return "RestoreSelection"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+namespace MAX.Orders.Moderation
+{
+    public class OrdRestoreSelection : Order
+    {
+        public override string Name { get { return "RS"; } }
+        public override string Shortcut { get { return "RestoreSelection"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             if (!Formatter.ValidMapName(p, message)) return;
-            
+
             string path = LevelInfo.BackupFilePath(p.level.name, message);
-            if (File.Exists(path)) {
+            if (File.Exists(path))
+            {
                 p.Message("Select two corners for restore.");
                 p.MakeSelection(2, "Selecting region for &SRestore", path, DoRestore);
-            } else {
+            }
+            else
+            {
                 p.Message("Backup {0} does not exist.", message);
                 LevelOperations.OutputBackups(p, p.level);
             }
         }
 
-        public bool DoRestore(Player p, Vec3S32[] marks, object state, BlockID block) {
-            string path  = (string)state;
+        public bool DoRestore(Player p, Vec3S32[] marks, object state, ushort block)
+        {
+            string path = (string)state;
             Level source = IMapImporter.Decode(path, "templevel", false);
 
             RestoreSelectionDrawOp op = new RestoreSelectionDrawOp
@@ -52,13 +59,14 @@ namespace MAX.Orders.Moderation {
                 Source = source
             };
             if (DrawOpPerformer.Do(op, null, p, marks)) return false;
-            
+
             // Not high enough draw limit
             source.Dispose();
             return false;
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/RestoreSelection [backup name]");
             p.Message("&HRestores a previous backup of the current selection");
         }

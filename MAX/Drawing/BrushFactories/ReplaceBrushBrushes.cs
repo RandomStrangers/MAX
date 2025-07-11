@@ -16,60 +16,64 @@
     permissions and limitations under the Licenses.
  */
 using MAX.Orders;
-using BlockID = System.UInt16;
 
-namespace MAX.Drawing.Brushes 
+
+namespace MAX.Drawing.Brushes
 {
-    public class ReplaceBrushBrushFactory : BrushFactory 
+    public class ReplaceBrushBrushFactory : BrushFactory
     {
-        public override string Name { get { return "ReplaceBrush"; } }       
+        public override string Name { get { return "ReplaceBrush"; } }
         public override string[] Help { get { return HelpString; } }
 
         public static string[] HelpString = new string[] {
             "&TArguments: [block] [brush name] <brush args>",
             "&HDraws by replacing existing blocks that are the given [block] with the output of the given brush"
         };
-        
-        public override Brush Construct(BrushArgs args) {
-            BlockID include = 0;
-            Brush brush = ParseArguments(args, ref include); 
-            
+
+        public override Brush Construct(BrushArgs args)
+        {
+            ushort include = 0;
+            Brush brush = ParseArguments(args, ref include);
+
             if (brush == null) return null;
             return new ReplaceBrushBrush(include, brush);
         }
 
-        public Brush ParseArguments(BrushArgs args, ref BlockID target) {
+        public Brush ParseArguments(BrushArgs args, ref ushort target)
+        {
             string[] parts = args.Message.SplitSpaces(3);
             Player p = args.Player;
-            
+
             if (parts.Length < 2) { p.MessageLines(Help); return null; }
             if (!OrderParser.GetBlockIfAllowed(p, parts[0], "replace", out target)) return null;
-            
+
             BrushFactory factory = Find(parts[1]);
-            if (factory == null) {
+            if (factory == null)
+            {
                 p.Message("No brush found with name \"{0}\".", parts[1]);
                 List(p); return null;
             }
-            
+
             args.Message = parts.Length > 2 ? parts[2] : "";
             return factory.Construct(args);
         }
     }
-    
-    public class ReplaceNotBrushBrushFactory : ReplaceBrushBrushFactory 
+
+    public class ReplaceNotBrushBrushFactory : ReplaceBrushBrushFactory
     {
-        public override string Name { get { return "ReplaceNotBrush"; } }        
+        public override string Name { get { return "ReplaceNotBrush"; } }
         public override string[] Help { get { return HelpString; } }
 
         public static new string[] HelpString = new string[] {
             "&TArguments: [block] [brush name] <brush args>",
             "&HDraws by replacing existing blocks that not the given [block] with the output of the given brush"
-        };    
-                
-        public override Brush Construct(BrushArgs args) {
-            BlockID exclude = 0;
-            Brush brush = ParseArguments(args, ref exclude); 
-            
+        };
+
+        public override Brush Construct(BrushArgs args)
+        {
+            ushort exclude = 0;
+            Brush brush = ParseArguments(args, ref exclude);
+
             if (brush == null) return null;
             return new ReplaceNotBrushBrush(exclude, brush);
         }

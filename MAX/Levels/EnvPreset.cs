@@ -26,14 +26,14 @@ namespace MAX
         public EnvPreset(string raw)
         {
             string[] args = raw.SplitSpaces();
-            Fog = args[0]; 
-            Sky = args[1]; 
-            Clouds = args[2]; 
-            Sun = args[3]; 
+            Fog = args[0];
+            Sky = args[1];
+            Clouds = args[2];
+            Sun = args[3];
             Shadow = args[4];
         }
 
-        public static Dictionary<string, string> Presets = new Dictionary<string, string>() 
+        public static Dictionary<string, string> Presets = new Dictionary<string, string>()
         {
                         //   fog   sky   clouds   sun   shadow
             { "Cartoon",  "00FFFF 1E90FF 00BFFF F5DEB3 F4A460" },
@@ -50,7 +50,7 @@ namespace MAX
 
         public static EnvPreset Find(string name)
         {
-            foreach (var kvp in Presets)
+            foreach (KeyValuePair<string, string> kvp in Presets)
             {
                 if (kvp.Key.CaselessEq(name)) return new EnvPreset(kvp.Value);
             }

@@ -15,18 +15,22 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Maintenance {
-    public sealed class OrdRestart : Order2 {
-        public override string name { get { return "Restart"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
+namespace MAX.Orders.Maintenance
+{
+    public class OrdRestart : Order
+    {
+        public override string Name { get { return "Restart"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) message = Server.Config.DefaultRestartMessage;
             Server.Stop(true, message);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Restart <message>");
             p.Message("&HRestarts the server! Use carefully!");
         }

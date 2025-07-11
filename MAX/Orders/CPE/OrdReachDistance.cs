@@ -16,42 +16,48 @@
     permissions and limitations under the Licenses.
  */
 
-using System;
 
 namespace MAX.Orders.CPE
 {
-    public sealed class OrdReachDistance : Order2
+    public class OrdReachDistance : Order
     {
-        public override string name { get { return "ReachDistance"; } }
-        public override string shortcut { get { return "Reach"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "ReachDistance"; } }
+        public override string Shortcut { get { return "Reach"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 p.Message("Your reach distance is {0} blocks", p.ReachDistance); return;
             }
-            
+
             float dist = 0;
             if (!OrderParser.GetReal(p, message, "Distance", ref dist, 0, 1024)) return;
 
             int packedDist = (int)(dist * 32);
-            if (packedDist > short.MaxValue) {
+            if (packedDist > short.MaxValue)
+            {
                 p.Message("\"{0}\", is too long a reach distance. Max is 1023 blocks.", message); return;
             }
 
-            if (p.Session.SendSetReach(dist)) {
+            if (p.Session.SendSetReach(dist))
+            {
                 p.ReachDistance = dist;
                 p.Message("Set your reach distance to {0} blocks.", dist);
                 Server.reach.Update(p.name, packedDist.ToString());
                 Server.reach.Save();
-            } else {
+            }
+            else
+            {
                 p.Message("Your client doesn't support changing your reach distance."); return;
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/ReachDistance [distance]");
             p.Message("&HSets the reach distance for how far away you can modify blocks.");
             p.Message("&H  The default reach distance is 5.");

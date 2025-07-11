@@ -15,57 +15,70 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
 #if NET_20
-namespace System.Runtime.CompilerServices {
+using System;
+using System.Threading;
+namespace System.Runtime.CompilerServices
+{
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method)]
-    public sealed class ExtensionAttribute : Attribute {}
+    public class ExtensionAttribute : Attribute
+    {
+    }
 }
-
-namespace MAX.Util {
-
-    public sealed class IReaderWriterLock {
-        
-        ReaderWriterLock locker = new ReaderWriterLock();
-
-        public IDisposable AccquireRead() { return AccquireRead(int.MaxValue); }
-        public IDisposable AccquireWrite() { return AccquireWrite(int.MaxValue); }
-        
-        public IDisposable AccquireRead(int msTimeout) {
-            try {
+namespace MAX.Util
+{
+    public class IReaderWriterLock
+    {
+        public ReaderWriterLock locker = new ReaderWriterLock();
+        public IDisposable AccquireRead()
+        {
+            return AccquireRead(int.MaxValue);
+        }
+        public IDisposable AccquireWrite()
+        {
+            return AccquireWrite(int.MaxValue);
+        }
+        public IDisposable AccquireRead(int msTimeout)
+        {
+            try
+            {
                 locker.AcquireReaderLock(msTimeout);
-            } catch (ApplicationException) {
+            }
+            catch (ApplicationException)
+            {
                 return null;
             }
             return new SlimLock(locker, false);
         }
-
-        public IDisposable AccquireWrite(int msTimeout) {
-            try {
+        public IDisposable AccquireWrite(int msTimeout)
+        {
+            try
+            {
                 locker.AcquireWriterLock(msTimeout);
-            } catch (ApplicationException) {
+            }
+            catch (ApplicationException)
+            {
                 return null;
             }
             return new SlimLock(locker, true);
         }
-        
-        
-        class SlimLock : IDisposable {
-            ReaderWriterLock locker;
-            bool writeMode;
-            
-            public SlimLock(ReaderWriterLock locker, bool writeMode) {
+        public class SlimLock : IDisposable
+        {
+            public ReaderWriterLock locker;
+            public bool writeMode;
+            public SlimLock(ReaderWriterLock locker, bool writeMode)
+            {
                 this.locker = locker;
                 this.writeMode = writeMode;
             }
-            
-            public void Dispose() {
-                if (writeMode) {
+            public void Dispose()
+            {
+                if (writeMode)
+                {
                     locker.ReleaseWriterLock();
-                } else {
+                }
+                else
+                {
                     locker.ReleaseReaderLock();
                 }
                 locker = null;

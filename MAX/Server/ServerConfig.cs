@@ -15,18 +15,18 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
 using MAX.Config;
 using MAX.Generator;
 using MAX.Relay.IRC;
-namespace MAX 
+using System;
+using System.Collections.Generic;
+namespace MAX
 {
 
-    public class ServerConfig : EnvConfig 
+    public class ServerConfig : EnvConfig
     {
         [ConfigString("server-name", "Server", "[" + Server.SoftwareNameConst + "] Default", false, " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")]
-        public string Name = "[" + Server.SoftwareNameConst + "] Default";
+        public string Name = "&4[" + Server.SoftwareNameConst + "] Default";
         [ConfigString("motd", "Server", "Welcome", false)]
         public string MOTD = "Welcome!";
         [ConfigInt("max-players", "Server", 16, 1, Server.MAX_PLAYERS)]
@@ -43,13 +43,15 @@ namespace MAX
         public bool SayHello = false;
         [ConfigBool("verify-names", "Server", true)]
         public bool VerifyNames = true;
+        [ConfigBool("multiple-votes", "Server", false)]
+        public bool MultipleVotes = false;
         [ConfigString("default-rank", "Server", "guest")]
         public string DefaultRankName = "guest";
         [ConfigString("server-owner", "Server", "the owner")]
         public string OwnerName = "the owner";
 
         [ConfigBool("autoload", "Level", true)]
-        public bool AutoLoadMaps = true;        
+        public bool AutoLoadMaps = true;
         /// <summary> true if maps sees server-wide chat, false if maps have level-only/isolated chat </summary>
         [ConfigBool("world-chat", "Level", true)]
         public bool ServerWideChat = true;
@@ -58,22 +60,22 @@ namespace MAX
         [ConfigString("default-texture-url", "Level", "", true)]
         public string DefaultTerrain = "";
         [ConfigString("default-texture-pack-url", "Level", "", true)]
-        public string DefaultTexture = "";          
+        public string DefaultTexture = "";
 
         [ConfigBool("use-whitelist", "Security", false)]
-        public bool WhitelistedOnly = false;        
+        public bool WhitelistedOnly = false;
         [ConfigBool("admin-verification", "Security", false)]
         public bool verifyadmins = false;
         [ConfigPerm("verify-admin-perm", "Security", LevelPermission.Operator)]
         public LevelPermission VerifyAdminsRank = LevelPermission.Operator;
-        
+
         [ConfigBool("support-web-client", "Webclient", true)]
         public bool WebClient = true;
         [ConfigBool("allow-ip-forwarding", "Webclient", true)]
         public bool AllowIPForwarding = true;
 
         [ConfigString("HeartbeatURL", "Other", "http://www.classicube.net/heartbeat.jsp", false, ":/.,")]
-        public string HeartbeatURL = "http://www.classicube.net/heartbeat.jsp";        
+        public string HeartbeatURL = "http://www.classicube.net/heartbeat.jsp";
         [ConfigBool("core-secret-orders", "Other", true)]
         public bool CoreSecretOrders = true;
         [ConfigBool("MCLawl-secret-orders", "Other", true)]
@@ -82,21 +84,21 @@ namespace MAX
         public bool restartOnError = true;
         [ConfigBool("software-staff-prefixes", "Other", true)]
         public bool SoftwareStaffPrefixes = true;
-        
+
         [ConfigInt("position-interval", "Other", 100, 20, int.MaxValue)]
         public int PositionUpdateInterval = 100;
         [ConfigBool("agree-to-rules-on-entry", "Other", false)]
         public bool AgreeToRulesOnEntry = false;
         [ConfigBool("admins-join-silent", "Other", false)]
         public bool AdminsJoinSilently = false;
-        
+
         [ConfigBool("check-updates", "Update", false)]
         public bool CheckForUpdates = true;
         [ConfigBool("enable-cpe", "Server", true)]
         public bool EnableCPE = true;
         [ConfigBool("checkpoints-respawn-clientside", "Other", true)]
         public bool CheckpointsRespawnClientside = true;
-        
+
         [ConfigInt("rplimit", "Other", 500, 0, int.MaxValue)]
         public int PhysicsRestartLimit = 500;
         [ConfigInt("rplimit-norm", "Other", 10000, 0, int.MaxValue)]
@@ -112,7 +114,7 @@ namespace MAX
         public TimeSpan BlockDBSaveInterval = TimeSpan.FromSeconds(60);
         [ConfigString("backup-location", "Backup", "")]
         public string BackupDirectory = "levels/backups";
-        
+
         [ConfigTimespan("afk-minutes", "Other", 10, true)]
         public TimeSpan AutoAfkTime = TimeSpan.FromMinutes(10);
 
@@ -126,7 +128,7 @@ namespace MAX
         public TimeSpan AnnouncementInterval = TimeSpan.FromMinutes(5);
         [ConfigString("money-name", "Other", "moneys")]
         public string Currency = "moneys";
-        
+
         [ConfigBool("guest-limit-notify", "Other", false)]
         public bool GuestLimitNotify = false;
         [ConfigBool("guest-join-notify", "Other", true)]
@@ -147,9 +149,9 @@ namespace MAX
         [ConfigFloat("draw-reload-threshold", "Other", 0.001f, 0, 1)]
         public float DrawReloadThreshold = 0.001f;
         [ConfigBool("allow-tp-to-higher-ranks", "Other", true)]
-        public bool HigherRankTP = true;        
+        public bool HigherRankTP = true;
         [ConfigPerm("os-perbuild-default", "Other", LevelPermission.Owner)]
-        public LevelPermission OSPerbuildDefault = LevelPermission.Owner; 
+        public LevelPermission OSPerbuildDefault = LevelPermission.Owner;
         [ConfigBool("protect-staff-ips", "Other", true)]
         public bool ProtectStaffIPs = true;
         [ConfigBool("classicube-account-plus", "Other", false)]
@@ -203,7 +205,7 @@ namespace MAX
         public IRCControllerVerify IRCVerify = IRCControllerVerify.HalfOp;
         [ConfigPerm("irc-controller-rank", "IRC bot", LevelPermission.Admin)]
         public LevelPermission IRCControllerRank = LevelPermission.Admin;
-        
+
         [ConfigBool("tablist-rank-sorted", "Tablist", true)]
         public bool TablistRankSorted = true;
         [ConfigBool("tablist-global", "Tablist", false)]
@@ -212,7 +214,7 @@ namespace MAX
         public bool TablistBots = false;
 
         [ConfigBool("parse-emotes", "Chat", true)]
-        public bool ParseEmotes = true;        
+        public bool ParseEmotes = true;
         [ConfigBool("dollar-before-dollar", "Chat", true)]
         public bool DollarNames = true;
         [ConfigStringList("disabledstandardtokens", "Chat")]
@@ -237,7 +239,7 @@ namespace MAX
         public string WarningErrorColor = "&c";
 
         [ConfigBool("cheapmessage", "Messages", true)]
-        public bool ShowInvincibleMessage = true;        
+        public bool ShowInvincibleMessage = true;
         [ConfigString("cheap-message-given", "Messages", " is now invincible")]
         public string InvincibleMessage = " is now invincible";
         [ConfigString("custom-ban-message", "Messages", "You're banned!")]
@@ -262,8 +264,8 @@ namespace MAX
         [ConfigEnum("default-mapgen-biome", "Mapgen", MapGenBiomeName.Forest, typeof(MapGenBiomeName))]
         public MapGenBiomeName DefaultMapGenBiome = MapGenBiomeName.Forest;
 
-        public static bool[] defLogLevels = new bool[] { 
-            true,true,true,true,true,true, true,true,true, 
+        public static bool[] defLogLevels = new bool[] {
+            true,true,true,true,true,true, true,true,true,
             true,true,true,true,true,true, true,true };
         [ConfigBool("log-notes", "Logging", true)]
         public bool LogNotes = true;
@@ -278,7 +280,7 @@ namespace MAX
         public TimeSpan ChatSpamMuteTime = TimeSpan.FromSeconds(60);
         [ConfigTimespan("spam-counter-reset-time", "Spam control", 5, false)]
         public TimeSpan ChatSpamInterval = TimeSpan.FromSeconds(5);
-        
+
         [ConfigBool("ord-spam-check", "Spam control", true)]
         public bool OrdSpamCheck = true;
         [ConfigInt("ord-spam-count", "Spam control", 25, 0, int.MaxValue)]
@@ -287,14 +289,14 @@ namespace MAX
         public TimeSpan OrdSpamBlockTime = TimeSpan.FromSeconds(30);
         [ConfigTimespan("ord-spam-interval", "Spam control", 1, false)]
         public TimeSpan OrdSpamInterval = TimeSpan.FromSeconds(1);
-        
+
         [ConfigBool("block-spam-check", "Spam control", true)]
         public bool BlockSpamCheck = true;
         [ConfigInt("block-spam-count", "Spam control", 200, 0, int.MaxValue)]
         public int BlockSpamCount = 200;
         [ConfigTimespan("block-spam-interval", "Spam control", 5, false)]
         public TimeSpan BlockSpamInterval = TimeSpan.FromSeconds(5);
-        
+
         [ConfigBool("ip-spam-check", "Spam control", true)]
         public bool IPSpamCheck = true;
         [ConfigInt("ip-spam-count", "Spam control", 25, 0, int.MaxValue)]

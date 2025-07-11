@@ -16,29 +16,35 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.World {
-    public sealed partial class OrdOverseer : Order2 {
-        public override string name { get { return "Overseer"; } }
-        public override string shortcut { get { return Overseer.orderShortcut; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Builder; } }
+namespace MAX.Orders.World
+{
+    public partial class OrdOverseer : Order
+    {
+        public override string Name { get { return "Overseer"; } }
+        public override string Shortcut { get { return Overseer.orderShortcut; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Builder; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("Realm"), new OrderDesignation("MyRealm") }; }
         }
         public override OrderParallelism Parallelism { get { return OrderParallelism.NoAndWarn; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             Overseer.subOrderGroup.Use(p, message);
         }
-        
-        public override void Help(Player p, string message) {
+
+        public override void Help(Player p, string message)
+        {
             message = message.SplitSpaces()[0]; // only first argument
             Overseer.subOrderGroup.DisplayHelpFor(p, message);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/os [order] [args]");
             p.Message("&HAllows you to modify and manage your personal realms.");
             Overseer.subOrderGroup.DisplayAvailable(p);

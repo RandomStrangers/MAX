@@ -15,37 +15,41 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-using System;
 using MAX.Events;
+using System;
 
-namespace MAX.Modules.Moderation.Notes 
+namespace MAX.Modules.Moderation.Notes
 {
     public class NotesAddon : Addon
     {
-        public override string name { get { return "Notes"; } }
+        public override string Name { get { return "Notes"; } }
 
-        public Order ordNotes   = new OrdNotes();
+        public Order ordNotes = new OrdNotes();
         public Order ordMyNotes = new OrdMyNotes();
 
-        public override void Load(bool startup) {
+        public override void Load(bool startup)
+        {
             OnModActionEvent.Register(HandleModerationAction, Priority.Low);
             Order.Register(ordNotes, ordMyNotes);
         }
-        
-        public override void Unload(bool shutdown) {
+
+        public override void Unload(bool shutdown)
+        {
             OnModActionEvent.Unregister(HandleModerationAction);
             Order.Unregister(ordNotes, ordMyNotes);
         }
 
 
-        public static void HandleModerationAction(ModAction action) {
-            switch (action.Type) {
+        public static void HandleModerationAction(ModAction action)
+        {
+            switch (action.Type)
+            {
                 case ModActionType.Jailed:
-                    AddNote(action, "F"); break;
+                    AddNote(action, "J"); break;
                 case ModActionType.Kicked:
                     AddNote(action, "K"); break;
                 case ModActionType.Muted:
-                    AddNote(action, "M"); break; 
+                    AddNote(action, "M"); break;
                 case ModActionType.Warned:
                     AddNote(action, "W"); break;
                 case ModActionType.Ban:
@@ -54,14 +58,15 @@ namespace MAX.Modules.Moderation.Notes
             }
         }
 
-        public static void AddNote(ModAction e, string type) {
-             if (!Server.Config.LogNotes) return;
-             string src = e.Actor.name;
-             
-             string time = DateTime.UtcNow.ToString("dd/MM/yyyy");
-             string data = e.Target + " " + type + " " + src + " " + time + " " + 
-                           e.Reason.Replace(" ", "%20") + " " + e.Duration.Ticks;
-             Server.Notes.Append(data);
+        public static void AddNote(ModAction e, string type)
+        {
+            if (!Server.Config.LogNotes) return;
+            string src = e.Actor.name;
+
+            string time = DateTime.UtcNow.ToString("dd/MM/yyyy");
+            string data = e.Target + " " + type + " " + src + " " + time + " " +
+                          e.Reason.Replace(" ", "%20") + " " + e.Duration.Ticks;
+            Server.Notes.Append(data);
         }
     }
 }

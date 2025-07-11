@@ -15,28 +15,31 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdOpChat : Order2 
+    public class OrdOpChat : Order
     {
-        public override string name { get { return "OpChat"; } }
-        public override string shortcut { get { return "Op"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override string Name { get { return "OpChat"; } }
+        public override string Shortcut { get { return "Op"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override bool UseableWhenJailed { get { return true; } }
         public override bool UpdatesLastOrd { get { return false; } }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can read opchat messages") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length > 0) { ChatModes.MessageOps(p, message); return; }
-            
+
             p.opchat = !p.opchat;
             if (p.opchat) p.Message("All messages will now be sent to OPs only");
             else p.Message("OP chat turned off");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/OpChat [message]");
             p.Message("&HSends a message to online OPs");
             p.Message("&T/OpChat");

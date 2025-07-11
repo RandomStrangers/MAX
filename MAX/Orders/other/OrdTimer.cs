@@ -15,16 +15,19 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Tasks;
+using System;
 
-namespace MAX.Orders.Misc {
-    public sealed class OrdTimer : Order2 {
-        public override string name { get { return "Timer"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Misc
+{
+    public class OrdTimer : Order
+    {
+        public override string Name { get { return "Timer"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (p.ordTimer) { p.Message("Can only have one timer at a time. Use /abort to cancel your previous timer."); return; }
             if (message.Length == 0) { Help(p); return; }
 
@@ -41,39 +44,47 @@ namespace MAX.Orders.Misc {
 
             if (TotalTime > 300) { p.Message("Cannot have more than 5 minutes in a timer"); return; }
 
-            TimerArgs args = new TimerArgs();
-            args.Message = message;
-            args.Repeats = (TotalTime / 5) + 1;
-            args.Player = p;
-            
+            TimerArgs args = new TimerArgs
+            {
+                Message = message,
+                Repeats = (TotalTime / 5) + 1,
+                Player = p
+            };
+
             p.ordTimer = true;
             p.level.Message("Timer lasting for " + TotalTime + " seconds has started.");
             p.level.Message(args.Message);
             Server.MainScheduler.QueueRepeat(TimerCallback, args, TimeSpan.FromSeconds(5));
         }
 
-        public class TimerArgs {
+        public class TimerArgs
+        {
             public string Message;
             public int Repeats;
             public Player Player;
         }
 
-        public static void TimerCallback(SchedulerTask task) {
-            TimerArgs args = (TimerArgs)task.State;            
+        public static void TimerCallback(SchedulerTask task)
+        {
+            TimerArgs args = (TimerArgs)task.State;
             Player p = args.Player;
 
             args.Repeats--;
-            if (args.Repeats == 0 || !p.ordTimer) {
+            if (args.Repeats == 0 || !p.ordTimer)
+            {
                 p.Message("Timer ended.");
                 p.ordTimer = false;
                 task.Repeating = false;
-            } else {
+            }
+            else
+            {
                 p.level.Message(args.Message);
                 p.level.Message("Timer has " + (args.Repeats * 5) + " seconds remaining.");
             }
         }
-        
-        public override void Help(Player p)  {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Timer [time] [message]");
             p.Message("&HStarts a timer which repeats [message] every 5 seconds.");
             p.Message("&HRepeats constantly until [time] has passed");

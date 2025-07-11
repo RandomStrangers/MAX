@@ -16,36 +16,42 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.CPE 
-{    
-    public sealed class OrdHold : Order2 
+namespace MAX.Orders.CPE
+{
+    public class OrdHold : Order
     {
-        public override string name { get { return "Hold"; } }
-        public override string shortcut { get { return "HoldThis"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "Hold"; } }
+        public override string Shortcut { get { return "HoldThis"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) { Help(p); return; }      
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces(2);
 
             if (!OrderParser.GetBlock(p, args[0], out ushort block)) return;
             bool locked = false;
             if (args.Length > 1 && !OrderParser.GetBool(p, args[1], ref locked)) return;
-            
-            if (Block.IsPhysicsType(block)) {
+
+            /*if (Block.IsPhysicsType(block))
+            {
                 p.Message("Cannot hold physics blocks"); return;
-            }
-            
-            if (p.Session.SendHoldThis(block, locked)) {
+            }*/
+
+            if (p.Session.SendHoldThis(block, locked))
+            {
                 p.Message("Set your held block to {0}.", Block.GetName(p, block));
-            } else {
+            }
+            else
+            {
                 p.Message("Your client doesn't support changing your held block.");
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Hold [block] <locked>");
             p.Message("&HMakes you hold the given block in your hand");
             p.Message("&H  <locked> optionally prevents you from changing it");

@@ -15,40 +15,45 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.World {
-    public sealed class OrdSetspawn : Order2 {
-        public override string name { get { return "SetSpawn"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.World
+{
+    public class OrdSetspawn : Order
+    {
+        public override string Name { get { return "SetSpawn"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (!LevelInfo.Check(p, data.Rank, p.level, "set spawn of this level")) return;
-            
-            if (message.Length == 0) {
+
+            if (message.Length == 0)
+            {
                 p.Message("Spawn location set to your current location.");
                 p.level.spawnx = (ushort)p.Pos.BlockX;
                 p.level.spawny = (ushort)p.Pos.BlockY;
                 p.level.spawnz = (ushort)p.Pos.BlockZ;
                 p.level.rotx = p.Rot.RotY; p.level.roty = p.Rot.HeadX;
-                
+
                 p.level.Changed = true;
                 p.Session.SendSetSpawnpoint(p.Pos, p.Rot);
                 return;
             }
-            
+
             Player target = PlayerInfo.FindMatches(p, message);
             if (target == null) return;
             if (target.level != p.level) { p.Message("{0} &Sis on a different map.", p.FormatNick(target)); return; }
             if (!CheckRank(p, data, target, "set spawn of", false)) return;
-            
+
             p.Message("Set spawn location of {0} &Sto your current location.", p.FormatNick(target));
             target.Session.SendSetSpawnpoint(p.Pos, p.Rot);
             target.Message("Your spawnpoint was updated.");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/SetSpawn");
             p.Message("&HSets the spawn location of the map to your current location.");
             p.Message("&T/SetSpawn [player]");

@@ -17,31 +17,35 @@
 */
 using MAX.Events;
 
-namespace MAX.Orders.Moderation {    
-    public sealed class OrdWarn : Order2 {        
-        public override string name { get { return "Warn"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdWarn : Order
+    {
+        public override string Name { get { return "Warn"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces(2);
 
             string reason = args.Length == 1 ? "you know why." : args[1];
             string target = ModActionOrd.FindName(p, "warn", "Warn", "", args[0], ref reason);
             if (target == null) return;
-            
+
             reason = ModActionOrd.ExpandReason(p, reason);
             if (reason == null) return;
 
             Group group = ModActionOrd.CheckTarget(p, data, "warn", target);
             if (group == null) return;
-                        
+
             ModAction action = new ModAction(target, p, ModActionType.Warned, reason);
             OnModActionEvent.Call(action);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Warn [player] <reason>");
             p.Message("&HWarns a player. Players are kicked after 3 warnings.");
             p.Message("&HFor <reason>, @number can be used as a shortcut for that rule.");

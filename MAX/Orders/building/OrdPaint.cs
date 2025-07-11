@@ -15,22 +15,26 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Building {
-    public sealed class OrdPaint : Order2 {
-        public override string name { get { return "Paint"; } }
-        public override string shortcut { get { return "p"; } }
-        public override string type { get { return OrderTypes.Building; } }
+namespace MAX.Orders.Building
+{
+    public class OrdPaint : Order
+    {
+        public override string Name { get { return "Paint"; } }
+        public override string Shortcut { get { return "p"; } }
+        public override string Type { get { return OrderTypes.Building; } }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length > 0) { Help(p); return; }
             p.painting = !p.painting;
-            
+
             string type = p.painting ? "&aON" : "&cOFF";
             p.Message("Painting mode: " + type + "&S.");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Paint");
             p.Message("&HTurns painting mode on/off.");
             p.Message("&HWhen paint mode is on, any block you delete is replaced by the block you are holding.");

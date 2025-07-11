@@ -18,46 +18,60 @@
 
 namespace MAX.Modules.Awards
 {
-    public class OrdAwardMod : Order2 
+    public class OrdAwardMod : Order
     {
-        public override string name { get { return "AwardMod"; } }
-        public override string type { get { return OrderTypes.Economy; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
+        public override string Name { get { return "AwardMod"; } }
+        public override string Type { get { return OrderTypes.Economy; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
         public static char[] awardArgs = new char[] { ':' };
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces(2);
             if (args.Length < 2) { Help(p); return; }
 
-            if (IsCreateOrder(args[0])) {
+            if (IsCreateOrder(args[0]))
+            {
                 args = args[1].Split(awardArgs, 2);
-                if (args.Length == 1) { 
-                    p.Message("&WUse a : to separate the award name from its description."); 
+                if (args.Length == 1)
+                {
+                    p.Message("&WUse a : to separate the award name from its description.");
                     Help(p); return;
                 }
-                
-                string award = args[0].Trim();
-                string desc  = args[1].Trim();
 
-                if (!AwardsList.Add(award, desc)) {
+                string award = args[0].Trim();
+                string desc = args[1].Trim();
+
+                if (!AwardsList.Add(award, desc))
+                {
                     p.Message("This award already exists."); return;
-                } else {
+                }
+                else
+                {
                     Chat.MessageGlobal("Award added: &6{0} : {1}", award, desc);
                     AwardsList.Save();
                 }
-            } else if (IsDeleteOrder(args[0])) {
-                if (!AwardsList.Remove(args[1])) {
+            }
+            else if (IsDeleteOrder(args[0]))
+            {
+                if (!AwardsList.Remove(args[1]))
+                {
                     p.Message("This award does not exist."); return;
-                } else {
+                }
+                else
+                {
                     Chat.MessageGlobal("Award removed: &6{0}", args[1]);
                     AwardsList.Save();
                 }
-            } else {
+            }
+            else
+            {
                 Help(p);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/AwardMod add [name] : [description]");
             p.Message("&HAdds a new award");
             p.Message("&H  e.g. &T/AwardMod add Bomb voyage : Blow up a lot of TNT");

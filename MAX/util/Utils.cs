@@ -43,7 +43,7 @@ namespace MAX
             return "#" + r.ToString("X2") + g.ToString("X2") + b.ToString("X2");
         }
 
-        public static unsafe void memset(IntPtr srcPtr, byte value, int startIndex, int bytes)
+        public static unsafe void Memset(IntPtr srcPtr, byte value, int startIndex, int bytes)
         {
             byte* srcByte = (byte*)srcPtr + startIndex;
             // Make sure we do an aligned write/read for the bulk copy
@@ -87,7 +87,10 @@ namespace MAX
         }
 
         /// <summary> Divides by 16, rounding up if there is a remainder. </summary>
-        public static int CeilDiv16(int x) { return (x + 15) / 16; }
+        public static int CeilDiv16(int x)
+        {
+            return (x + 15) / 16;
+        }
 
         public const NumberStyles style = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
             | NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
@@ -95,22 +98,40 @@ namespace MAX
         // Not all languages use . as their decimal point separator
         public static bool TryParseSingle(string s, out float result)
         {
-            if (s != null && s.IndexOf(',') >= 0) s = s.Replace(',', '.');
-            result = 0; float temp;
+            if (s != null && s.IndexOf(',') >= 0)
+            {
+                s = s.Replace(',', '.');
+            }
+            result = 0;
 
-            if (!float.TryParse(s, style, NumberFormatInfo.InvariantInfo, out temp)) return false;
-            if (float.IsInfinity(temp) || float.IsNaN(temp)) return false;
+            if (!float.TryParse(s, style, NumberFormatInfo.InvariantInfo, out float temp))
+            {
+                return false;
+            }
+            if (float.IsInfinity(temp) || float.IsNaN(temp))
+            {
+                return false;
+            }
             result = temp;
             return true;
         }
 
         public static bool TryParseDouble(string s, out double result)
         {
-            if (s != null && s.IndexOf(',') >= 0) s = s.Replace(',', '.');
-            result = 0; double temp;
+            if (s != null && s.IndexOf(',') >= 0)
+            {
+                s = s.Replace(',', '.');
+            }
+            result = 0;
 
-            if (!double.TryParse(s, style, NumberFormatInfo.InvariantInfo, out temp)) return false;
-            if (double.IsInfinity(temp) || double.IsNaN(temp)) return false;
+            if (!double.TryParse(s, style, NumberFormatInfo.InvariantInfo, out double temp))
+            {
+                return false;
+            }
+            if (double.IsInfinity(temp) || double.IsNaN(temp))
+            {
+                return false;
+            }
             result = temp;
             return true;
         }
@@ -128,7 +149,10 @@ namespace MAX
             using (StreamReader r = new StreamReader(path, Encoding.UTF8))
             {
                 string line;
-                while ((line = r.ReadLine()) != null) { lines.Add(line); }
+                while ((line = r.ReadLine()) != null)
+                {
+                    lines.Add(line);
+                }
             }
             return lines;
         }
@@ -149,7 +173,7 @@ namespace MAX
 
         public static char HexEncode(int i)
         {
-            return i < 10 ? (char)(i + '0') : (char)((i - 10) + 'a');
+            return i < 10 ? (char)(i + '0') : (char)(i - 10 + 'a');
         }
     }
 }

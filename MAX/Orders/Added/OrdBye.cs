@@ -1,31 +1,40 @@
-﻿namespace MAX.Orders.Misc
+﻿namespace MAX.Orders.Moderation
 {
     public class OrdBye : Order
     {
-        public override string name { get { return "Bye"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Nobody; } }
+        public override string Name { get { return "Bye"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
         public override bool MessageBlockRestricted { get { return true; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override bool UseableWhenJailed { get { return true; } }
         public override void Use(Player p, string message)
         {
             Player[] players = PlayerInfo.Online.Items;
-            foreach (Player p2 in players)
+            foreach (Player pl in players)
             {
-                p2.Leave(message);
+                if (!string.IsNullOrEmpty(message))
+                {
+                    pl.Leave(message);
+                }
+                else
+                {
+                    string logoutmsg = PlayerInfo.GetLogoutMessage(pl);
+                    pl.Leave(logoutmsg);
+                }
             }
         }
         public override void Help(Player p)
         {
-            if (p == null || p.IsSuper || p.IsMAX)
+            if (p.IsSuper)
             {
                 p.Message("&T/Bye &H- Makes ALL players leave the server with an optional message");
                 return;
             }
             else
             {
-                p.Leave("");
+                string logoutmsg = PlayerInfo.GetLogoutMessage(p);
+                p.Leave(logoutmsg);
             }
         }
     }

@@ -17,12 +17,12 @@
 */
 namespace MAX.Orders.Maintenance
 {
-    public sealed class OrdUpdate : Order2
+    public class OrdUpdate : Order
     {
-        public override string name { get { return "Update"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Nobody; } }
+        public override string Name { get { return "Update"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
 
         public override void Use(Player p, string message, OrderData data)
         {
@@ -32,7 +32,8 @@ namespace MAX.Orders.Maintenance
         {
             if (!CheckPerms(p))
             {
-                p.Message("Only MAX or the Server Owner can update the server."); return;
+                p.Message("Only MAX or the Server Owner can update the server.");
+                return;
             }
             Updater.PerformUpdate();
         }
@@ -40,8 +41,11 @@ namespace MAX.Orders.Maintenance
         public static bool CheckPerms(Player p)
         {
             if (p.IsMAX) return true;
-
-            if (Server.Config.OwnerName.CaselessEq("Notch")) return false;
+            string owner = Server.Config.OwnerName;
+            if (owner.CaselessEq("Notch") || owner.CaselessEq("the owner"))
+            {
+                return false;
+            }
             return p.name.CaselessEq(Server.Config.OwnerName);
         }
         public override void Help(Player p)

@@ -17,50 +17,62 @@
  */
 using MAX.Bots;
 
-namespace MAX.Orders.Chatting 
-{    
-    public class OrdNick : EntityPropertyOrd 
-    {       
-        public override string name { get { return "Nick"; } }
-        public override string shortcut { get { return "Nickname"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
-        public override OrderPerm[] ExtraPerms {
-            get { return new[] { new OrderPerm(LevelPermission.Operator, "can change the nick of others"),
-                    new OrderPerm(LevelPermission.Operator, "can change the nick of bots") }; }
+namespace MAX.Orders.Chatting
+{
+    public class OrdNick : EntityPropertyOrd
+    {
+        public override string Name { get { return "Nick"; } }
+        public override string Shortcut { get { return "Nickname"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override OrderPerm[] ExtraPerms
+        {
+            get
+            {
+                return new[] { new OrderPerm(LevelPermission.Operator, "can change the nick of others"),
+                    new OrderPerm(LevelPermission.Operator, "can change the nick of bots") };
+            }
         }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new OrderDesignation[] { new OrderDesignation("xnick", "-own") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             UseBotOrPlayer(p, data, message, "nick");
         }
 
-        public override void SetBotData(Player p, PlayerBot bot, string nick) {
-            if (!MessageOrd.CanSpeak(p, name)) return;
-            
-            if (nick.Length == 0) {
+        public override void SetBotData(Player p, PlayerBot bot, string nick)
+        {
+            if (!MessageOrd.CanSpeak(p, Name)) return;
+
+            if (nick.Length == 0)
+            {
                 bot.DisplayName = bot.name;
                 p.level.Message("Bot " + bot.ColoredName + " &Sreverted to their original name.");
-            } else {
+            }
+            else
+            {
                 string nameTag = nick.CaselessEq("empty") ? "" : nick;
-                if (nick.Length > 62) { p.Message("Name must be 62 or fewer letters."); return; }
-                
+                if (Colors.StripUsed(nick).Length > 62) { p.Message("Name must be 62 or fewer letters."); return; }
+
                 p.Message("You changed the name of bot " + bot.ColoredName + " &Sto &c" + nameTag);
                 bot.DisplayName = Colors.Escape(nick);
             }
-            
+
             bot.GlobalDespawn();
             bot.GlobalSpawn();
             BotsFile.Save(p.level);
         }
 
-        public override void SetPlayerData(Player p, string target, string nick) {
+        public override void SetPlayerData(Player p, string target, string nick)
+        {
             PlayerOperations.SetNick(p, target, nick);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Nick [player] [nick]");
             p.Message("&HSets the nick of that player.");
             p.Message("&H  If [nick] is not given, reverts [player]'s nick to their account name.");

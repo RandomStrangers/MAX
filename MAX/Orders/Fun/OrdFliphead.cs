@@ -15,17 +15,21 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Fun {    
-    public sealed class OrdFlipHead : Order2 {    
-        public override string name { get { return "FlipHead"; } }
-        public override string type { get { return OrderTypes.Other; } }
+namespace MAX.Orders.Fun
+{
+    public class OrdFlipHead : Order
+    {
+        public override string Name { get { return "FlipHead"; } }
+        public override string Type { get { return OrderTypes.Other; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             p.flipHead = !p.flipHead;
             p.Message("Your head was {0}&S!", p.flipHead ? "&cbroken" : "&ahealed");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/FlipHead");
             p.Message("&HMakes your head appear upside down to other players");
         }

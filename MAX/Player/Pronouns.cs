@@ -16,10 +16,10 @@
     permissions and limitations under the Licenses.
  */
 
+using MAX.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MAX.Tasks;
 
 namespace MAX
 {
@@ -33,7 +33,7 @@ namespace MAX
         /// <summary>
         /// Called once to initialize the defaults and write/read the config file as necessary.
         /// </summary>
-        public static void Init(SchedulerTask task)
+        public static void Init(SchedulerTask _)
         {
             if (!Directory.Exists(PLAYER_PATH))
             {
@@ -273,7 +273,7 @@ namespace MAX
                 //Reduce clutter by simply erasing the file if it's default
                 if (p.pronounsList.Count == 1 && p.pronounsList[0] == Default)
                 {
-                    File.Delete(path);
+                    FileIO.TryDelete(path);
                     return;
                 }
                 File.WriteAllText(path, ListFor(p, " "));

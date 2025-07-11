@@ -15,35 +15,39 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
 using MAX.DB;
 using MAX.Maths;
 using MAX.SQL;
-using BlockID = System.UInt16;
+using System;
+using System.Collections.Generic;
 
-namespace MAX.Orders.Info 
+
+namespace MAX.Orders.Info
 {
-    public sealed class OrdAbout : Order2 
+    public class OrdAbout : Order
     {
-        public override string name { get { return "About"; } }
-        public override string shortcut { get { return "b"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool museumUsable { get { return false; } }
+        public override string Name { get { return "About"; } }
+        public override string Shortcut { get { return "b"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool MuseumUsable { get { return false; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderDesignation[] Designations {
-            get { return new [] { new OrderDesignation("BInfo"), new OrderDesignation("WhoDid") }; }
+        public override OrderDesignation[] Designations
+        {
+            get { return new[] { new OrderDesignation("BInfo"), new OrderDesignation("WhoDid") }; }
         }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.AdvBuilder, "can see portal/MB data of a block") }; }
         }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             p.Message("Break/Build a block to display information.");
             p.MakeSelection(1, "Selecting location for &SBlock info", data, PlacedMark);
         }
 
-        public bool PlacedMark(Player p, Vec3S32[] marks, object state, BlockID block) {
+        public bool PlacedMark(Player p, Vec3S32[] marks, object state, ushort block)
+        {
             ushort x = (ushort)marks[0].X, y = (ushort)marks[0].Y, z = (ushort)marks[0].Z;
             block = p.level.GetBlock(x, y, z);
             p.RevertBlock(x, y, z);
@@ -53,23 +57,28 @@ namespace MAX.Orders.Info
 
             bool foundAny = false;
             ListFromDatabase(p, ref foundAny, x, y, z);
-            using (IDisposable rLock = p.level.BlockDB.Locker.AccquireRead(30 * 1000)) {
-                if (rLock != null) {
+            using (IDisposable rLock = p.level.BlockDB.Locker.AccquireRead(30 * 1000))
+            {
+                if (rLock != null)
+                {
                     p.level.BlockDB.FindChangesAt(x, y, z,
                                                   entry => OutputEntry(p, ref foundAny, names, entry));
-                } else {
+                }
+                else
+                {
                     p.Message("&WUnable to accquire read lock on BlockDB after 30 seconds, aborting.");
                     return false;
                 }
             }
-            
+
             if (!foundAny) p.Message("No block change records found for this block.");
-            BlockID raw = Block.IsPhysicsType(block) ? block : Block.ToRaw(block);
+            ushort raw = Block.IsPhysicsType(block) ? block : Block.ToRaw(block);
             string blockName = Block.GetName(p, block);
             p.Message("Block ({0}, {1}, {2}): &f{3} = {4}&S.", x, y, z, raw, blockName);
-            
+
             OrderData data = (OrderData)state;
-            if (HasExtraPerm(p, data.Rank, 1)) {
+            if (HasExtraPerm(data.Rank, 1))
+            {
                 BlockDBChange.OutputMessageBlock(p, block, x, y, z);
                 BlockDBChange.OutputPortal(p, block, x, y, z);
             }
@@ -77,25 +86,27 @@ namespace MAX.Orders.Info
             return true;
         }
 
-        public static void ListFromDatabase(Player p, ref bool foundAny, ushort x, ushort y, ushort z) {
+        public static void ListFromDatabase(Player p, ref bool foundAny, ushort x, ushort y, ushort z)
+        {
             if (!Database.TableExists("Block" + p.level.name)) return;
-            
+
             List<string[]> entries = Database.GetRows("Block" + p.level.name, "Username,TimePerformed,Deleted,Type",
                                                       "WHERE X=@0 AND Y=@1 AND Z=@2", x, y, z);
-            
+
             if (entries.Count > 0) foundAny = true;
             BlockDBEntry entry = default;
             entry.OldRaw = Block.Invalid;
-            
+
             foreach (string[] row in entries)
             {
-                DateTime time  = Database.ParseDBDate(row[1]).ToUniversalTime();
+                DateTime time = Database.ParseDBDate(row[1]).ToUniversalTime();
                 TimeSpan delta = time - BlockDB.Epoch;
                 entry.TimeDelta = (int)delta.TotalSeconds;
                 entry.Flags = BlockDBFlags.ManualPlace;
-                
+
                 byte flags = ParseFlags(row[2]);
-                if ((flags & 1) == 0) { // block was placed
+                if ((flags & 1) == 0)
+                { // block was placed
                     entry.NewRaw = byte.Parse(row[3]);
                     if ((flags & 2) != 0) entry.Flags |= BlockDBFlags.NewExtended;
                 }
@@ -103,14 +114,16 @@ namespace MAX.Orders.Info
             }
         }
 
-        public static byte ParseFlags(string value) {
+        public static byte ParseFlags(string value)
+        {
             // This used to be a 'deleted' boolean, so we need to make sure we account for that
-            if (value.CaselessEq("true"))  return 1;
+            if (value.CaselessEq("true")) return 1;
             if (value.CaselessEq("false")) return 0;
             return byte.Parse(value);
         }
 
-        public static void OutputEntry(Player p, ref bool foundAny, Dictionary<int, string> names, BlockDBEntry entry) {
+        public static void OutputEntry(Player p, ref bool foundAny, Dictionary<int, string> names, BlockDBEntry entry)
+        {
             if (!names.TryGetValue(entry.PlayerID, out string name))
             {
                 name = NameConverter.FindName(entry.PlayerID);
@@ -119,8 +132,9 @@ namespace MAX.Orders.Info
             foundAny = true;
             BlockDBChange.Output(p, name, entry);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/About");
             p.Message("&HOutputs the change/edit history for a block.");
         }

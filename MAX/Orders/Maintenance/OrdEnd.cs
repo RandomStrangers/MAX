@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Context = System.Environment;
 
-namespace MAX.Orders.Chatting
+namespace MAX.Orders.Maintenance
 {
-    public sealed class OrdEnd : Order2
+    public class OrdEnd : Order
     {
-        public override string name { get { return "End"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Nobody; } }
- 
+        public override string Name { get { return "End"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
         public override void Use(Player p, string message, OrderData data)
         {
             End(p);
@@ -16,15 +15,22 @@ namespace MAX.Orders.Chatting
         {
             if (!CheckPerms(p))
             {
-                p.Message("Only MAX or the Server Owner can end the server."); return;
+                p.Message("Only MAX or the Server Owner can end the server.");
+                return;
             }
-            Environment.Exit(0);        
+            Context.Exit(0);
         }
         public static bool CheckPerms(Player p)
         {
-            if (p.IsMAX) return true;
-
-            if (Server.Config.OwnerName.CaselessEq("Notch")) return false;
+            if (p.IsMAX)
+            {
+                return true;
+            }
+            if (Server.Config.OwnerName.CaselessEq("notch") ||
+                Server.Config.OwnerName.CaselessEq("the owner"))
+            {
+                return false;
+            }
             return p.name.CaselessEq(Server.Config.OwnerName);
         }
         public override void Help(Player p)

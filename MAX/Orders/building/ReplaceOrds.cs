@@ -17,13 +17,16 @@
  */
 using MAX.Drawing.Ops;
 
-namespace MAX.Orders.Building {
-    public class OrdReplace : DrawOrd {
-        public override string name { get { return "Replace"; } }
-        public override string shortcut { get { return "r"; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+namespace MAX.Orders.Building
+{
+    public class OrdReplace : DrawOrd
+    {
+        public override string Name { get { return "Replace"; } }
+        public override string Shortcut { get { return "r"; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
 
-        public override DrawOp GetDrawOp(DrawArgs dArgs) {
+        public override DrawOp GetDrawOp(DrawArgs dArgs)
+        {
             DrawOp op = new CuboidDrawOp
             {
                 AffectedByTransform = false
@@ -31,29 +34,34 @@ namespace MAX.Orders.Building {
             return op;
         }
 
-        public override void GetBrush(DrawArgs dArgs) {
+        public override void GetBrush(DrawArgs dArgs)
+        {
             dArgs.BrushName = "Replace";
             dArgs.BrushArgs = dArgs.Message;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Replace [block] [block2].. [new]");
             p.Message("&HReplaces [block] with [new] between two points.");
             p.Message("&H  If more than one [block] is given, they are all replaced.");
             p.Message("&H  If only [block] is given, replaces with your held block.");
         }
     }
-    
-    public sealed class OrdReplaceNot : OrdReplace {
-        public override string name { get { return "ReplaceNot"; } }
-        public override string shortcut { get { return "rn"; } }
 
-        public override void GetBrush(DrawArgs dArgs) {
+    public class OrdReplaceNot : OrdReplace
+    {
+        public override string Name { get { return "ReplaceNot"; } }
+        public override string Shortcut { get { return "rn"; } }
+
+        public override void GetBrush(DrawArgs dArgs)
+        {
             dArgs.BrushName = "ReplaceNot";
             dArgs.BrushArgs = dArgs.Message;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/ReplaceNot [block] [block2].. [new]");
             p.Message("&HReplaces everything but [block] with [new] between two points.");
             p.Message("&H  If more than one [block] is given, they are all skipped.");

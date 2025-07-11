@@ -1,26 +1,26 @@
-﻿using System;
+﻿using MAX.DB;
+using MAX.Events;
+using MAX.Events.ServerEvents;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using MAX.DB;
-using MAX.Events.ServerEvents;
-using MAX.Events;
 
 namespace MAX.Relay
 {
-    public abstract class BotControllersOrd : Order2
+    public abstract class BotControllersOrd : Order
     {
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        public abstract RelayBot Bot { get; }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+        public virtual RelayBot Bot { get; }
         public override void Use(Player p, string message, OrderData data)
         {
-            if (message.Length == 0) 
-            { 
-                Help(p); 
-                return; 
+            if (message.Length == 0)
+            {
+                Help(p);
+                return;
             }
             string[] parts = message.SplitSpaces();
             RelayBot bot = Bot;
@@ -33,10 +33,10 @@ namespace MAX.Relay
                     p.Message("{0} controllers reloaded!", bot.RelayName);
                     break;
                 case "add":
-                    if (arg.Length == 0) 
-                    { 
-                        p.Message("You need to provide a name to add."); 
-                        return; 
+                    if (arg.Length == 0)
+                    {
+                        p.Message("You need to provide a name to add.");
+                        return;
                     }
                     if (!bot.Controllers.Add(arg))
                     {
@@ -49,10 +49,10 @@ namespace MAX.Relay
                     }
                     break;
                 case "remove":
-                    if (arg.Length == 0) 
-                    { 
-                        p.Message("You need to provide a name to remove."); 
-                        return; 
+                    if (arg.Length == 0)
+                    {
+                        p.Message("You need to provide a name to remove.");
+                        return;
                     }
                     if (!bot.Controllers.Remove(arg))
                     {
@@ -66,7 +66,7 @@ namespace MAX.Relay
                     break;
                 case "list":
                     bot.Controllers.OutputPlain(p, bot.RelayName + " controllers",
-                                                name + " list", arg);
+                                                Name + " list", arg);
                     break;
                 case "rank":
                     if (arg.Length == 0)
@@ -83,12 +83,12 @@ namespace MAX.Relay
                     if (Server.Config.IRCControllerRank > data.Rank)
                     {
                         p.Message("Cannot change the {0} controllers rank, " +
-                                  "as it is currently a rank higher than yours.", bot.RelayName); 
+                                  "as it is currently a rank higher than yours.", bot.RelayName);
                         return;
                     }
                     if (grp.Permission > data.Rank)
                     {
-                        p.Message("Cannot set the {0} controllers rank to a rank higher than yours.", bot.RelayName); 
+                        p.Message("Cannot set the {0} controllers rank to a rank higher than yours.", bot.RelayName);
                         return;
                     }
                     Server.Config.IRCControllerRank = grp.Permission;
@@ -96,13 +96,13 @@ namespace MAX.Relay
                     p.Message("Set {0} controller rank to {1}&S.", bot.RelayName, grp.ColoredName);
                     break;
                 default:
-                    Help(p); 
+                    Help(p);
                     break;
             }
         }
         public override void Help(Player p)
         {
-            string ord = name;
+            string ord = Name;
             string relay = Bot.RelayName;
             p.Message("&T/{0} add/remove [name]", ord);
             p.Message("&HAdds or removes [name] from list of {0} controllers", relay);
@@ -115,9 +115,9 @@ namespace MAX.Relay
     public class RelayUser
     {
         public string ID, Nick;
-        public virtual string GetMessagePrefix() 
-        { 
-            return ""; 
+        public virtual string GetMessagePrefix()
+        {
+            return "";
         }
     }
     public delegate void OnDirectMessage(RelayBot bot, string channel, RelayUser user, string message, ref bool cancel);
@@ -232,12 +232,12 @@ namespace MAX.Relay
         /// <remarks> e.g. is not enabled, is already connected, server shutting down </remarks>
         public string Connect()
         {
-            if (!Enabled) 
-            { 
+            if (!Enabled)
+            {
                 return "is not enabled";
             }
-            if (Connected) 
-            { 
+            if (Connected)
+            {
                 return "is already connected";
             }
             if (Server.shuttingDown)
@@ -269,20 +269,20 @@ namespace MAX.Relay
             }
             canReconnect = false;
             // silent, as otherwise it'll duplicate disconnect messages with IOThread
-            try 
-            { 
-                DoDisconnect(reason); 
-            } 
-            catch 
-            { 
+            try
+            {
+                DoDisconnect(reason);
+            }
+            catch
+            {
             }
             // wait for worker to completely finish
-            try 
-            { 
-                worker.Join(); 
-            } 
-            catch 
-            { 
+            try
+            {
+                worker.Join();
+            }
+            catch
+            {
             }
         }
         /// <summary> Disconnects from the external communication service and then connects again </summary>
@@ -296,7 +296,7 @@ namespace MAX.Relay
             Logger.Log(LogType.RelayActivity, "Connected to {0}!", RelayName);
             retries = 0;
         }
-       public void IOThreadCore()
+        public void IOThreadCore()
         {
             OnStart();
             while (CanReconnect && retries < 3)
@@ -364,14 +364,14 @@ namespace MAX.Relay
             };
             worker.Start();
         }
-        public virtual void DoConnect() 
-        { 
+        public virtual void DoConnect()
+        {
         }
-        public virtual void DoReadLoop() 
-        { 
+        public virtual void DoReadLoop()
+        {
         }
-        public virtual void DoDisconnect(string reason) 
-        { 
+        public virtual void DoDisconnect(string reason)
+        {
         }
         /// <summary> Loads the list of controller users from disc </summary>
         public virtual void LoadControllers()
@@ -383,12 +383,12 @@ namespace MAX.Relay
             UpdateConfig();
             LoadControllers();
         }
-        public virtual void UpdateConfig() 
-        { 
+        public virtual void UpdateConfig()
+        {
         }
         public void LoadBannedOrders()
         {
-            BannedOrders = new List<string>() {""};
+            BannedOrders = new List<string>() { "" };
             if (!File.Exists("text/ircordblacklist.txt"))
             {
                 File.WriteAllLines("text/ircordblacklist.txt", new string[] {
@@ -438,13 +438,13 @@ namespace MAX.Relay
         {
             return Server.Config.IRCShowPlayerTitles ? p.FullName : p.group.Prefix + p.ColoredName;
         }
-        public virtual string UnescapeNick(Player p) 
-        { 
-            return p.ColoredName; 
+        public virtual string UnescapeNick(Player p)
+        {
+            return p.ColoredName;
         }
-        public virtual string PrepareMessage(string msg) 
-        { 
-            return msg; 
+        public virtual string PrepareMessage(string msg)
+        {
+            return msg;
         }
         public void MessageToRelay(ChatScope scope, string msg, object arg, ChatMessageFilter filter)
         {
@@ -452,7 +452,7 @@ namespace MAX.Relay
             fakeGuest.group = Group.DefaultRank;
             if (scopeFilter(fakeGuest, arg) && (filter == null || filter(fakeGuest, arg)))
             {
-                SendPublicMessage(msg); 
+                SendPublicMessage(msg);
                 return;
             }
             fakeStaff.group = GetControllerRank();
@@ -582,7 +582,7 @@ namespace MAX.Relay
             }
             if (rawOrd.CaselessEq(Server.Config.IRCOrderPrefix))
             {
-                if (!HandleOrder(user, channel, message, parts))
+                if (!HandleOrder(user, channel, parts))
                 {
                     return;
                 }
@@ -661,7 +661,7 @@ namespace MAX.Relay
         {
             Order.Find("ServerUrl").Use(p, "", p.DefaultOrdData);
         }
-        public bool HandleOrder(RelayUser user, string channel, string message, string[] parts)
+        public bool HandleOrder(RelayUser user, string channel, string[] parts)
         {
             string ordName = parts.Length > 1 ? parts[1].ToLower() : "";
             string ordArgs = parts.Length > 2 ? parts[2].Trim() : "";
@@ -680,10 +680,10 @@ namespace MAX.Relay
         {
             Order ord = Order.Find(ordName);
             Player p = new RelayPlayer(channel, user, this);
-            if (ord == null) 
-            { 
-                p.Message("Unknown order \"{0}\"", ordName); 
-                return false; 
+            if (ord == null)
+            {
+                p.Message("Unknown order \"{0}\"", ordName);
+                return false;
             }
             string logOrd = ordArgs.Length == 0 ? ordName : ordName + " " + ordArgs;
             Logger.Log(LogType.OrderUsage, "/{0} (by {1} from {2})", logOrd, user.Nick, RelayName);
@@ -696,7 +696,7 @@ namespace MAX.Relay
                 }
                 if (!ord.SuperUseable)
                 {
-                    p.Message(ord.name + " can only be issued in-game.");
+                    p.Message(ord.Name + " can only be issued in-game.");
                     return false;
                 }
                 ord.Use(p, ordArgs);
@@ -780,10 +780,10 @@ namespace MAX.Relay
             }
         }
     }
-    public abstract class RelayBotOrd : Order2
+    public abstract class RelayBotOrd : Order
     {
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
         public virtual RelayBot Bot { get { return new RelayBot(); } }
 
         public override void Use(Player p, string message, OrderData data)
@@ -791,9 +791,9 @@ namespace MAX.Relay
             RelayBot bot = Bot;
             if (message.CaselessEq("reset") || message.CaselessEq("reconnect"))
             {
-                if (!bot.Enabled) 
-                { 
-                    p.Message("{0} is not enabled", bot.RelayName); 
+                if (!bot.Enabled)
+                {
+                    p.Message("{0} is not enabled", bot.RelayName);
                 }
                 bot.Reset();
             }
@@ -816,7 +816,7 @@ namespace MAX.Relay
         }
         public override void Help(Player p)
         {
-            string ord = name;
+            string ord = Name;
             string relay = Bot.RelayName;
             p.Message("&T/{0} connect", ord);
             p.Message("&HCauses the {0} bot to connect to {0}.", relay);

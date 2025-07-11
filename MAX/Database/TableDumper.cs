@@ -17,56 +17,60 @@
  */
 using System.IO;
 
-namespace MAX.SQL 
+namespace MAX.SQL
 {
-    public sealed class TableDumper 
+    public class TableDumper
     {
-        bool gottenRows;
-        string table, insertCols;
-        internal StreamWriter sql;
-        int numColumns;
-        
-        public void DumpTable(StreamWriter sql, string table) {
+        public bool gottenRows;
+        public string table, insertCols;
+        public StreamWriter sql;
+        public int numColumns;
+
+        public void DumpTable(StreamWriter sql, string table)
+        {
             gottenRows = false;
-            this.sql   = sql;
+            this.sql = sql;
             this.table = table;
             Database.ReadRows(table, "*", DumpRow);
-            
-            if (!gottenRows) {
+
+            if (!gottenRows)
+            {
                 sql.WriteLine("-- No data in table `{0}`!", table);
                 sql.WriteLine();
             }
         }
-        
-        void MakeInsertFormat(ISqlRecord record) {
+
+        public void MakeInsertFormat(ISqlRecord record)
+        {
             sql.WriteLine("--");
             sql.WriteLine("-- Dumping data for table `{0}`", table);
             sql.WriteLine("--");
             sql.WriteLine();
 
             string[] colNames = new string[record.FieldCount];
-            for (int i = 0; i < record.FieldCount; i++) 
+            for (int i = 0; i < record.FieldCount; i++)
             {
                 colNames[i] = record.GetName(i);
             }
             string columns = colNames.Join(col => "`" + col + "`", ",");
-            
+
             insertCols = Database.Backend.AddRowSql(table, columns, 0);
             gottenRows = true;
             numColumns = record.FieldCount;
         }
-        
-        void DumpRow(ISqlRecord record) {
+
+        public void DumpRow(ISqlRecord record)
+        {
             if (!gottenRows) MakeInsertFormat(record);
             sql.WriteLine(insertCols);
 
             //The values themselves can be integers or strings, or null
-            for (int col = 0; col < numColumns; col++) 
+            for (int col = 0; col < numColumns; col++)
             {
                 sql.Write(record.DumpValue(col));
-                sql.Write((col < numColumns - 1 ? ", " : ");"));
+                sql.Write(col < numColumns - 1 ? ", " : ");");
             }
-            
+
             sql.WriteLine();
         }
     }

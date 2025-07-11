@@ -15,35 +15,37 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Collections.Generic;
 using MAX.Drawing.Ops;
-using BlockID = System.UInt16;
+using System.Collections.Generic;
+
 
 namespace MAX.Drawing.Brushes
 {
     public class GridBrush : Brush
     {
-        public BlockID gridBlock, cellBlock, borderBlock;
+        public ushort gridBlock, cellBlock, borderBlock;
         public int gridSize, blocksCount;
 
-        public GridBrush(List<BlockID> blocks, List<int> counts) {
-            gridBlock   = blocks[0];
-            cellBlock   = blocks[1];
+        public GridBrush(List<ushort> blocks, List<int> counts)
+        {
+            gridBlock = blocks[0];
+            cellBlock = blocks[1];
             borderBlock = blocks.Count > 2 ? blocks[2] : Block.Invalid;
 
-            gridSize    = counts[0];
+            gridSize = counts[0];
             blocksCount = counts[0] + counts[1];
         }
 
         public override string Name { get { return "Grid"; } }
 
-        public override BlockID NextBlock(DrawOp op) {
+        public override ushort NextBlock(DrawOp op)
+        {
             int dx = (op.Coords.X - op.Min.X) % blocksCount; if (dx < 0) dx += blocksCount;
             int dy = (op.Coords.Y - op.Min.Y) % blocksCount; if (dy < 0) dy += blocksCount;
             int dz = (op.Coords.Z - op.Min.Z) % blocksCount; if (dz < 0) dz += blocksCount;
 
             // On the grid boundary planes
-            if (dx < gridSize || dy < gridSize || dz < gridSize) 
+            if (dx < gridSize || dy < gridSize || dz < gridSize)
             {
                 if (dx < gridSize && dz < gridSize) return gridBlock;
                 if (dx < gridSize && dy < gridSize) return gridBlock;

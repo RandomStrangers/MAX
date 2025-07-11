@@ -20,14 +20,14 @@ using MAX.Scripting;
 
 namespace MAX.Compiling
 {
-    public class OrdCompile : Order2
+    public class OrdCompile : Order
     {
-        public override string name { get { return "Compile"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
+        public override string Name { get { return "Compile"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
         public override OrderDesignation[] Designations
         {
-            get { return new[] { new OrderDesignation("PCompile", "addon") }; }
+            get { return new[] { new OrderDesignation("ACompile", "addon") }; }
         }
         public override bool MessageBlockRestricted { get { return true; } }
 

@@ -1,14 +1,14 @@
-﻿using System;
+﻿using MAX.Tasks;
+using System;
 using System.IO;
-using MAX.Tasks;
 
 namespace MAX.Core
 {
     public class ServerURLSender : Addon
     {
-        public override string name { get { return "Say URL"; } }
-        public override string creator { get { return Server.SoftwareName + " team"; } }
-        public override string MAX_Version {  get {  return Server.Version; } }
+        public override string Name { get { return "SayURL"; } }
+        public override string Creator { get { return "HarmonyNetwork"; } }
+        public override string MAX_Version { get { return Server.InternalVersion; } }
         public override void Load(bool startup)
         {
             bool SendURL = Server.Config.SendURL;

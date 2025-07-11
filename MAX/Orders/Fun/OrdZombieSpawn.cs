@@ -17,20 +17,18 @@
 */
 using System;
 using System.Threading;
-using BlockID = System.UInt16;
+
 
 namespace MAX
 {
     public class OrdZombieSpawn : Order
     {
-        public override string name { get { return "Zombiespawn"; } }
-        public override string shortcut { get { return "zspawn"; } }
-        public override string type { get { return OrderTypes.Games; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "Zombiespawn"; } }
+        public override string Shortcut { get { return "zspawn"; } }
+        public override string Type { get { return OrderTypes.Games; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        // This is where the magic happens, naturally.
-        //TOO MANY GLOBALS -_-
         public int wavesNum;
         public int wavesLength;
         public int zombiesNum;
@@ -82,7 +80,7 @@ namespace MAX
             for (int i = 0; i < zombiesNum; i++)
             {
                 x = randomCoord.Next(0, p.level.Width);
-                y = randomCoord.Next((p.level.Height / 2), p.level.Height);
+                y = randomCoord.Next(p.level.Height / 2, p.level.Height);
                 z = randomCoord.Next(0, p.level.Length);
 
                 p.level.Blockchange((ushort)x, (ushort)y, (ushort)z, Block.ZombieBody);
@@ -157,7 +155,7 @@ namespace MAX
 
         }
 
-        public void Blockchange1(Player p, ushort x, ushort y, ushort z, BlockID block)
+        public void Blockchange1(Player p, ushort x, ushort y, ushort z, ushort block)
         {
             p.ClearBlockchange();
             p.RevertBlock(x, y, z);

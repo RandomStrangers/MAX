@@ -19,46 +19,61 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace MAX.Orders.World {
-    public sealed class OrdGoto : Order2 {
-        public override string name { get { return "Goto"; } }
-        public override string shortcut { get { return "g"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override OrderDesignation[] Designations {
-            get { return new[] { new OrderDesignation("j"), new OrderDesignation("Join"), new OrderDesignation("gr", "-random"),
-                    new OrderDesignation("GotoRandom", "-random"), new OrderDesignation("JoinRandom", "-random") }; }
+namespace MAX.Orders.World
+{
+    public class OrdGoto : Order
+    {
+        public override string Name { get { return "Goto"; } }
+        public override string Shortcut { get { return "g"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override OrderDesignation[] Designations
+        {
+            get
+            {
+                return new[] { new OrderDesignation("j"), new OrderDesignation("Join"), new OrderDesignation("gr", "-random"),
+                    new OrderDesignation("GotoRandom", "-random"), new OrderDesignation("JoinRandom", "-random") };
+            }
         }
         public override bool SuperUseable { get { return false; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
-            
-            if (message.CaselessStarts("-random")) {
+
+            if (message.CaselessStarts("-random"))
+            {
                 string[] files = LevelInfo.AllMapFiles();
                 string[] args = message.SplitSpaces(2);
                 string map;
-                
+
                 // randomly only visit certain number of maps
-                if (args.Length > 1) {
+                if (args.Length > 1)
+                {
                     List<string> maps = Wildcard.Filter(files, args[1],
                                                         mapFile => Path.GetFileNameWithoutExtension(mapFile));
-                    if (maps.Count == 0) {
+                    if (maps.Count == 0)
+                    {
                         p.Message("No maps found containing \"{0}\"", args[1]);
                         return;
                     }
                     map = maps[new Random().Next(maps.Count)];
-                } else {
+                }
+                else
+                {
                     map = files[new Random().Next(files.Length)];
                     map = Path.GetFileNameWithoutExtension(map);
                 }
 
                 PlayerActions.ChangeMap(p, map);
-            } else if (Formatter.ValidMapName(p, message)) {
+            }
+            else if (Formatter.ValidMapName(p, message))
+            {
                 PlayerActions.ChangeMap(p, message);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Goto [map name]");
             p.Message("&HTeleports yourself to a different level.");
             p.Message("&T/Goto -random");

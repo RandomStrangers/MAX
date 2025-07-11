@@ -19,89 +19,98 @@
 using System;
 using System.Threading;
 
-namespace MAX.Orders.Misc 
+namespace MAX.Orders.Misc
 {
-    public sealed class OrdRagequit : Order2 
+    public class OrdRagequit : Order
     {
-        public override string name { get { return "RageQuit"; } }
-        public override string shortcut { get { return "rq"; } }
-        public override string type { get { return OrderTypes.Other; } }
+        public override string Name { get { return "RageQuit"; } }
+        public override string Shortcut { get { return "rq"; } }
+        public override string Type { get { return OrderTypes.Other; } }
         public override bool MessageBlockRestricted { get { return true; } }
         public override bool SuperUseable { get { return false; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             p.Leave("RAGEQUIT!!");
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/RageQuit");
             p.Message("&HMakes you ragequit");
         }
     }
-    
-    public sealed class OrdQuit : Order2 
+
+    public class OrdQuit : Order
     {
-        public override string name { get { return "Quit"; } }
-        public override string type { get { return OrderTypes.Other; } }
+        public override string Name { get { return "Quit"; } }
+        public override string Type { get { return OrderTypes.Other; } }
         public override bool MessageBlockRestricted { get { return true; } }
         public override bool SuperUseable { get { return false; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string msg = message.Length > 0 ? "Left the game: " + message : "Left the game.";
             if (p.muted) msg = "Left the game.";
             p.Leave(msg);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Quit <reason>");
             p.Message("&HLeave the server.");
         }
     }
-    
-    public sealed class OrdCrashServer : Order2 
+
+    public class OrdCrashServer : Order
     {
-        public override string name { get { return "CrashServer"; } }
-        public override string shortcut { get { return "Crash"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
+        public override string Name { get { return "CrashServer"; } }
+        public override string Shortcut { get { return "Crash"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
         public override bool MessageBlockRestricted { get { return true; } }
         public override bool SuperUseable { get { return false; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override bool UseableWhenJailed { get { return true; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length > 0) { Help(p); return; }
             int code = new Random().Next(int.MinValue, int.MaxValue);
 
             p.Leave("Server crash! Error code 0x" + code.ToString("X8").TrimStart('0'));
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/CrashServer");
             p.Message("&HCrash the server with a generic error");
         }
     }
-    
-    public sealed class OrdHacks : Order2 
+
+    public class OrdHacks : Order
     {
-        public override string name { get { return "Hacks"; } }
-        public override string shortcut { get { return "Hax"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
+        public override string Name { get { return "Hacks"; } }
+        public override string Shortcut { get { return "Hax"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
         public override bool MessageBlockRestricted { get { return true; } }
         public override bool SuperUseable { get { return false; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override bool UseableWhenJailed { get { return true; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length > 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length > 0)
+            {
                 p.Message("&WIncorrect syntax. Abuse detected.");
                 Thread.Sleep(3000);
             }
-            
+
             const string msg = "Your IP has been backtraced + reported to FBI Cyber Crimes Unit.";
             p.Leave("kicked (" + msg + ")", msg, false);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Hacks");
             p.Message("&HPerforms various server hacks. OPERATORS ONLY!!!");
         }

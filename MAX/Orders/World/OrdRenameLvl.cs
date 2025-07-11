@@ -16,33 +16,37 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.World {
-    public sealed class OrdRenameLvl : Order2 {
-        public override string name { get { return "RenameLvl"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        public override OrderDesignation[] Designations {
+namespace MAX.Orders.World
+{
+    public class OrdRenameLvl : Order
+    {
+        public override string Name { get { return "RenameLvl"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("WRename"), new OrderDesignation("WorldRename") }; }
         }
         public override bool MessageBlockRestricted { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
             if (args.Length != 2) { Help(p); return; }
-            LevelConfig cfg;
-                       
+
             string src = Matcher.FindMaps(p, args[0]);
             if (src == null) return;
-            if (!LevelInfo.Check(p, data.Rank, src, "rename this map", out cfg)) return;
-            
+            if (!LevelInfo.Check(p, data.Rank, src, "rename this map", out LevelConfig cfg)) return;
+
             string dst = args[1].ToLower();
             if (!Formatter.ValidMapName(p, dst)) return;
 
             if (!LevelActions.Rename(p, src, dst)) return;
             Chat.MessageGlobal("Level {0} &Swas renamed to {1}", cfg.Color + src, cfg.Color + dst);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/RenameLvl [level] [new name]");
             p.Message("&HRenames [level] to [new name]");
         }

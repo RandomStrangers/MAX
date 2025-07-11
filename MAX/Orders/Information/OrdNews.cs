@@ -17,23 +17,25 @@
  */
 using MAX.Util;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdNews : Order2 
+    public class OrdNews : Order
     {
-        public override string name { get { return "News"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override string Name { get { return "News"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             TextFile newsText = TextFile.Files["News"];
             newsText.EnsureExists();
-            
+
             string[] lines = newsText.GetText();
             p.MessageLines(lines);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/News");
             p.Message("&HShows server news.");
         }

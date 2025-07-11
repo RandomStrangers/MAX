@@ -17,37 +17,42 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.Misc {
-    
-    public sealed class OrdSendOrd : Order2 {        
-        public override string name { get { return "SendOrd"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+namespace MAX.Orders.Misc
+{
+
+    public class OrdSendOrd : Order
+    {
+        public override string Name { get { return "SendOrd"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces(3);
             Player target = PlayerInfo.FindMatches(p, args[0]);
             if (target == null) return;
-            
+
             if (!CheckRank(p, data, target, "send orders for", true)) return;
             if (args.Length == 1) { p.Message("No order name given."); return; }
-            
+
             string ordName = args[1], ordArgs = args.Length > 2 ? args[2] : "";
             Search(ref ordName, ref ordArgs);
-            
+
             Order ord = Find(ordName);
-            if (ord == null) {
+            if (ord == null)
+            {
                 p.Message("Unknown order \"{0}\".", ordName); return;
             }
-            
+
             data.Context = OrderContext.SendOrd;
             data.Rank = p.Rank;
             ord.Use(target, ordArgs, data);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/SendOrd [player] [order] <arguments>");
-            p.Message("&HMake another user use a order. (e.g &T/SendOrd bob tp bob2&H)");
+            p.Message("&HMake another player use an order. (e.g &T/SendOrd bob tp bob2&H)");
             p.Message("  &WNote [player] uses the order as if they had your rank");
         }
     }

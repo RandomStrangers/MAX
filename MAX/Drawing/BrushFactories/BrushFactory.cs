@@ -16,22 +16,25 @@
     permissions and limitations under the Licenses.
  */
 using System.Collections.Generic;
-using BlockID = System.UInt16;
 
-namespace MAX.Drawing.Brushes 
+
+namespace MAX.Drawing.Brushes
 {
-    public abstract class BrushFactory 
+    public class BrushFactory
     {
-        public abstract string Name { get; }
-        public abstract string[] Help { get; }
-        
+        public virtual string Name { get; }
+        public virtual string[] Help { get; }
+
         /// <summary> Creates a brush from the given arguments, 
         /// returning null if invalid arguments are specified. </summary>
-        public abstract Brush Construct(BrushArgs args);
-        
+        public virtual Brush Construct(BrushArgs args)
+        {
+            return null;
+        }
+
         /// <summary> Validates the given arguments, returning false if they are invalid. </summary>
         public virtual bool Validate(BrushArgs args) { return Construct(args) != null; }
-        
+
         public static List<BrushFactory> Brushes = new List<BrushFactory>() {
             new SolidBrushFactory(),    new CheckeredBrushFactory(),
             new StripedBrushFactory(),  new PasteBrushFactory(),
@@ -41,32 +44,35 @@ namespace MAX.Drawing.Brushes
             new GradientBrushFactory(), new ReplaceBrushBrushFactory(),
             new ReplaceNotBrushBrushFactory(), new GridBrushFactory(),
         };
-        
-        public static BrushFactory Find(string name) {
-            foreach (BrushFactory entry in Brushes) 
+
+        public static BrushFactory Find(string name)
+        {
+            foreach (BrushFactory entry in Brushes)
             {
                 if (entry.Name.CaselessEq(name)) return entry;
             }
             return null;
         }
-        
-        public static void List(Player p) {
+
+        public static void List(Player p)
+        {
             p.Message("&HAvailable brushes: &f" + Brushes.Join(b => b.Name));
         }
     }
-    
-    public struct BrushArgs 
+
+    public struct BrushArgs
     {
         /// <summary> Player that is providing arguments. </summary>
         public Player Player;
-        
+
         /// <summary> Raw message provided for arguments, including spaces. </summary>
         public string Message;
-        
+
         /// <summary> Block the player is currently holding. </summary>
-        public BlockID Block;
-        
-        public BrushArgs(Player p, string message, BlockID block) {
+        public ushort Block;
+
+        public BrushArgs(Player p, string message, ushort block)
+        {
             Player = p; Message = message; Block = block;
         }
     }

@@ -16,22 +16,24 @@
     permissions and limitations under the Licenses.
 */
 
-namespace MAX.Orders.Building 
+namespace MAX.Orders.Building
 {
-    public sealed class OrdDoNotMark : Order2 
+    public class OrdDoNotMark : Order
     {
-        public override string name { get { return "DoNotMark"; } }
-        public override string shortcut { get { return "dnm"; } }
-        public override string type { get { return OrderTypes.Building; } }
+        public override string Name { get { return "DoNotMark"; } }
+        public override string Shortcut { get { return "dnm"; } }
+        public override string Type { get { return OrderTypes.Building; } }
         public override bool SuperUseable { get { return false; } }
         public override OrderDesignation[] Designations { get { return new[] { new OrderDesignation("dm") }; } }
 
-        public override void Use(Player p, string message, OrderData data) {
-           p.ClickToMark = !p.ClickToMark;
-           p.Message("Click blocks to &T/mark&S: {0}", p.ClickToMark ? "&2ON" : "&4OFF");
+        public override void Use(Player p, string message, OrderData data)
+        {
+            p.ClickToMark = !p.ClickToMark;
+            p.Message("Click blocks to &T/mark&S: {0}", p.ClickToMark ? "&2ON" : "&4OFF");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/DoNotMark");
             p.Message("&HToggles whether clicking blocks adds a marker to a selection. (e.g. &T/cuboid&H)");
         }

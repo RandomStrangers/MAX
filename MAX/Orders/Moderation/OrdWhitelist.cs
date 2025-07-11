@@ -16,46 +16,63 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdWhitelist : Order2 {
-        public override string name { get { return "Whitelist"; } }
-        public override string shortcut { get { return "w"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
-        public override OrderPerm[] ExtraPerms {
+namespace MAX.Orders.Moderation
+{
+    public class OrdWhitelist : Order
+    {
+        public override string Name { get { return "Whitelist"; } }
+        public override string Shortcut { get { return "w"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Admin, "can enable/disable whitelisted only mode") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
-            string ord    = args[0];
-            
-            if (ord.CaselessEq("enable")) {
-                SetMode(true,  "&aON"); return;
-            } else if (ord.CaselessEq("disable")) {
+            string ord = args[0];
+
+            if (ord.CaselessEq("enable"))
+            {
+                SetMode(true, "&aON"); return;
+            }
+            else if (ord.CaselessEq("disable"))
+            {
                 SetMode(false, "&cOFF"); return;
             }
 
             if (!Server.Config.WhitelistedOnly) { p.Message("Whitelist is not enabled."); return; }
-            if (message.Length == 0) { List(p, ""); return; }         
-            
-            if (ord.CaselessEq("add")) {
+            if (message.Length == 0) { List(p, ""); return; }
+
+            if (ord.CaselessEq("add"))
+            {
                 if (args.Length < 2) { Help(p); return; }
                 Add(p, args[1]);
-            } else if (IsDeleteOrder(ord)) {
+            }
+            else if (IsDeleteOrder(ord))
+            {
                 if (args.Length < 2) { Help(p); return; }
                 Remove(p, args[1]);
-            } else if (IsListOrder(ord)) {
+            }
+            else if (IsListOrder(ord))
+            {
                 string modifier = args.Length > 1 ? args[1] : "";
                 List(p, modifier);
-            } else if (args.Length == 1) {
+            }
+            else if (args.Length == 1)
+            {
                 Add(p, ord);
-            } else {
+            }
+            else
+            {
                 Help(p);
             }
         }
 
-        public static void SetMode(bool enabled, string desc) {
+        public static void SetMode(bool enabled, string desc)
+        {
             Server.Config.WhitelistedOnly = enabled;
             SrvProperties.Save();
 
@@ -63,35 +80,45 @@ namespace MAX.Orders.Moderation {
             Logger.Log(LogType.SystemActivity, "Whitelisted only mode is now " + desc);
         }
 
-        public static void Add(Player p, string name) {
+        public static void Add(Player p, string name)
+        {
             name = Server.FromRawUsername(name);
-           
-            if (!Server.whiteList.Add(name)) {
+
+            if (!Server.whiteList.Add(name))
+            {
                 p.Message("{0} &Sis already on the whitelist!", p.FormatNick(name));
-            } else {
+            }
+            else
+            {
                 Chat.MessageFromOps(p, "λNICK &Sadded &f" + name + " &Sto the whitelist.");
                 Server.whiteList.Save();
                 Logger.Log(LogType.UserActivity, "WHITELIST: Added " + name);
             }
         }
 
-        public static void Remove(Player p, string name) {
+        public static void Remove(Player p, string name)
+        {
             name = Server.FromRawUsername(name);
-            
-            if (!Server.whiteList.Remove(name)) {
+
+            if (!Server.whiteList.Remove(name))
+            {
                 p.Message("{0} &Sis not on the whitelist!", p.FormatNick(name));
-            } else {
+            }
+            else
+            {
                 Server.whiteList.Save();
                 Chat.MessageFromOps(p, "λNICK &Sremoved &f" + name + " &Sfrom the whitelist.");
                 Logger.Log(LogType.UserActivity, "WHITELIST: Removed " + name);
             }
         }
 
-        public static void List(Player p, string modifier) {
+        public static void List(Player p, string modifier)
+        {
             Server.whiteList.Output(p, "whitelisted players", "Whitelist list", modifier);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Whitelist add/del [player]");
             p.Message("&HAdds or removes [player] from the whitelist");
             p.Message("&T/Whitelist list");

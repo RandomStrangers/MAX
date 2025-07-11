@@ -18,23 +18,30 @@
 
 namespace MAX.Orders.World
 {
-    public abstract class PermissionOrd : Order2
+    public abstract class PermissionOrd : Order
     {
-        public override string type { get { return OrderTypes.World; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
-        
+        public override string Type { get { return OrderTypes.World; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+
         public static bool Do(Player p, string[] args, int offset, bool max,
-                              AccessController access, OrderData data, Level lvl) {
-            for (int i = offset; i < args.Length; i++) {
+                              AccessController access, OrderData data, Level lvl)
+        {
+            for (int i = offset; i < args.Length; i++)
+            {
                 string arg = args[i];
-                if (arg[0] == '+' || arg[0] == '-') {
+                if (arg[0] == '+' || arg[0] == '-')
+                {
                     if (!SetList(p, arg, access, data, lvl)) return false;
-                } else if (max) {
+                }
+                else if (max)
+                {
                     Group grp = Matcher.FindRanks(p, arg);
                     if (grp == null) return false;
                     access.SetMax(p, data.Rank, lvl, grp);
-                } else {
+                }
+                else
+                {
                     Group grp = Matcher.FindRanks(p, arg);
                     if (grp == null) return false;
                     access.SetMin(p, data.Rank, lvl, grp);
@@ -44,115 +51,134 @@ namespace MAX.Orders.World
         }
 
         public static bool SetList(Player p, string name,
-                            AccessController access, OrderData data, Level lvl) {
+                            AccessController access, OrderData data, Level lvl)
+        {
             bool include = name[0] == '+';
             string mode = include ? "whitelist" : "blacklist";
             name = name.Substring(1);
-            if (name.Length == 0) {
+            if (name.Length == 0)
+            {
                 p.Message("You must provide a player name to {0}.", mode);
                 return false;
             }
-            
+
             name = PlayerInfo.FindMatchesPreferOnline(p, name);
             if (name == null) return false;
-            
-            if (!include && name.CaselessEq(p.name)) {
+
+            if (!include && name.CaselessEq(p.name))
+            {
                 p.Message("&WYou cannot blacklist yourself."); return false;
             }
-            
-            if (include) {
+
+            if (include)
+            {
                 access.Whitelist(p, data.Rank, lvl, name);
-            } else {
+            }
+            else
+            {
                 access.Blacklist(p, data.Rank, lvl, name);
             }
             return true;
         }
     }
-    
+
     public abstract class LevelPermissionOrd : PermissionOrd
     {
-        public abstract bool IsVisit { get; }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public virtual bool IsVisit { get; }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             const string maxPrefix = "-max ";
             bool max = message.CaselessStarts(maxPrefix);
             if (max) message = message.Substring(maxPrefix.Length);
-            
+
             string[] args = message.SplitSpaces();
             if (message.Length == 0 || args.Length > 2) { Help(p); return; }
-            
-            if (args.Length == 1) {
+
+            if (args.Length == 1)
+            {
                 // special case /perbuild [permission] to current level
-                if (p.IsSuper) {
+                if (p.IsSuper)
+                {
                     SuperRequiresArgs(p, "level name");
-                } else {
+                }
+                else
+                {
                     UpdatePerms(p, p.level.name, data, args, max);
                 }
                 return;
             }
-            
+
             foreach (string name in args[0].SplitComma())
             {
                 string map = Matcher.FindMaps(p, name);
                 if (map == null) continue;
-                
+
                 UpdatePerms(p, map, data, args, max);
             }
         }
 
-        public void UpdatePerms(Player p, string map, OrderData data, string[] args, bool max) {
-            Level lvl;
-            LevelConfig cfg = LevelInfo.GetConfig(map, out lvl);
+        public void UpdatePerms(Player p, string map, OrderData data, string[] args, bool max)
+        {
+            LevelConfig cfg = LevelInfo.GetConfig(map, out Level lvl);
             int offset = args.Length == 1 ? 0 : 1;
-            
+
             AccessController access;
-            if (lvl == null) {
+            if (lvl == null)
+            {
                 access = new LevelAccessController(cfg, map, IsVisit);
-            } else {
+            }
+            else
+            {
                 access = IsVisit ? lvl.VisitAccess : lvl.BuildAccess;
             }
             Do(p, args, offset, max, access, data, lvl);
         }
 
-        public override void Help(Player p) {
-        	string action = IsVisit ? "visit" : "Build on";
-        	string verb   = IsVisit ? "visit" : "Build";
+        public override void Help(Player p)
+        {
+            string action = IsVisit ? "visit" : "Build on";
+            string verb = IsVisit ? "visit" : "Build";
 
-            p.Message("&T/{0} [level] [rank]", name);
+            p.Message("&T/{0} [level] [rank]", Name);
             p.Message("&HSets the lowest rank able to {0} the given level.", action);
-            p.Message("&T/{0} -max [level] [Rank]", name);
+            p.Message("&T/{0} -max [level] [Rank]", Name);
             p.Message("&HSets the highest rank able to {0} the given level.", action);
-            p.Message("&T/{0} [level] +[name]", name);
+            p.Message("&T/{0} [level] +[name]", Name);
             p.Message("&HAllows [name] to {0}, even if their rank cannot.", verb);
-            p.Message("&T/{0} [level] -[name]", name);
+            p.Message("&T/{0} [level] -[name]", Name);
             p.Message("&HPrevents [name] from {0}ing, even if their rank can.", verb);
         }
     }
-    
-    public sealed class OrdPermissionBuild : LevelPermissionOrd
+
+    public class OrdPermissionBuild : LevelPermissionOrd
     {
-        public override string name { get { return "PerBuild"; } }
-        public override string shortcut { get { return "WBuild"; } }
+        public override string Name { get { return "PerBuild"; } }
+        public override string Shortcut { get { return "WBuild"; } }
         public override bool IsVisit { get { return false; } }
-        
-        public override OrderDesignation[] Designations {
+
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("WorldBuild"), new OrderDesignation("PerBuildMax", "-max") }; }
         }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "bypass max Build rank restriction") }; }
         }
     }
-    
-    public sealed class OrdPermissionVisit : LevelPermissionOrd
+
+    public class OrdPermissionVisit : LevelPermissionOrd
     {
-        public override string name { get { return "PerVisit"; } }
-        public override string shortcut { get { return "WAccess"; } }
+        public override string Name { get { return "PerVisit"; } }
+        public override string Shortcut { get { return "WAccess"; } }
         public override bool IsVisit { get { return true; } }
-        
-        public override OrderDesignation[] Designations {
+
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("WorldAccess"), new OrderDesignation("PerVisitMax", "-max") }; }
         }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "bypass max visit rank restriction") }; }
         }
     }

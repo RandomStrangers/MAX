@@ -15,23 +15,25 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Chatting 
-{  
-    public sealed class OrdSay : Order2 
-    {        
-        public override string name { get { return "Say"; } }
-        public override string shortcut { get { return "Broadcast"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Chatting
+{
+    public class OrdSay : Order
+    {
+        public override string Name { get { return "Say"; } }
+        public override string Shortcut { get { return "Broadcast"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
 
             message = Colors.Escape(message);
             Chat.Message(ChatScope.Global, message, null, null, true);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Say [message]");
             p.Message("&HBroadcasts a global message to everyone in the server.");
         }

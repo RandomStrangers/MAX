@@ -19,16 +19,16 @@ using MAX.Scripting;
 
 namespace MAX.Orders.Scripting
 {
-    public class OrdAddon : Order2
+    public class OrdAddon : Order
     {
-        public override string name { get { return "Addon"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
+        public override string Name { get { return "Addon"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
         public override OrderDesignation[] Designations
         {
             get
             {
-                return new[] { new OrderDesignation("PLoad", "load"), new OrderDesignation("PUnload", "unload"),
+                return new[] { new OrderDesignation("ALoad", "load"), new OrderDesignation("AUnload", "unload"),
                     new OrderDesignation("Addons", "list") };
             }
         }
@@ -42,7 +42,7 @@ namespace MAX.Orders.Scripting
                 string modifier = args.Length > 1 ? args[1] : "";
 
                 p.Message("Loaded addons:");
-                Paginator.Output(p, Addon.custom, pl => pl.name,
+                Paginator.Output(p, Addon.custom, ad => ad.Name,
                                  "Addons", "addons", modifier);
                 return;
             }
@@ -63,12 +63,10 @@ namespace MAX.Orders.Scripting
             else if (ord.CaselessEq("create"))
             {
                 Find("OrdCreate").Use(p, "addon " + name);
-                //p.Message("Use &T/PCreate &Sinstead");
             }
             else if (ord.CaselessEq("compile"))
             {
                 Find("Compile").Use(p, "addon " + name);
-                //p.Message("Use &T/PCompile &Sinstead");
             }
             else
             {
@@ -78,9 +76,8 @@ namespace MAX.Orders.Scripting
 
         public static void UnloadAddon(Player p, string name)
         {
-            int matches;
-            Addon addon = Matcher.Find(p, name, out matches, Addon.custom,
-                                         null, pln => pln.name, "addons");
+            Addon addon = Matcher.Find(p, name, out int matches, Addon.custom,
+                                         null, add => add.Name, "addons");
 
             if (addon == null) return;
             ScriptingOperations.UnloadAddon(p, addon);

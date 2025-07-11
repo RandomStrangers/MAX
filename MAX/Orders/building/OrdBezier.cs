@@ -17,10 +17,13 @@
  */
 using MAX.Drawing.Ops;
 
-namespace MAX.Orders.Building {
-    public sealed class OrdBezier : DrawOrd {
-        public override string name { get { return "Bezier"; } }
-        public override OrderDesignation[] Designations {
+namespace MAX.Orders.Building
+{
+    public class OrdBezier : DrawOrd
+    {
+        public override string Name { get { return "Bezier"; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new OrderDesignation[] { new OrderDesignation("Curve") }; }
         }
 
@@ -29,8 +32,9 @@ namespace MAX.Orders.Building {
         public override string PlaceMessage { get { return "Place or break two blocks to determine the endpoints, then another for the control point"; } }
 
         public override DrawOp GetDrawOp(DrawArgs dArgs) { return new BezierDrawOp(); }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Bezier <brush args>");
             p.Message("&HDraws a quadratic bezier curve.");
             p.Message("&HFirst two points specify the endpoints, then another point specifies the control point.");

@@ -15,49 +15,55 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
+using MAX.Tasks;
 using System;
 using System.Collections.Generic;
-using MAX.Tasks;
 
-namespace MAX.Util 
+namespace MAX.Util
 {
-    public class ThreadSafeCache 
+    public class ThreadSafeCache
     {
         public static ThreadSafeCache DBCache = new ThreadSafeCache();
 
         public object locker = new object();
-        public Dictionary<string, object> items    = new Dictionary<string, object>();
+        public Dictionary<string, object> items = new Dictionary<string, object>();
         public Dictionary<string, DateTime> access = new Dictionary<string, DateTime>();
-        
-        public object GetLocker(string key) {
-            lock (locker) {
-                object value;
-                if (!items.TryGetValue(key, out value)) {
+
+        public object GetLocker(string key)
+        {
+            lock (locker)
+            {
+                if (!items.TryGetValue(key, out object value))
+                {
                     value = new object();
                     items[key] = value;
                 }
-                
+
                 access[key] = DateTime.UtcNow;
                 return value;
             }
         }
-        
-        
-        public void CleanupTask(SchedulerTask task) {
+
+
+        public void CleanupTask(SchedulerTask _)
+        {
             List<string> free = null;
             DateTime now = DateTime.UtcNow;
-            
-            lock (locker) {
-                foreach (var kvp in access) {
+
+            lock (locker)
+            {
+                foreach (KeyValuePair<string, DateTime> kvp in access)
+                {
                     // Has the cached item last been accessed in 5 minutes?
                     if ((now - kvp.Value).TotalMinutes <= 5) continue;
-                    
+
                     if (free == null) free = new List<string>();
                     free.Add(kvp.Key);
                 }
-                
+
                 if (free == null) return;
-                foreach (string key in free) {
+                foreach (string key in free)
+                {
                     items.Remove(key);
                     access.Remove(key);
                 }

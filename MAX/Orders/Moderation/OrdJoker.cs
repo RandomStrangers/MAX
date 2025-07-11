@@ -17,16 +17,20 @@
 */
 using MAX.Orders.Chatting;
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdJoker : Order2 {       
-        public override string name { get { return "Joker"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdJoker : Order
+    {
+        public override string Name { get { return "Joker"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             bool stealth = false;
-            if (message[0] == '#') {
+            if (message[0] == '#')
+            {
                 message = message.Remove(0, 1).Trim();
                 stealth = true;
                 Logger.Log(LogType.UserActivity, "Stealth joker attempted");
@@ -35,25 +39,35 @@ namespace MAX.Orders.Moderation {
             Player who = PlayerInfo.FindMatches(p, message);
             if (who == null) return;
             if (!CheckRank(p, data, who, "joker", true)) return;
-            if (!MessageOrd.CanSpeak(p, name)) return;
+            if (!MessageOrd.CanSpeak(p, Name)) return;
 
-            if (!who.joker) {
-                if (stealth) { 
-                    Chat.MessageFromOps(who, "λNICK &Sis now STEALTH jokered."); 
-                } else {
+            if (!who.joker)
+            {
+                if (stealth)
+                {
+                    Chat.MessageFromOps(who, "λNICK &Sis now STEALTH jokered.");
+                }
+                else
+                {
                     Chat.MessageFrom(who, "λNICK &Sis now a &aJ&bo&ck&5e&9r&S.", null, true);
                 }
-            } else {
-                if (stealth) { 
+            }
+            else
+            {
+                if (stealth)
+                {
                     Chat.MessageFromOps(who, "λNICK &Sis now STEALTH unjokered.");
-                } else {
+                }
+                else
+                {
                     Chat.MessageFrom(who, "λNICK &Sis no longer a &aJ&bo&ck&5e&9r&S.", null, true);
                 }
             }
             who.joker = !who.joker;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Joker [player]");
             p.Message("&HMakes that player become a joker!");
             p.Message("&T/Joker #[player]");

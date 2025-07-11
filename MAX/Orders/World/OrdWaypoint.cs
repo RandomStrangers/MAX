@@ -16,18 +16,22 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.World {
-    public sealed class OrdWaypoint : OrdWarp {
-        public override string name { get { return "Waypoint"; } }
-        public override string shortcut { get { return "wp"; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Builder; } }
+namespace MAX.Orders.World
+{
+    public class OrdWaypoint : OrdWarp
+    {
+        public override string Name { get { return "Waypoint"; } }
+        public override string Shortcut { get { return "wp"; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Builder; } }
         public override OrderPerm[] ExtraPerms { get { return null; } }
-                
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             UseCore(p, message, data, p.Waypoints, "Waypoint");
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&HWaypoints are warps only usable by you.");
             p.Message("&T/Waypoint create [name] &H- Create a new waypoint");
             p.Message("&T/Waypoint update [name] &H- Update a waypoint");

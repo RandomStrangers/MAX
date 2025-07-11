@@ -1,15 +1,15 @@
-﻿using System;
+﻿using MAX.Network;
+using System;
 using System.IO;
-using MAX.Network;
 namespace MAX.Orders
 {
     public class OrdCCHeartbeat : Order
     {
-        public override string name { get { return "ccheartbeat"; } }
-        public override string shortcut { get { return "ccbeat"; } }
-        public override string type { get { return "moderation"; } }
-        public override bool museumUsable { get { return true; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
+        public override string Name { get { return "ccheartbeat"; } }
+        public override string Shortcut { get { return "ccbeat"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override bool MuseumUsable { get { return true; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
 
         public override void Use(Player p, string message)
         {
@@ -18,38 +18,40 @@ namespace MAX.Orders
                 Heartbeat.Heartbeats[0].Pump();
                 p.Message("Heartbeat pump sent.");
                 p.Message("Server URL: " + ((ClassiCubeBeat)Heartbeat.Heartbeats[0]).LastResponse);
-
             }
             catch (Exception e)
             {
-                Logger.Log(LogType.Error, "Error with ClassiCube pump.", e);
                 p.Message("Error with ClassiCube pump: " + e + ".");
+                if (!p.IsMAX)
+                {
+                    Logger.Log(LogType.Error, "Error with ClassiCube pump.", e);
+                }
             }
         }
         public override void Help(Player p)
         {
-            p.Message("/ccheartbeat - Forces a pump for the ClassiCube heartbeat.  DEBUG PURPOSES ONLY.");
+            p.Message("&T/CCHeartbeat &H- Forces a pump for the ClassiCube heartbeat.");
         }
     }
-    public sealed class OrdURL : Order2
+    public class OrdURL : Order
     {
-        public override string name { get { return "ServerUrl"; } }
-        public override string shortcut { get { return "url"; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "ServerURL"; } }
+        public override string Shortcut { get { return "URL"; } }
+        public override string Type { get { return OrderTypes.Information; } }
         public override bool SuperUseable { get { return true; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Banned; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Banned; } }
 
 
-        public override void Use(Player p, string message, OrderData data)
+        public override void Use(Player p, string message)
         {
-                string file = "./text/externalurl.txt";
-                string contents = File.ReadAllText(file);
-                p.Message("Server URL: " + contents);
-                return;
+            string file = "./text/externalurl.txt";
+            string contents = File.ReadAllText(file);
+            p.Message("Server URL: " + contents);
+            return;
         }
         public override void Help(Player p)
         {
-            p.Message("%T/ServerUrl %H- Shows the server's ClassiCube URL.");
+            p.Message("&T/ServerUrl &H- Shows the server's ClassiCube URL.");
         }
     }
 }

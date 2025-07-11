@@ -15,11 +15,10 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.IO;
-using System.Net;
 using MAX.Network;
 using MAX.Tasks;
+using System;
+using System.Net;
 
 namespace MAX
 {
@@ -73,74 +72,11 @@ namespace MAX
 #endif
 
         public static event EventHandler NewerVersionDetected;
-
-        public static void UpdaterTask(SchedulerTask task)
-        {
-            UpdateCheck();
-            task.Delay = TimeSpan.FromHours(2);
-        }
-
-        public static void UpdateCheck()
-        {
-            if (!Server.Config.CheckForUpdates) return;
-            WebClient client = HttpUtil.CreateWebClient();
-
-            try
-            {
-                string latest = client.DownloadString(CurrentVersionURL);
-
-                if (new Version(Server.Version) >= new Version(latest))
-                {
-                    Logger.Log(LogType.SystemActivity, "No update found!");
-                }
-                else if (NewerVersionDetected != null)
-                {
-                    NewerVersionDetected(null, EventArgs.Empty);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error checking for updates", ex);
-            }
-
-            client.Dispose();
-        }
-
-        public static void PerformUpdate()
+#if MAX_DOTNET
+        public static void DownloadDotNetFiles(WebClient client)
         {
             try
             {
-                try
-                {
-                    DeleteFiles("MAX.update", "prev_MAX.exe");
-#if MAX_DOTNET
-                    DeleteFiles("runtimes/unix/lib/netcoreapp3.0/prev_System.Drawing.Common.dll",
-                    "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll.update",
-                    "runtimes/win/lib/netstandard2.0/prev_System.Security.Cryptography.ProtectedData.dll",
-                    "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll.update");
-                    foreach (string wincorelib in WinCoreLibs)
-                    {
-                        DeleteFiles("runtimes/win/lib/netcoreapp3.0/prev_" + wincorelib,
-                        "runtimes/win/lib/netcoreapp3.0/" + wincorelib + ".update");
-                    }
-                    foreach (string Win64Lib in Win64Libs)
-                    {
-                        DeleteFiles("runtimes/win-x64/native/prev_" + Win64Lib,
-                        "runtimes/win-x64/native/" + Win64Lib + ".update");
-                    }
-                    foreach (string dependency in Dependencies)
-                    {
-                        DeleteFiles("prev_" + dependency, dependency + ".update");
-                    }
-#endif
-                }
-                catch
-                {
-                }
-
-                WebClient client = HttpUtil.CreateWebClient();
-                client.DownloadFile(URL, "MAX.update");
-#if MAX_DOTNET
                 foreach (string dep in Dependencies)
                 {
                     client.DownloadFile(UpdatesURL + dep, dep + ".update");
@@ -159,6 +95,118 @@ namespace MAX
                     client.DownloadFile(UpdatesURL + "runtimes/win-x64/native/" + Win64,
                     "runtimes/win-x64/native/" + Win64 + ".update");
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error performing update", ex);
+            }
+        }
+        public static void DeleteDotNetFiles()
+        {
+            try
+            {
+                DeleteFiles("runtimes/unix/lib/netcoreapp3.0/prev_System.Drawing.Common.dll",
+                "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll.update",
+                "runtimes/win/lib/netstandard2.0/prev_System.Security.Cryptography.ProtectedData.dll",
+                "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll.update");
+                foreach (string wincorelib in WinCoreLibs)
+                {
+                    DeleteFiles("runtimes/win/lib/netcoreapp3.0/prev_" + wincorelib,
+                    "runtimes/win/lib/netcoreapp3.0/" + wincorelib + ".update");
+                }
+                foreach (string Win64Lib in Win64Libs)
+                {
+                    DeleteFiles("runtimes/win-x64/native/prev_" + Win64Lib,
+                    "runtimes/win-x64/native/" + Win64Lib + ".update");
+                }
+                foreach (string dependency in Dependencies)
+                {
+                    DeleteFiles("prev_" + dependency, dependency + ".update");
+                }
+            }
+            catch
+            {
+            }
+        }
+        public static void MoveDotnetFiles()
+        {
+            try
+            {
+                foreach (string d in Dependencies)
+                {
+                    FileIO.TryMove(d + ".update", d);
+                }
+                FileIO.TryMove("/runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll.update",
+                "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll");
+                FileIO.TryMove("/runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll.update",
+                "/runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll");
+                foreach (string wincorelib in WinCoreLibs)
+                {
+                    FileIO.TryMove("/runtimes/win/lib/netcoreapp3.0/" + wincorelib + ".update",
+                    "/runtimes/win/lib/netcoreapp3.0/" + wincorelib);
+                }
+                foreach (string Win64Lib in Win64Libs)
+                {
+                    FileIO.TryMove("/runtimes/win-x64/native/" + Win64Lib + ".update",
+                    "/runtimes/win-x64/native/" + Win64Lib);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error performing update", ex);
+            }
+        }
+#endif
+        public static void UpdaterTask(SchedulerTask task)
+        {
+            UpdateCheck();
+            task.Delay = TimeSpan.FromHours(2);
+        }
+
+        public static void UpdateCheck()
+        {
+            if (!Server.Config.CheckForUpdates) return;
+            WebClient client = HttpUtil.CreateWebClient();
+
+            try
+            {
+                string latest = client.DownloadString(CurrentVersionURL);
+
+                if (new Version(Server.InternalVersion) >= new Version(latest))
+                {
+                    Logger.Log(LogType.SystemActivity, "No update found!");
+                }
+                else
+                {
+                    NewerVersionDetected?.Invoke(null, EventArgs.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error checking for updates", ex);
+            }
+
+            client.Dispose();
+        }
+        public static void PerformUpdate()
+        {
+            try
+            {
+                try
+                {
+                    DeleteFiles("MAX.update", "prev_MAX.exe");
+#if MAX_DOTNET
+                    DeleteDotNetFiles();
+#endif
+                }
+                catch
+                {
+                }
+
+                WebClient client = HttpUtil.CreateWebClient();
+                client.DownloadFile(URL, "MAX.update");
+#if MAX_DOTNET
+                DownloadDotNetFiles(client);
 #endif
                 Level[] levels = LevelInfo.Loaded.Items;
                 foreach (Level lvl in levels)
@@ -171,27 +219,10 @@ namespace MAX
                 Player[] players = PlayerInfo.Online.Items;
                 foreach (Player pl in players) pl.SaveStats();
                 string serverTLI = Server.GetServerExePath();
-                AtomicIO.TryMove(serverTLI, "prev_MAX.exe");
-                AtomicIO.TryMove("MAX.update", serverTLI);
+                FileIO.TryMove(serverTLI, "prev_MAX.exe");
+                FileIO.TryMove("MAX.update", serverTLI);
 #if MAX_DOTNET
-                foreach (string d in Dependencies)
-                {
-                    AtomicIO.TryMove(d + ".update", d);
-                }
-                AtomicIO.TryMove("/runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll.update",
-                "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll");
-                AtomicIO.TryMove("/runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll.update",
-                "/runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll");
-                foreach (string wincorelib in WinCoreLibs)
-                {
-                    AtomicIO.TryMove("/runtimes/win/lib/netcoreapp3.0/" + wincorelib + ".update",
-                    "/runtimes/win/lib/netcoreapp3.0/" + wincorelib);
-                }
-                foreach (string Win64Lib in Win64Libs)
-                {
-                    AtomicIO.TryMove("/runtimes/win-x64/native/" + Win64Lib + ".update",
-                    "/runtimes/win-x64/native/" + Win64Lib);
-                }
+                MoveDotnetFiles();
 #endif
                 Server.Stop(true, "Updating server.");
             }
@@ -202,7 +233,10 @@ namespace MAX
         }
         public static void DeleteFiles(params string[] paths)
         {
-            foreach (string path in paths) { AtomicIO.TryDelete(path); }
+            foreach (string path in paths)
+            {
+                FileIO.TryDelete(path);
+            }
         }
     }
 }

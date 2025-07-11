@@ -15,23 +15,25 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
 using MAX.Tasks;
+using System;
 
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdVote : Order2 
+    public class OrdVote : Order
     {
-        public override string name { get { return "Vote"; } }
-        public override string shortcut { get { return "vo"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+        public override string Name { get { return "Vote"; } }
+        public override string Shortcut { get { return "vo"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
-            if (!MessageOrd.CanSpeak(p, name)) return;
-            
-            if (Server.voting) {
+            if (!MessageOrd.CanSpeak(p, Name)) return;
+
+            if (Server.voting)
+            {
                 p.Message("A vote is in progress!"); return;
             }
             Server.voting = true;
@@ -40,14 +42,16 @@ namespace MAX.Orders.Chatting
             Server.MainScheduler.QueueOnce(VoteCallback, null, TimeSpan.FromSeconds(15));
         }
 
-        public void VoteCallback(SchedulerTask task) {
+        public void VoteCallback(SchedulerTask task)
+        {
             Server.voting = false;
             Chat.MessageGlobal("The votes are in! &2Y: {0} &cN: {1}", Server.YesVotes, Server.NoVotes);
             Player[] players = PlayerInfo.Online.Items;
             foreach (Player pl in players) pl.voted = false;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Vote [message]");
             p.Message("&HStarts a vote for 15 seconds.");
             p.Message("&HType &TY &Hor &TN &Hinto chat to vote.");

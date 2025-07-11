@@ -18,10 +18,10 @@
 
 using System.IO;
 
-namespace MAX 
+namespace MAX
 {
     /// <summary> Provides a centralised list of files and paths used. </summary>
-    public static class Paths 
+    public static class Paths
     {
         public const string CustomColorsFile = "text/customcolors.txt";
         public const string TempRanksFile = "text/tempranks.txt";
@@ -36,9 +36,9 @@ namespace MAX
         public const string DesignationsFile = "text/designations.txt";
         public const string NewsFile = "text/news.txt";
         public const string WelcomeFile = "text/Welcome.txt";
-        public const string JokerFile = "text/joker.txt";        
-        public const string EightBallFile = "text/8ball.txt";   
-        
+        public const string JokerFile = "text/joker.txt";
+        public const string EightBallFile = "text/8ball.txt";
+
         public const string BlockPermsFile = "props/block.properties";
         public const string OrdPermsFile = "props/order.properties";
         public const string OrdExtraPermsFile = "props/ExtraOrderPermissions.properties";
@@ -47,7 +47,7 @@ namespace MAX
         public const string RankPropsFile = "props/ranks.properties";
         public const string AuthServicesFile = "props/authservices.properties";
         public const string CPEDisabledFile = "props/cpe.properties";
-        
+
         public const string ImportsDir = "extra/import/";
         public const string WaypointsDir = "extra/Waypoints/";
 
@@ -64,16 +64,31 @@ namespace MAX
         /// <summary> Relative path of a deleted level's map file. </summary>
         public static string DeletedMapFile(string map)
         {
-            bool mcf = File.Exists("levels/deleted/" + map.ToLower() + ".mcf");
-            bool cw = File.Exists("levels/deleted/" + map.ToLower() + ".cw");
+            bool mcf = File.Exists("levels/deleted/" + map + ".mcf");
+            bool mapFile = File.Exists("levels/deleted/" + map + ".map");
+            bool pklvl = File.Exists("levels/deleted/" + map + ".pklvl");
+            bool flvl = File.Exists("levels/deleted/" + map + ".flvl");
+            //bool cw = File.Exists("levels/deleted/" + map + ".cw");
             if (mcf)
             {
                 return "levels/deleted/" + map + ".mcf";
             }
-            else if (cw)
+            else if (mapFile)
+            {
+                return "levels/deleted/" + map + ".map";
+            }
+            else if (pklvl)
+            {
+                return "levels/deleted/" + map + ".pklvl";
+            }
+            else if (flvl)
+            {
+                return "levels/deleted/" + map + ".flvl";
+            }
+            /*else if (cw)
             {
                 return "levels/deleted/" + map + ".cw";
-            }
+            }*/
             else
             {
                 return "levels/deleted/" + map + ".lvl";
@@ -83,24 +98,39 @@ namespace MAX
         public static string PrevMapFile(string map)
         {
             bool mcf = File.Exists("levels/" + map.ToLower() + ".mcf");
-            bool cw = File.Exists("levels/" + map.ToLower() + ".cw");
+            bool mapFile = File.Exists("levels/" + map.ToLower() + ".map");
+            bool pklvl = File.Exists("levels/" + map.ToLower() + ".pklvl");
+            bool flvl = File.Exists("levels/" + map.ToLower() + ".flvl");
+            //bool cw = File.Exists("levels/" + map.ToLower() + ".cw");
             if (mcf)
             {
                 return "levels/prev/" + map.ToLower() + ".mcf.prev";
             }
-            else if (cw)
+            else if (mapFile)
+            {
+                return "levels/prev/" + map.ToLower() + ".map.prev";
+            }
+            else if (pklvl)
+            {
+                return "levels/prev/" + map.ToLower() + ".pklvl.prev";
+            }
+            else if (flvl)
+            {
+                return "levels/prev/" + map.ToLower() + ".flvl.prev";
+            }
+            /*else if (cw)
             {
                 return "levels/prev/" + map.ToLower() + ".cw.prev";
-            }
+            }*/
             else
             {
                 return "levels/prev/" + map.ToLower() + ".lvl.prev";
             }
         }
         /// <summary> Relative path of a block properties file. </summary>     
-        public static string BlockPropsPath(string group) 
-        { 
-            return "blockprops/" + group + ".txt"; 
+        public static string BlockPropsPath(string group)
+        {
+            return "blockprops/" + group + ".txt";
         }
     }
 }

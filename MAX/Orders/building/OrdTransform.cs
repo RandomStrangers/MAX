@@ -17,29 +17,39 @@
  */
 using MAX.Drawing.Transforms;
 
-namespace MAX.Orders.Building {  
-    public sealed class OrdTransform : Order2 {
-        public override string name { get { return "Transform"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+namespace MAX.Orders.Building
+{
+    public class OrdTransform : Order
+    {
+        public override string Name { get { return "Transform"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("Transforms", "list"), new OrderDesignation("Scale", "scale") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (message.Length == 0) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (message.Length == 0)
+            {
                 p.Message("Your current transform is: " + p.Transform.Name); return;
             }
             string[] args = message.SplitSpaces(2);
             TransformFactory transform = TransformFactory.Find(args[0]);
-            
-            if (IsListOrder(args[0])) {
+
+            if (IsListOrder(args[0]))
+            {
                 List(p);
-            } else if (transform == null) {
+            }
+            else if (transform == null)
+            {
                 p.Message("No transform found with name \"{0}\".", args[0]);
                 List(p);
-            } else {
+            }
+            else
+            {
                 p.Message("Set your transform to: " + transform.Name);
                 Transform instance = transform.Construct(p, args.Length == 1 ? "" : args[1]);
                 if (instance == null) return;
@@ -47,24 +57,30 @@ namespace MAX.Orders.Building {
             }
         }
 
-        public static void List(Player p) {
+        public static void List(Player p)
+        {
             p.Message("&HAvailable transforms: &f" + TransformFactory.Transforms.Join(t => t.Name));
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Transform [name] <transform args>");
             p.Message("&HSets your current transform to the transform with that name.");
             p.Message("&T/Help Transform [name]");
             p.Message("&HOutputs the help for the transform with that name.");
             List(p);
         }
-        
-        public override void Help(Player p, string message) {
+
+        public override void Help(Player p, string message)
+        {
             TransformFactory transform = TransformFactory.Find(message);
-            if (transform == null) {
+            if (transform == null)
+            {
                 p.Message("No transform found with name \"{0}\".", message);
                 List(p);
-            } else {
+            }
+            else
+            {
                 p.MessageLines(transform.Help);
             }
         }

@@ -17,44 +17,55 @@
  */
 using MAX.Drawing;
 
-namespace MAX.Orders.Building {
-    public sealed class OrdMirror : Order2 {
-        public override string name { get { return "Mirror"; } }
-        public override string type { get { return OrderTypes.Building; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+namespace MAX.Orders.Building
+{
+    public class OrdMirror : Order
+    {
+        public override string Name { get { return "Mirror"; } }
+        public override string Type { get { return OrderTypes.Building; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderDesignation[] Designations {
-            get { return new [] { new OrderDesignation("Flip") }; }
+        public override OrderDesignation[] Designations
+        {
+            get { return new[] { new OrderDesignation("Flip") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
-            if (p.CurrentCopy == null) {
+            if (p.CurrentCopy == null)
+            {
                 p.Message("You haven't copied anything yet"); return;
             }
-            
+
             CopyState cState = p.CurrentCopy;
             BlockDefinition[] defs = p.level.CustomBlockDefs;
-            
+
             foreach (string arg in message.SplitSpaces())
             {
-                if (arg.CaselessEq("x")) {
+                if (arg.CaselessEq("x"))
+                {
                     Flip.MirrorX(cState, defs);
                     p.Message("Flipped copy across the X (east/west) axis.");
-                } else if (arg.CaselessEq("y") || arg.CaselessEq("u")) {
+                }
+                else if (arg.CaselessEq("y") || arg.CaselessEq("u"))
+                {
                     Flip.MirrorY(cState, defs);
                     p.Message("Flipped copy across the Y (vertical) axis.");
-                } else if (arg.CaselessEq("z")) {
+                }
+                else if (arg.CaselessEq("z"))
+                {
                     Flip.MirrorZ(cState, defs);
                     p.Message("Flipped copy across the Z (north/south) axis.");
                 }
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Mirror X/Y/Z");
             p.Message("&HFlips/Mirrors the copied object around that axis.");
-            p.Message("  &HX = horizontal axis (east-west)");           
+            p.Message("  &HX = horizontal axis (east-west)");
             p.Message("  &HY = vertical axis");
             p.Message("  &HZ = horizontal axis (north-south)");
         }

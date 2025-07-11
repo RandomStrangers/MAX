@@ -17,19 +17,22 @@
  */
 using MAX.Network;
 
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdPing : Order2 
+    public class OrdPing : Order
     {
-        public override string name { get { return "Ping"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        public override OrderPerm[] ExtraPerms {
+        public override string Name { get { return "Ping"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override bool UseableWhenJailed { get { return true; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can see ping of other players") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
-            if (!message.CaselessEq("all")) {
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (!message.CaselessEq("all"))
+            {
                 if (message.Length == 0) message = p.name;
 
                 Player who = PlayerInfo.FindMatches(p, message);
@@ -38,20 +41,27 @@ namespace MAX.Orders.Chatting
                 if (p != who && !CheckExtraPerm(p, data, 1)) return;
                 PingList ping = who.Session.Ping;
 
-                if (!who.Supports(CpeExt.TwoWayPing)) {
-                    p.Message("{0} client does not support measuring ping", 
+                if (!who.Supports(CpeExt.TwoWayPing))
+                {
+                    p.Message("{0} client does not support measuring ping",
                               p == who ? "Your" : p.FormatNick(who) + "&S's");
-                } else if (ping.Measures() == 0) {
+                }
+                else if (ping.Measures() == 0)
+                {
                     p.Message("No ping measurements yet. Try again in a bit.");
-                } else {
+                }
+                else
+                {
                     p.Message(p.FormatNick(who) + " &S- " + ping.Format());
                 }
-            } else {
+            }
+            else
+            {
                 if (!CheckExtraPerm(p, data, 1)) return;
                 Player[] players = PlayerInfo.Online.Items;
                 p.Message("Ping/latency list of online players: (&aLo&S:&7Avg&S:&cHi&S)ms");
 
-                foreach (Player target in players) 
+                foreach (Player target in players)
                 {
                     if (!p.CanSee(target, data.Rank)) continue;
                     PingList ping = target.Session.Ping;
@@ -62,7 +72,8 @@ namespace MAX.Orders.Chatting
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Ping &H- Outputs details about your ping to the server.");
             p.Message("&T/Ping [player] &H- Outputs ping details for a player.");
             p.Message("&T/Ping all &H- Outputs ping details for all players.");

@@ -56,7 +56,7 @@ namespace MAX
 
         // Can't just use HH:mm:ss, as e.g. Finnish converts : to .
         //   https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings#timeSeparator
-        const string INVARIANT_DATE_FORMAT = "yyyy-MM-dd HH':'mm':'ss";
+        public const string INVARIANT_DATE_FORMAT = "yyyy-MM-dd HH':'mm':'ss";
 
         public static string ToInvariantDateString(this DateTime time)
         {

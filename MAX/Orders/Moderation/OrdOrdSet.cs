@@ -15,55 +15,68 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.Moderation {
-    public sealed class OrdOrdSet : ItemPermsOrd {
-        public override string name { get { return "OrdSet"; } }
-        public override string shortcut { get { return "SetOrd"; } }
+namespace MAX.Orders.Moderation
+{
+    public class OrdOrdSet : ItemPermsOrd
+    {
+        public override string Name { get { return "OrdSet"; } }
+        public override string Shortcut { get { return "SetOrd"; } }
 
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces(3);
             if (args.Length < 2) { Help(p); return; }
-            
+
             string ordName = args[0], ordArgs = "";
             Search(ref ordName, ref ordArgs);
             Order ord = Find(ordName);
-            
+
             if (ord == null) { p.Message("Could not find order entered"); return; }
-            
-            if (!p.CanUse(ord)) {
+
+            if (!p.CanUse(ord))
+            {
                 ord.Permissions.MessageCannotUse(p);
-                p.Message("Therefore you cannot change the permissions of &T/{0}", ord.name); return;
+                p.Message("Therefore you cannot change the permissions of &T/{0}", ord.Name); return;
             }
-            
-            if (args.Length == 2) {
+
+            if (args.Length == 2)
+            {
                 SetPerms(p, args, data, ord.Permissions, "order");
-            } else {
+            }
+            else
+            {
                 int num = 0;
                 if (!OrderParser.GetInt(p, args[2], "Extra permission number", ref num)) return;
-                
-                OrderExtraPerms perms = OrderExtraPerms.Find(ord.name, num);
-                if (perms == null) {
+
+                OrderExtraPerms perms = OrderExtraPerms.Find(ord.Name, num);
+                if (perms == null)
+                {
                     p.Message("This order has no extra permission by that number."); return;
                 }
                 SetPerms(p, args, data, perms, "extra permission");
             }
         }
 
-        public override void UpdatePerms(ItemPerms perms, Player p, string msg) {
-            if (perms is OrderPerms) {
+        public override void UpdatePerms(ItemPerms perms, Player p, string msg)
+        {
+            if (perms is OrderPerms)
+            {
                 OrderPerms.Save();
                 OrderPerms.ApplyChanges();
                 Announce(p, perms.ItemName + msg);
-            } else {
+            }
+            else
+            {
                 OrderExtraPerms.Save();
                 OrderExtraPerms ex = (OrderExtraPerms)perms;
                 //Announce(p, ord.name + "&S's extra permission " + idx + " was set to " + grp.ColoredName);
                 Announce(p, ex.OrdName + " extra permission #" + ex.Num + msg);
             }
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/OrdSet [ord] [rank]");
             p.Message("&HSets lowest rank that can use [ord] to [rank]");
             p.Message("&T/OrdSet [ord] +[rank]");

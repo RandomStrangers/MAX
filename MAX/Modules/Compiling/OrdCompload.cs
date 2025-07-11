@@ -22,8 +22,8 @@ namespace MAX.Compiling
 {
     public class OrdCompLoad : OrdCompile
     {
-        public override string name { get { return "CompLoad"; } }
-        public override string shortcut { get { return "cml"; } }
+        public override string Name { get { return "CompLoad"; } }
+        public override string Shortcut { get { return "cml"; } }
         public override OrderDesignation[] Designations { get { return null; } }
 
         public override void CompileAddon(Player p, string[] paths, ICompiler compiler)

@@ -17,32 +17,36 @@
  */
 using MAX.Eco;
 
-namespace MAX.Orders.Eco 
+namespace MAX.Orders.Eco
 {
-    public sealed class OrdBuy : Order2 
+    public class OrdBuy : Order
     {
-        public override string name { get { return "Buy"; } }
-        public override string shortcut { get { return "Purchase"; } }
-        public override string type { get { return OrderTypes.Economy; } }
+        public override string Name { get { return "Buy"; } }
+        public override string Shortcut { get { return "Purchase"; } }
+        public override string Type { get { return OrderTypes.Economy; } }
         public override bool SuperUseable { get { return false; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (!Economy.CheckIsEnabled(p, this)) return;
-            
+
             string[] parts = message.SplitSpaces(2);
             Item item = Economy.GetItem(parts[0]);
             if (item == null) { Help(p); return; }
 
-            if (!item.Enabled) {
+            if (!item.Enabled)
+            {
                 p.Message("&WThe {0} item is not currently buyable.", item.Name); return;
             }
-            if (data.Rank < item.PurchaseRank) {
+            if (data.Rank < item.PurchaseRank)
+            {
                 Formatter.MessageNeedMinPerm(p, "+ can purchase a " + item.Name, item.PurchaseRank); return;
             }
             item.OnPurchase(p, parts.Length == 1 ? "" : parts[1]);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Buy [item] [value] <map name>");
             p.Message("&Hmap name is only used for &T/Buy map&H.");
             p.Message("&HUse &T/Store [item] &Hto see more information for an item.");

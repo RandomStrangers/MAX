@@ -19,34 +19,14 @@ using MAX.Events;
 using MAX.Events.EconomyEvents;
 using MAX.Events.PlayerEvents;
 using MAX.Events.ServerEvents;
-using MAX.Network;
 
 namespace MAX.Core
 {
-    public sealed class CoreAddon : Addon
+    public class CoreAddon : Addon
     {
-        public override string name { get { return "CoreAddon"; } }
-        public static void HandleDisconnect(Player p, string reason)
-        {
-            PlayerInfo.NonHiddenUniqueIPCount(p);
-            foreach (Heartbeat beat in Heartbeat.Heartbeats)
-            {
-                beat.Pump();
-            }
-        }
-        public static void HandleConnect(Player p, string mppass)
-        {
-            if (p.cancelconnecting) return;
-            PlayerInfo.NonHiddenUniqueIPCount(p);
-            foreach (Heartbeat beat in Heartbeat.Heartbeats)
-            {
-                beat.Pump();
-            }
-        }
+        public override string Name { get { return "CoreAddon"; } }
         public override void Load(bool startup)
         {
-            OnPlayerDisconnectEvent.Register(HandleDisconnect, Priority.Critical);
-            OnPlayerStartConnectingEvent.Register(HandleConnect, Priority.Critical);
             OnPlayerConnectEvent.Register(ConnectHandler.HandleConnect, Priority.Critical);
             OnPlayerOrderEvent.Register(ChatHandler.HandleOrder, Priority.Critical);
             OnChatEvent.Register(ChatHandler.HandleOnChat, Priority.Critical);
@@ -63,8 +43,6 @@ namespace MAX.Core
 
         public override void Unload(bool shutdown)
         {
-            OnPlayerDisconnectEvent.Unregister(HandleDisconnect);
-            OnPlayerStartConnectingEvent.Unregister(HandleConnect);
             OnPlayerConnectEvent.Unregister(ConnectHandler.HandleConnect);
             OnPlayerOrderEvent.Unregister(ChatHandler.HandleOrder);
             OnChatEvent.Unregister(ChatHandler.HandleOnChat);

@@ -15,12 +15,12 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
-using System.IO;
 using MAX.Blocks;
 using MAX.Config;
 using MAX.Events.GroupEvents;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MAX
 {
@@ -30,7 +30,6 @@ namespace MAX
         public static Group BannedRank { get { return Find(LevelPermission.Banned); } }
         public static Group GuestRank { get { return Find(LevelPermission.Guest); } }
         public static Group DefaultRank;
-        public static Group NobodyRank { get { return Find(LevelPermission.Nobody); } }
         public static Group MAXRank = new Group(LevelPermission.MAX, int.MaxValue, int.MaxValue, "MAX", "&4", int.MaxValue, int.MaxValue, int.MaxValue);
 
 
@@ -180,8 +179,7 @@ namespace MAX
         {
             if (value == null) return defPerm;
 
-            int perm;
-            if (int.TryParse(value, out perm))
+            if (int.TryParse(value, out int perm))
                 return (LevelPermission)perm;
 
             Group grp = Find(value);
@@ -246,7 +244,6 @@ namespace MAX
             if (MAXRank == null)
             {
                 Add(LevelPermission.MAX, int.MaxValue, int.MaxValue, "MAX", "&4", int.MaxValue, int.MaxValue, int.MaxValue);
-
             }
             GroupList.Sort((a, b) => a.Permission.CompareTo(b.Permission));
             DefaultRank = Find(Server.Config.DefaultRankName);
@@ -321,7 +318,7 @@ namespace MAX
 
             try
             {
-                File.Move("ranks/" + filename, "ranks/" + newFile);
+                FileIO.TryMove("ranks/" + filename, "ranks/" + newFile);
                 filename = newFile;
                 return true;
             }

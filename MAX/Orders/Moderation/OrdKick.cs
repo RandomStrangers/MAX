@@ -17,39 +17,45 @@
  */
 using MAX.Events;
 
-namespace MAX.Orders.Moderation {
-    public sealed class OrdKick : Order2 {
-        public override string name { get { return "Kick"; } }
-        public override string shortcut { get { return "k"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+namespace MAX.Orders.Moderation
+{
+    public class OrdKick : Order
+    {
+        public override string Name { get { return "Kick"; } }
+        public override string Shortcut { get { return "k"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces(2);
-            
+
             Player who = PlayerInfo.FindMatches(p, args[0]);
             if (who == null) return;
             string kickMsg = "by " + p.truename, reason = null;
-            
-            if (args.Length > 1) {
+
+            if (args.Length > 1)
+            {
                 reason = ModActionOrd.ExpandReason(p, args[1]);
                 if (message == null) return;
-                kickMsg += "&f: " + reason; 
+                kickMsg += "&f: " + reason;
             }
 
             if (p == who) { p.Message("You cannot kick yourself."); return; }
-            if (who.Rank >= data.Rank) {
+            if (who.Rank >= data.Rank)
+            {
                 Chat.MessageFrom(p, "λNICK &Stried to kick " + who.ColoredName + " &Sbut failed.");
                 return;
             }
-            
+
             ModAction action = new ModAction(who.name, p, ModActionType.Kicked, reason);
             OnModActionEvent.Call(action);
             who.Kick(kickMsg, "Kicked " + kickMsg);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Kick [player] <reason>");
             p.Message("&HKicks a player.");
             p.Message("&HFor <reason>, @number can be used as a shortcut for that rule.");

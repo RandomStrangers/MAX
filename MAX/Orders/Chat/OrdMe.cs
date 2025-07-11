@@ -16,25 +16,27 @@
     permissions and limitations under the Licenses.
 */
 
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdMe : Order2 
+    public class OrdMe : Order
     {
-        public override string name { get { return "Me"; } }
-        public override string type { get { return OrderTypes.Chat; } }
+        public override string Name { get { return "Me"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
         public override bool MessageBlockRestricted { get { return true; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+        public override bool UseableWhenJailed { get { return true; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { p.Message("You"); return; }
-            if (p.joker) { p.Message("Cannot use /me while jokered."); return; }         
+            if (p.joker) { p.Message("Cannot use /me while jokered."); return; }
             if (!MessageOrd.CanSpeak(p, "Me")) return;
-            
+
             string msg = p.color + "*" + Colors.StripUsed(p.DisplayName) + " " + message;
             Chat.MessageChat(p, msg, null, true);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("What do you need help with, m'boy?! Are you stuck down a well?!");
         }
     }

@@ -15,60 +15,77 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
+using MAX.SQL;
 using System;
 using System.Collections.Generic;
-using MAX.SQL;
 
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public sealed class OrdInbox : Order2
+    public class OrdInbox : Order
     {
-        public override string name { get { return "Inbox"; } }
-        public override string type { get { return OrderTypes.Chat; } }
+        public override string Name { get { return "Inbox"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
         public override bool SuperUseable { get { return false; } }
-        public override bool UseableWhenFrozen { get { return true; } }
+        public override bool UseableWhenJailed { get { return true; } }
         public override OrderParallelism Parallelism { get { return OrderParallelism.NoAndWarn; } }
 
         public const int i_text = 0, i_sent = 1, i_from = 2;
-        
-        public override void Use(Player p, string message, OrderData data) {
-            if (!Database.TableExists("Inbox" + p.name)) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
+            if (!Database.TableExists("Inbox" + p.name))
+            {
                 p.Message("Your inbox is empty."); return;
             }
-            
-            List<string[]> entries = Database.GetRows("Inbox" + p.name, "Contents,TimeSent,PlayerFrom", 
+
+            List<string[]> entries = Database.GetRows("Inbox" + p.name, "Contents,TimeSent,PlayerFrom",
                                                       "ORDER BY TimeSent");
-            if (entries.Count == 0) {
+            if (entries.Count == 0)
+            {
                 p.Message("Your inbox is empty."); return;
             }
 
             string[] args = message.SplitSpaces(2);
-            if (message.Length == 0) {
+            if (message.Length == 0)
+            {
                 for (int i = 0; i < entries.Count; i++)
                 {
                     Output(p, i + 1, entries[i]);
                 }
-            } else if (IsDeleteOrder(args[0])) {
-                if (args.Length == 1) {
+            }
+            else if (IsDeleteOrder(args[0]))
+            {
+                if (args.Length == 1)
+                {
                     p.Message("You need to provide either \"all\" or a number."); return;
-                } else if (args[1].CaselessEq("all")) {
+                }
+                else if (args[1].CaselessEq("all"))
+                {
                     int count = Database.DeleteRows("Inbox" + p.name, "");
                     p.Message("Deleted all {0} messages.", count);
-                } else {
+                }
+                else
+                {
                     DeleteByID(p, args[1], entries);
                 }
-            } else {
+            }
+            else
+            {
                 OutputByID(p, message, entries);
             }
         }
 
-        public static void DeleteByID(Player p, string value, List<string[]> entries) {
+        public static void DeleteByID(Player p, string value, List<string[]> entries)
+        {
             int num = 1;
             if (!OrderParser.GetInt(p, value, "Message number", ref num, 1)) return;
-            
-            if (num > entries.Count) {
+
+            if (num > entries.Count)
+            {
                 p.Message("Message #{0} does not exist.", num);
-            } else {
+            }
+            else
+            {
                 string[] entry = entries[num - 1];
                 Database.DeleteRows("Inbox" + p.name,
                                     "WHERE PlayerFrom=@0 AND TimeSent=@1", entry[i_from], entry[i_sent]);
@@ -76,27 +93,33 @@ namespace MAX.Orders.Chatting
             }
         }
 
-        public static void OutputByID(Player p, string value, List<string[]> entries) {
+        public static void OutputByID(Player p, string value, List<string[]> entries)
+        {
             int num = 1;
             if (!OrderParser.GetInt(p, value, "Message number", ref num, 1)) return;
-            
-            if (num > entries.Count) {
+
+            if (num > entries.Count)
+            {
                 p.Message("Message #{0} does not exist.", num);
-            } else {
+            }
+            else
+            {
                 Output(p, num, entries[num - 1]);
             }
         }
 
-        public static void Output(Player p, int num, string[] entry) {
-            DateTime time  = Database.ParseDBDate(entry[i_sent]);
+        public static void Output(Player p, int num, string[] entry)
+        {
+            DateTime time = Database.ParseDBDate(entry[i_sent]);
             TimeSpan delta = DateTime.Now - time;
-            string sender  = p.FormatNick(entry[i_from]);
-            
+            string sender = p.FormatNick(entry[i_from]);
+
             p.Message("{0}) From {1} &a{2} ago:", num, sender, delta.Shorten());
             p.Message("  {0}", entry[i_text]);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Inbox");
             p.Message("&HDisplays all your messages.");
             p.Message("&T/Inbox [num]");

@@ -71,67 +71,66 @@ namespace MAX
                 string part = parts[i];
                 if (part.CaselessEq("-hax") || (part.CaselessEq("-ophax") && isOp))
                 {
-                    fly = false; 
-                    noclip = false; 
-                    speed = false; 
-                    respawn = false; 
+                    fly = false;
+                    noclip = false;
+                    speed = false;
+                    respawn = false;
                     thirdPerson = false;
                 }
                 else if (part.CaselessEq("+hax") || (part.CaselessEq("+ophax") && isOp))
                 {
-                    fly = true; 
-                    noclip = true; 
-                    speed = true; 
-                    respawn = true; 
+                    fly = true;
+                    noclip = true;
+                    speed = true;
+                    respawn = true;
                     thirdPerson = true;
                 }
 
-                else if (part.CaselessEq("+noclip")) 
-                { 
-                    noclip = true; 
+                else if (part.CaselessEq("+noclip"))
+                {
+                    noclip = true;
                 }
-                else if (part.CaselessEq("+fly")) 
-                { 
-                    fly = true; 
+                else if (part.CaselessEq("+fly"))
+                {
+                    fly = true;
                 }
-                else if (part.CaselessEq("+speed")) 
-                { 
-                    speed = true; 
+                else if (part.CaselessEq("+speed"))
+                {
+                    speed = true;
                 }
-                else if (part.CaselessEq("+respawn")) 
-                { 
-                    respawn = true; 
+                else if (part.CaselessEq("+respawn"))
+                {
+                    respawn = true;
                 }
-                else if (part.CaselessEq("+thirdperson")) 
-                { 
-                    thirdPerson = true; 
+                else if (part.CaselessEq("+thirdperson"))
+                {
+                    thirdPerson = true;
                 }
 
-                else if (part.CaselessEq("-noclip")) 
+                else if (part.CaselessEq("-noclip"))
                 {
-                    noclip = false; 
+                    noclip = false;
                 }
-                else if (part.CaselessEq("-fly")) 
-                { 
-                    fly = false; 
+                else if (part.CaselessEq("-fly"))
+                {
+                    fly = false;
                 }
-                else if (part.CaselessEq("-speed")) 
-                { 
-                    speed = false; 
+                else if (part.CaselessEq("-speed"))
+                {
+                    speed = false;
                 }
-                else if (part.CaselessEq("-respawn")) 
-                { 
-                    respawn = false; 
+                else if (part.CaselessEq("-respawn"))
+                {
+                    respawn = false;
                 }
-                else if (part.CaselessEq("-thirdperson")) 
-                { 
-                    thirdPerson = false; 
+                else if (part.CaselessEq("-thirdperson"))
+                {
+                    thirdPerson = false;
                 }
 
                 if (!part.CaselessStarts("jumpheight=")) continue;
                 string heightPart = part.Substring(part.IndexOf('=') + 1);
-                float value;
-                if (Utils.TryParseSingle(heightPart, out value))
+                if (Utils.TryParseSingle(heightPart, out float value))
                     maxJump = (short)(value * 32);
             }
             return Packet.HackControl(fly, noclip, speed, respawn, thirdPerson, maxJump);

@@ -15,20 +15,20 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Compiling 
+namespace MAX.Compiling
 {
-    public class CompilerAddon : Addon 
+    public class CompilerAddon : Addon
     {
-        public override string name { get { return "Compiler"; } }
-        public Order ordCreate   = new OrdOrdCreate();
-        public Order ordCompile  = new OrdCompile();
+        public override string Name { get { return "Compiler"; } }
+        public Order ordCreate = new OrdOrdCreate();
+        public Order ordCompile = new OrdCompile();
         public Order ordCompLoad = new OrdCompLoad();
-        public override void Load(bool startup) 
+        public override void Load(bool startup)
         {
             Server.EnsureDirectoryExists(ICompiler.ORDERS_SOURCE_DIR);
             Order.Register(ordCreate, ordCompile, ordCompLoad);
         }
-        public override void Unload(bool shutdown) 
+        public override void Unload(bool shutdown)
         {
             Order.Unregister(ordCreate, ordCompile, ordCompLoad);
         }

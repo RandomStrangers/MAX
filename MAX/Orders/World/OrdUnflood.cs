@@ -15,40 +15,45 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using BlockID = System.UInt16;
-
-namespace MAX.Orders.World {
-    public sealed class OrdUnflood : Order2 {
-        public override string name { get { return "Unflood"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
+namespace MAX.Orders.World
+{
+    public class OrdUnflood : Order
+    {
+        public override string Name { get { return "Unflood"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
         public override bool SuperUseable { get { return false; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
-            BlockID block;
-            if (!message.CaselessEq("all") && !OrderParser.GetBlock(p, message, out block)) return;
-            
+
+            if (!message.CaselessEq("all") && !OrderParser.GetBlock(p, message, out _)) return;
+
             Level lvl = p.level;
             if (!LevelInfo.Check(p, data.Rank, lvl, "unflood this level")) return;
             // TODO: Probably should look at lvl.physTickLock here
             bool paused = lvl.PhysicsPaused;
             lvl.PhysicsPaused = true;
-            
-            try {
+
+            try
+            {
                 Order ord = Find("ReplaceAll");
                 string args = !message.CaselessEq("all") ? message :
                     "8 10 lavafall waterfall lava_fast active_hot_lava active_cold_water fast_hot_lava magma geyser";
                 ord.Use(p, args + " air", data);
-            } finally {
+            }
+            finally
+            {
                 // always restore paused state, even some if ReplaceAll somehow fails
                 lvl.PhysicsPaused = paused;
             }
             lvl.Message("Unflooded!");
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Unflood [liquid]");
             p.Message("&HUnfloods the map you are currently in of [liquid].");
             p.Message("&H  If [liquid] is \"all\", unfloods the map of all liquids.");

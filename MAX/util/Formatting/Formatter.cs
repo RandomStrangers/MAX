@@ -15,72 +15,79 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Collections.Generic;
-using System.Text;
 using MAX.Authentication;
 using MAX.Orders;
+using System.Collections.Generic;
+using System.Text;
 
-namespace MAX 
+namespace MAX
 {
-    public static class Formatter 
-    { 
-        public static void PrintOrderInfo(Player p, Order ord) {
+    public static class Formatter
+    {
+        public static void PrintOrderInfo(Player p, Order ord)
+        {
             p.Message("Usable by: " + ord.Permissions.Describe());
             PrintAliases(p, ord);
-            
-            List<OrderExtraPerms> extraPerms = OrderExtraPerms.FindAll(ord.name);
+
+            List<OrderExtraPerms> extraPerms = OrderExtraPerms.FindAll(ord.Name);
             if (ord.ExtraPerms == null) extraPerms.Clear();
             if (extraPerms.Count == 0) return;
-            
+
             p.Message("&TExtra permissions:");
-            foreach (OrderExtraPerms extra in extraPerms) 
+            foreach (OrderExtraPerms extra in extraPerms)
             {
                 p.Message("{0}) {1} {2}", extra.Num, extra.Describe(), extra.Desc);
             }
         }
 
-        public static void PrintAliases(Player p, Order ord) {
+        public static void PrintAliases(Player p, Order ord)
+        {
             StringBuilder dst = new StringBuilder("Shortcuts: &T");
-            if (!string.IsNullOrEmpty(ord.shortcut)) {
-                dst.Append('/').Append(ord.shortcut).Append(", ");
+            if (!string.IsNullOrEmpty(ord.Shortcut))
+            {
+                dst.Append('/').Append(ord.Shortcut).Append(", ");
             }
             FindAliases(Designation.coreDesignations, ord, dst);
             FindAliases(Designation.designations, ord, dst);
-            
+
             if (dst.Length == "Shortcuts: &T".Length) return;
             p.Message(dst.ToString(0, dst.Length - 2));
         }
 
-        public static void FindAliases(List<Designation> aliases, Order ord, StringBuilder dst) {
-            foreach (Designation a in aliases) 
+        public static void FindAliases(List<Designation> aliases, Order ord, StringBuilder dst)
+        {
+            foreach (Designation a in aliases)
             {
-                if (!a.Target.CaselessEq(ord.name)) continue;
-                
+                if (!a.Target.CaselessEq(ord.Name)) continue;
+
                 dst.Append('/').Append(a.Trigger);
                 if (a.Format == null) { dst.Append(", "); continue; }
-                
-                string name = string.IsNullOrEmpty(ord.shortcut) ? ord.name : ord.shortcut;
-                if (name.Length > ord.name.Length) name = ord.name;
+
+                string name = string.IsNullOrEmpty(ord.Shortcut) ? ord.Name : ord.Shortcut;
+                if (name.Length > ord.Name.Length) name = ord.Name;
                 string args = a.Format.Replace("{args}", "[args]");
-                
+
                 dst.Append(" for /").Append(name + " " + args);
                 dst.Append(", ");
             }
         }
-        
-        public static void MessageNeedMinPerm(Player p, string action, LevelPermission perm) {
+
+        public static void MessageNeedMinPerm(Player p, string action, LevelPermission perm)
+        {
             p.Message("Only {0}&S{1}", Group.GetColoredName(perm), action);
         }
-    	
-        
-        public static bool ValidName(Player p, string name, string type) {
+
+
+        public static bool ValidName(Player p, string name, string type)
+        {
             const string alphabet = Player.USERNAME_ALPHABET + "+"; // compatibility with ClassiCubeAccountPlus
             return IsValidName(p, name, type, alphabet);
         }
-        
-        public static bool ValidPlayerName(Player p, string name) {
+
+        public static bool ValidPlayerName(Player p, string name)
+        {
             string alphabet = Player.USERNAME_ALPHABET + "+"; // compatibility with ClassiCubeAccountPlus
-            
+
             foreach (AuthService service in AuthService.Services)
             {
                 alphabet += service.Config.NameSuffix;
@@ -88,39 +95,46 @@ namespace MAX
             return IsValidName(p, name, "player", alphabet);
         }
 
-        public static bool IsValidName(Player p, string name, string type, string alphabet) {
+        public static bool IsValidName(Player p, string name, string type, string alphabet)
+        {
             if (name.Length > 0 && name.ContainsAllIn(alphabet)) return true;
             p.Message("\"{0}\" is not a valid {1} name.", name, type);
             return false;
         }
-        
-        public static bool ValidMapName(Player p, string name) {
+
+        public static bool ValidMapName(Player p, string name)
+        {
             if (LevelInfo.ValidName(name)) return true;
             p.Message("\"{0}\" is not a valid level name.", name);
             return false;
         }
 
         public static char[] separators = { '/', '\\', ':' };
-        public static char[] invalid    = { '<', '>', '|', '"', '*', '?' };
+        public static char[] invalid = { '<', '>', '|', '"', '*', '?' };
         /// <summary> Checks that the input is a valid filename (non-empty and no directory separator) </summary>
         /// <remarks> If the input is invalid, messages the player the reason why </remarks>
-        public static bool ValidFilename(Player p, string name) {
-            if (string.IsNullOrEmpty(name)) {
-                p.Message("&WFilename cannot be empty"); 
+        public static bool ValidFilename(Player p, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                p.Message("&WFilename cannot be empty");
                 return false;
             }
-            
-            if (name.IndexOfAny(separators) >= 0) {
+
+            if (name.IndexOfAny(separators) >= 0)
+            {
                 p.Message("&W\"{0}\" includes a directory separator (/, : or \\), which is not allowed", name);
                 return false;
             }
 
-            if (name.IndexOfAny(invalid) >= 0) {
+            if (name.IndexOfAny(invalid) >= 0)
+            {
                 p.Message("&W\"{0}\" includes a prohibited character (<, >, |, \", *, or ?)", name);
                 return false;
             }
 
-            if (name.ContainsAllIn(".")) {
+            if (name.ContainsAllIn("."))
+            {
                 p.Message("&W\"{0}\" cannot consist entirely of dot characters", name);
                 return false;
             }

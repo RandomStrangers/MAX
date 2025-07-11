@@ -17,46 +17,55 @@
  */
 using MAX.Generator;
 
-namespace MAX.Orders.World {
-    public sealed class OrdNewLvl : Order2 {
-        public override string name { get { return "NewLvl"; } }
-        public override string shortcut { get { return "Gen"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        public override OrderPerm[] ExtraPerms {
+namespace MAX.Orders.World
+{
+    public class OrdNewLvl : Order
+    {
+        public override string Name { get { return "NewLvl"; } }
+        public override string Shortcut { get { return "Gen"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Admin, "can generate maps with advanced themes") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces(6);
             if (args.Length < 4) { Help(p); return; }
-            
+
             Level lvl = null;
-            try {
+            try
+            {
                 lvl = GenerateMap(p, args, data);
                 if (lvl == null) return;
-                
+
                 lvl.Save(true);
-            } finally {
-                if (lvl != null) lvl.Dispose();
+            }
+            finally
+            {
+                lvl?.Dispose();
                 Server.DoGC();
             }
         }
 
-        public Level GenerateMap(Player p, string[] args, OrderData data) {
+        public Level GenerateMap(Player p, string[] args, OrderData data)
+        {
             if (args.Length < 4) return null;
             string theme = args.Length > 4 ? args[4] : Server.Config.DefaultMapGenTheme;
-            string seed  = args.Length > 5 ? args[5] : "";
+            string seed = args.Length > 5 ? args[5] : "";
 
             MapGen gen = MapGen.Find(theme);
-            ushort x = 0, y = 0, z = 0; 
+            ushort x = 0, y = 0, z = 0;
             if (!MapGen.GetDimensions(p, args, 1, ref x, ref y, ref z)) return null;
 
             if (gen != null && gen.Type == GenType.Advanced && !CheckExtraPerm(p, data, 1)) return null;
             return MapGen.Generate(p, gen, args[0], x, y, z, seed);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/NewLvl [name] [width] [height] [length] [theme] <seed>");
             p.Message("&HCreates/generates a new level.");
             p.Message("  &HSizes must be between 1 and 16384");
@@ -64,16 +73,22 @@ namespace MAX.Orders.World {
             p.Message("&HUse &T/Help NewLvl themes &Hfor a list of themes.");
             p.Message("&HUse &T/Help NewLvl [theme] &Hfor details on how seeds affect levels generated with that theme.");
         }
-        
-        public override void Help(Player p, string message) {
+
+        public override void Help(Player p, string message)
+        {
             MapGen gen = MapGen.Find(message);
-            
-            if (message.CaselessEq("theme") || message.CaselessEq("themes")) {
+
+            if (message.CaselessEq("theme") || message.CaselessEq("themes"))
+            {
                 MapGen.PrintThemes(p);
-            } else if (gen == null) {
+            }
+            else if (gen == null)
+            {
                 p.Message("No theme found with name \"{0}\".", message);
                 p.Message("&HUse &T/Help NewLvl themes &Hfor a list of themes.");
-            } else {
+            }
+            else
+            {
                 p.Message(gen.Desc);
             }
         }

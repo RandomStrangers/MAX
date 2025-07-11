@@ -65,7 +65,7 @@ namespace MAX
 
 
         // non-const for external code (SUPPORTED_COUNT value differs when TEN_BIT_BLOCKS)
-        public static readonly int ExtendedCount = SUPPORTED_COUNT;
+        public static int ExtendedCount = SUPPORTED_COUNT;
         
         // Original blocks
         public const byte Air = 0;

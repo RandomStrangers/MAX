@@ -15,18 +15,18 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Threading;
 using MAX.Blocks;
 using MAX.Blocks.Physics;
 using MAX.Events.LevelEvents;
 using MAX.Network;
+using System;
+using System.Threading;
 
 namespace MAX
 {
-    public enum PhysicsState 
-    { 
-        Stopped, Warning, Other 
+    public enum PhysicsState
+    {
+        Stopped, Warning, Other
     }
     public partial class Level : IDisposable
     {
@@ -35,7 +35,7 @@ namespace MAX
         public void SetPhysics(int level)
         {
             if (IsMuseum) return;
-            if (physics == 0 && level != 0 && blocks != null)
+            if (Physics == 0 && level != 0 && blocks != null)
             {
                 for (int i = 0; i < blocks.Length; i++)
                 {
@@ -44,8 +44,8 @@ namespace MAX
                         AddCheck(i);
                 }
             }
-            if (physics != level) OnPhysicsLevelChangedEvent.Call(this, level);
-            if (level > 0 && physics == 0) StartPhysics();
+            if (Physics != level) OnPhysicsLevelChangedEvent.Call(this, level);
+            if (level > 0 && Physics == 0) StartPhysics();
             Physicsint = level;
             Config.Physics = level;
         }
@@ -71,12 +71,12 @@ namespace MAX
                 {
                     if (PhysicsPaused)
                     {
-                        if (physics == 0) break;
+                        if (Physics == 0) break;
                         Thread.Sleep(500);
                         continue;
                     }
                     if (wait > 0) Thread.Sleep(wait);
-                    if (physics == 0) break;
+                    if (Physics == 0) break;
                     // No block calculations in this tick
                     if (ListCheck.Count == 0)
                     {
@@ -84,7 +84,7 @@ namespace MAX
                         wait = Config.PhysicsSpeed;
                         continue;
                     }
-                    DateTime tickStart = default(DateTime);
+                    DateTime tickStart = default;
                     try
                     {
                         lock (physTickLock)
@@ -128,7 +128,7 @@ namespace MAX
             lastCheck = 0;
             physThreadStarted = false;
         }
-        public PhysicsArgs foundInfo(ushort x, ushort y, ushort z)
+        public PhysicsArgs FoundInfo(ushort x, ushort y, ushort z)
         {
             if (!listCheckExists.Get(x, y, z))
                 return default;
@@ -147,7 +147,7 @@ namespace MAX
             const uint mask = PhysicsArgs.TypeMask;
             HandlePhysics[] handlers = PhysicsHandlers;
             ExtraInfoHandler extraHandler = ExtraInfoPhysics.normalHandler;
-            if (physics == 5)
+            if (Physics == 5)
             {
                 handlers = physicsDoorsHandlers;
                 extraHandler = ExtraInfoPhysics.doorsHandler;
@@ -253,7 +253,7 @@ namespace MAX
                     }
                     //Dont need to check physics here because if the list is active, then physics is active :)
                 }
-                if (!physThreadStarted && physics > 0)
+                if (!physThreadStarted && Physics > 0)
                     StartPhysics();
             }
             catch
@@ -312,7 +312,7 @@ namespace MAX
                 update.Index = index;
                 update.data = data;
                 ListUpdate.Add(update);
-                if (!physThreadStarted && physics > 0)
+                if (!physThreadStarted && Physics > 0)
                     StartPhysics();
                 return true;
             }
@@ -332,12 +332,11 @@ namespace MAX
         {
             Check[] items = ListCheck.Items;
             int j = 0, count = ListCheck.Count;
-            ushort x, y, z;
             for (int i = 0; i < count; i++)
             {
                 if (items[i].data.Data == PhysicsArgs.RemoveFromChecks)
                 {
-                    IntToPos(items[i].Index, out x, out y, out z);
+                    IntToPos(items[i].Index, out ushort x, out ushort y, out ushort z);
                     listCheckExists.Set(x, y, z, false);
                     continue;
                 }

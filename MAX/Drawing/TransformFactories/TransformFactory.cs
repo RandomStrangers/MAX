@@ -18,26 +18,33 @@
 using System.Collections.Generic;
 
 
-namespace MAX.Drawing.Transforms {
-    public abstract class TransformFactory {
-        
+namespace MAX.Drawing.Transforms
+{
+    public class TransformFactory
+    {
+
         /// <summary> Human friendly name of this transform. </summary>
-        public abstract string Name { get; }
-        
+        public virtual string Name { get; }
+
         /// <summary> Description of the transform, in addition to its syntax. </summary>
-        public abstract string[] Help { get; }
-        
+        public virtual string[] Help { get; }
+
         /// <summary> Creates a transform from the given arguments, 
         /// returning null if invalid arguments are specified. </summary>
-        public abstract Transform Construct(Player p, string message);
-        
+        public virtual Transform Construct(Player p, string message)
+        {
+            return null;
+        }
+
         public static List<TransformFactory> Transforms = new List<TransformFactory>() {
             new NoTransformFactory(), new ScaleTransformFactory(),
             new RotateTransformFactory(),
         };
-        
-        public static TransformFactory Find(string name) {
-            foreach (TransformFactory entry in Transforms) {
+
+        public static TransformFactory Find(string name)
+        {
+            foreach (TransformFactory entry in Transforms)
+            {
                 if (entry.Name.CaselessEq(name)) return entry;
             }
             return null;

@@ -15,30 +15,35 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
 */
-namespace MAX.Orders.Moderation {
-    public sealed class OrdMoveAll : Order2 {
-        public override string name { get { return "MoveAll"; } }
-        public override string shortcut { get { return "ma"; } }
-        public override string type { get { return OrderTypes.Moderation; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+namespace MAX.Orders.Moderation
+{
+    public class OrdMoveAll : Order
+    {
+        public override string Name { get { return "MoveAll"; } }
+        public override string Shortcut { get { return "ma"; } }
+        public override string Type { get { return OrderTypes.Moderation; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             Level level = Matcher.FindLevels(p, message);
             if (level == null) return;
-            
-            Player[] players = PlayerInfo.Online.Items;           
-            foreach (Player pl in players) { 
+
+            Player[] players = PlayerInfo.Online.Items;
+            foreach (Player pl in players)
+            {
                 if (pl.Rank < data.Rank)
                     PlayerActions.ChangeMap(pl, level.name);
                 else
-                    p.Message("You cannot move {0} &Sbecause {1} {2} of equal or higher rank", p.FormatNick(pl), pl.pronouns.Subject, pl.pronouns.PresentVerb);
+                    p.Message("You cannot move {0} &Sbecause {1} {2} of equal or higher rank", p.FormatNick(pl), pl.Pronouns.Subject, pl.Pronouns.PresentVerb);
             }
         }
-        
-        public override void Help(Player p) { 
+
+        public override void Help(Player p)
+        {
             p.Message("&T/MoveAll [level]");
-            p.Message("&HMoves all players to that level."); 
+            p.Message("&HMoves all players to that level.");
         }
     }
 }

@@ -17,23 +17,25 @@
  */
 using MAX.Eco;
 
-namespace MAX.Orders.Chatting 
-{  
-    public sealed class OrdEat : Order2 
+namespace MAX.Orders.Chatting
+{
+    public class OrdEat : Order
     {
-        public override string name { get { return "Eat"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        
+        public override string Name { get { return "Eat"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+
         // Custom order, so can still be used even when economy is disabled
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             Item item = Economy.GetItem("Snack");
             item.OnPurchase(p, message);
         }
-     
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             SimpleItem item = (SimpleItem)Economy.GetItem("Snack");
             p.Message("&T/Eat &H- Eats a random snack.");
-            
+
             if (item.Price == 0) return;
             p.Message("&HCosts {0} &3{1} &Heach time", item.Price, Server.Config.Currency);
         }

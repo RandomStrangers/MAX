@@ -15,28 +15,33 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-namespace MAX.Orders.Chatting 
+namespace MAX.Orders.Chatting
 {
-    public class OrdTColor : EntityPropertyOrd 
+    public class OrdTColor : EntityPropertyOrd
     {
-        public override string name { get { return "TColor"; } }
-        public override string type { get { return OrderTypes.Chat; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
-        public override OrderPerm[] ExtraPerms {
+        public override string Name { get { return "TColor"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can change the title color of others") }; }
         }
-        public override OrderDesignation[] Designations {
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("TColour"), new OrderDesignation("XTColor", "-own") }; }
         }
-        public override void Use(Player p, string message, OrderData data) { 
-            UsePlayer(p, data, message, "title color"); 
+        public override void Use(Player p, string message, OrderData data)
+        {
+            UsePlayer(p, data, message, "title color");
         }
 
-        public override void SetPlayerData(Player p, string target, string colName) {
+        public override void SetPlayerData(Player p, string target, string colName)
+        {
             PlayerOperations.SetTitleColor(p, target, colName);
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/TColor [player] [color]");
             p.Message("&HSets the title color of [player]");
             p.Message("&H  If [color] is not given, title color is removed.");

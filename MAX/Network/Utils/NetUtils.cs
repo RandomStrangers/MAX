@@ -16,7 +16,7 @@
     permissions and limitations under the Licenses.
  */
 using System;
-using BlockID = System.UInt16;
+
 
 namespace MAX
 {
@@ -41,7 +41,7 @@ namespace MAX
         }
         public static void WriteU8(byte value, byte[] array, int index)
         {
-            array[index++] = (byte)(value);
+            array[index++] = value;
         }
         /// <summary> Reads a signed 16 bit big endian integer. </summary>
         public static short ReadI16(byte[] array, int offset)
@@ -66,13 +66,13 @@ namespace MAX
         public static void WriteI16(short value, byte[] array, int index)
         {
             array[index++] = (byte)(value >> 8);
-            array[index++] = (byte)(value);
+            array[index++] = (byte)value;
         }
 
         public static void WriteU16(ushort value, byte[] array, int index)
         {
             array[index++] = (byte)(value >> 8);
-            array[index++] = (byte)(value);
+            array[index++] = (byte)value;
         }
 
         public static void WriteI32(int value, byte[] array, int index)
@@ -80,10 +80,10 @@ namespace MAX
             array[index++] = (byte)(value >> 24);
             array[index++] = (byte)(value >> 16);
             array[index++] = (byte)(value >> 8);
-            array[index++] = (byte)(value);
+            array[index++] = (byte)value;
         }
 
-        public unsafe static void WriteF32(float value, byte[] buffer, int i)
+        public static unsafe void WriteF32(float value, byte[] buffer, int i)
         {
             int num = *(int*)&value;
             WriteI32(num, buffer, i);
@@ -106,14 +106,14 @@ namespace MAX
             return extPos ? 12 : 6;
         }
 
-        public static void WriteBlock(BlockID raw, byte[] array, int index, bool extBlocks)
+        public static void WriteBlock(ushort raw, byte[] array, int index, bool extBlocks)
         {
             if (extBlocks) { array[index++] = (byte)(raw >> 8); }
             array[index++] = (byte)raw;
         }
 
 
-        public unsafe static string ReadString(byte[] data, int offset)
+        public static unsafe string ReadString(byte[] data, int offset)
         {
             int length = 0;
             char* characters = stackalloc char[StringSize];

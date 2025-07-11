@@ -16,23 +16,28 @@
     permissions and limitations under the Licenses.
  */
 
-namespace MAX.Orders.World {
-    public sealed class OrdLoad : Order2 {
-        public override string name { get { return "Load"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Operator; } }
-        public override OrderDesignation[] Designations {
+namespace MAX.Orders.World
+{
+    public class OrdLoad : Order
+    {
+        public override string Name { get { return "Load"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Operator; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("MapLoad"), new OrderDesignation("WLoad") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces();
             if (args.Length > 2) { Help(p); return; }
             LevelActions.Load(p, args[0], true);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Load [level]");
             p.Message("&HLoads a level.");
         }

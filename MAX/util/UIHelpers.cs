@@ -18,52 +18,69 @@
 using System;
 using System.Threading;
 
-namespace MAX.UI 
+namespace MAX.UI
 {
-    /// <summary> Common functionality for a TerminalLineInterface or GUI server console </summary>
-    public static class UIHelpers 
+    /// <summary> Common functionality for a TerminalLineInterface </summary>
+    public static class UIHelpers
     {
         public static string lastORD = "";
-        public static void HandleChat(string text) {
+        public static void HandleChat(string text)
+        {
             if (text != null) text = text.Trim();
-            if (string.IsNullOrEmpty(text)) return;
-            
-            Player p = Player.MAX;
-            if (ChatModes.Handle(p, text)) return;
-            
-            Chat.MessageChat(ChatScope.Global, p, "λFULL: &f" + text, null, null, true);
-        }
-        
-        public static void RepeatOrder() {
-            if (lastORD.Length == 0) {
-                Logger.Log(LogType.Debug, "(MAX): Cannot repeat order - no orders issued yet.");
+            if (string.IsNullOrEmpty(text))
+            {
                 return;
             }
-            Logger.Log(LogType.Debug, "Repeating &T/" + lastORD);
+            Player p = Player.MAX;
+            if (ChatModes.Handle(p, text))
+            {
+                return;
+            }
+            Chat.MessageChat(ChatScope.Global, p, "λFULL: &f" + text, null, null, true);
+        }
+
+        public static void RepeatOrder()
+        {
+            if (lastORD.Length == 0)
+            {
+                Logger.Log(LogType.MAXMessage, "(MAX): Cannot repeat order - no orders issued yet.");
+                return;
+            }
+            Logger.Log(LogType.MAXMessage, "Repeating &T/" + lastORD);
             HandleOrder(lastORD);
         }
-        
-        public static void HandleOrder(string text) {
+
+        public static void HandleOrder(string text)
+        {
             if (text != null) text = text.Trim();
-            if (string.IsNullOrEmpty(text)) {
-                Logger.Log(LogType.Debug, "(MAX): Whitespace orders are not allowed."); 
+            if (string.IsNullOrEmpty(text))
+            {
+                Logger.Log(LogType.MAXMessage, "(MAX): Whitespace orders are not allowed.");
                 return;
             }
             if (text[0] == '/' && text.Length > 1)
                 text = text.Substring(1);
-            
+
             lastORD = text;
             text.Separate(' ', out string name, out string args);
 
             Order.Search(ref name, ref args);
-            if (Server.Check(name, args)) { Server.cancelorder = false; return; }
-            Order ord = Order.Find(name);
-            
-            if (ord == null) { 
-                Logger.Log(LogType.Debug, "(MAX): Unknown order \"{0}\"", name); return; 
+            if (Server.Check(name, args))
+            {
+                Server.cancelorder = false;
+                return;
             }
-            if (!ord.SuperUseable) { 
-                Logger.Log(LogType.Debug, "(MAX): /{0} can only be used in-game.", ord.name); return; 
+            Order ord = Order.Find(name);
+
+            if (ord == null)
+            {
+                Logger.Log(LogType.MAXMessage, "(MAX): Unknown order \"{0}\"", name);
+                return;
+            }
+            if (!ord.SuperUseable)
+            {
+                Logger.Log(LogType.MAXMessage, "(MAX): /{0} can only be used in-game.", ord.Name);
+                return;
             }
 
             Thread thread = new Thread(
@@ -74,17 +91,17 @@ namespace MAX.UI
                         ord.Use(Player.MAX, args);
                         if (args.Length == 0)
                         {
-                            Logger.Log(LogType.Debug, "(MAX) used /" + ord.name);
+                            Logger.Log(LogType.MAXMessage, "(MAX) used /" + ord.Name);
                         }
                         else
                         {
-                            Logger.Log(LogType.Debug, "(MAX) used /" + ord.name + " " + args);
+                            Logger.Log(LogType.MAXMessage, "(MAX) used /" + ord.Name + " " + args);
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex);
-                        Logger.Log(LogType.Debug, "(MAX): FAILED ORDER");
+                        Logger.Log(LogType.MAXMessage, "(MAX): FAILED ORDER");
                     }
                 })
             {
@@ -93,20 +110,25 @@ namespace MAX.UI
             };
             thread.Start();
         }
-        
-        public static string Format(string message) {
+
+        public static string Format(string message)
+        {
             message = message.Replace("%S", "&f"); // We want %S to be treated specially when displayed in UI
             message = Colors.Escape(message);      // Need to Replace first, otherwise it's mapped by Colors.Escape
             return message;
         }
-        
-        public static string OutputPart(ref char nextCol, ref int start, string message) {
+
+        public static string OutputPart(ref char nextCol, ref int start, string message)
+        {
             int next = NextPart(start, message);
             string part;
-            if (next == -1) {
+            if (next == -1)
+            {
                 part = message.Substring(start);
                 start = message.Length;
-            } else {
+            }
+            else
+            {
                 part = message.Substring(start, next - start);
                 start = next + 2;
                 nextCol = message[next + 1];
@@ -114,15 +136,25 @@ namespace MAX.UI
             return part;
         }
 
-        public static int NextPart(int start, string message) {
-            for (int i = start; i < message.Length; i++) {
-                if (message[i] != '&') continue;
+        public static int NextPart(int start, string message)
+        {
+            for (int i = start; i < message.Length; i++)
+            {
+                if (message[i] != '&')
+                {
+                    continue;
+                }
                 // No colour code follows this
-                if (i == message.Length - 1) return -1;
-                
+                if (i == message.Length - 1)
+                {
+                    return -1;
+                }
                 // Check following character is an actual colour code
                 char col = Colors.Lookup(message[i + 1]);
-                if (col != '\0') return i;
+                if (col != '\0')
+                {
+                    return i;
+                }
             }
             return -1;
         }

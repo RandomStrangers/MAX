@@ -15,11 +15,11 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System;
-using System.Collections.Generic;
 using MAX.Blocks.Extended;
 using MAX.Maths;
 using MAX.SQL;
+using System;
+using System.Collections.Generic;
 
 namespace MAX
 {
@@ -28,10 +28,10 @@ namespace MAX
         public static void SaveBlockDB(Level lvl)
         {
             if (lvl.BlockDB.Cache.Head == null) return;
-            if (!lvl.Config.UseBlockDB) 
-            { 
-                lvl.BlockDB.Cache.Clear(); 
-                return; 
+            if (!lvl.Config.UseBlockDB)
+            {
+                lvl.BlockDB.Cache.Clear();
+                return;
             }
 
             using (IDisposable wLock = lvl.BlockDB.Locker.AccquireWrite(60 * 1000))
@@ -144,7 +144,7 @@ namespace MAX
             Logger.Log(LogType.BackgroundActivity, "Autodeleted {0} non-existent message blocks in {1}", deleted, level.name);
         }
 
-        public static ColumnDesc[] createPortals = new ColumnDesc[] 
+        public static ColumnDesc[] createPortals = new ColumnDesc[]
         {
             new ColumnDesc("EntryX", ColumnType.UInt16),
             new ColumnDesc("EntryY", ColumnType.UInt16),
@@ -155,7 +155,7 @@ namespace MAX
             new ColumnDesc("ExitZ", ColumnType.UInt16),
         };
 
-        public static ColumnDesc[] createMessages = new ColumnDesc[] 
+        public static ColumnDesc[] createMessages = new ColumnDesc[]
         {
             new ColumnDesc("X", ColumnType.UInt16),
             new ColumnDesc("Y", ColumnType.UInt16),

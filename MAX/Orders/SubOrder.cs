@@ -18,12 +18,14 @@
 using System;
 using System.Collections.Generic;
 
-namespace MAX.Orders {
+namespace MAX.Orders
+{
 
     /// <summary>
     /// Represents the name, behavior, and help text for a suborder. Used with SubOrderGroup to offer a variety of suborders to run based on user input.
     /// </summary>
-    public class SubOrder {
+    public class SubOrder
+    {
         public delegate void Behavior(Player p, string[] args);
         public delegate void BehaviorOneArg(Player p, string arg);
 
@@ -38,7 +40,8 @@ namespace MAX.Orders {
         /// When mapOnly is true, the suborder can only be used when the player is the realm owner.
         /// Args passed to behavior through SubOrderGroup.Use are guaranteed to be the length specified by argCount
         /// </summary>
-        public SubOrder(string name, int argCount, Behavior behavior, string[] help, bool mapOnly = true, string[] aliases = null) {
+        public SubOrder(string name, int argCount, Behavior behavior, string[] help, bool mapOnly = true, string[] aliases = null)
+        {
             if (argCount < 1) { throw new ArgumentException("argCount must be greater than or equal to 1."); }
             Name = name;
             ArgCount = argCount;
@@ -48,33 +51,44 @@ namespace MAX.Orders {
             Aliases = aliases;
         }
         public SubOrder(string name, BehaviorOneArg simpleBehavior, string[] help, bool mapOnly = true, string[] aliases = null) :
-            this(name, 1, (p, args) => { simpleBehavior(p, args[0]); }, help, mapOnly, aliases) { }
+            this(name, 1, (p, args) => { simpleBehavior(p, args[0]); }, help, mapOnly, aliases)
+        { }
 
-        public bool Match(string ord) {
-            if (Aliases != null) {
-                foreach (string alias in Aliases) {
+        public bool Match(string ord)
+        {
+            if (Aliases != null)
+            {
+                foreach (string alias in Aliases)
+                {
                     if (alias.CaselessEq(ord)) { return true; }
                 }
             }
             return Name.CaselessEq(ord);
         }
-        public bool AnyMatchingAlias(SubOrder other) {
-            if (Aliases != null) {
-                foreach (string alias in Aliases) {
+        public bool AnyMatchingAlias(SubOrder other)
+        {
+            if (Aliases != null)
+            {
+                foreach (string alias in Aliases)
+                {
                     if (other.Match(alias)) { return true; }
                 }
             }
             return other.Match(Name);
         }
-        public bool Allowed(Player p, string parentOrderName) {
-            if (MapOnly && !LevelInfo.IsRealmOwner(p.level, p.name)) {
+        public bool Allowed(Player p, string parentOrderName)
+        {
+            if (MapOnly && !LevelInfo.IsRealmOwner(p.level, p.name))
+            {
                 p.Message("You may only use &T/{0} {1}&S after you join your map.", parentOrderName, Name.ToLower());
                 return false;
             }
             return true;
         }
-        public void DisplayHelp(Player p) {
-            if (Help == null || Help.Length == 0) {
+        public void DisplayHelp(Player p)
+        {
+            if (Help == null || Help.Length == 0)
+            {
                 p.Message("No help is available for {0}", Name);
                 return;
             }
@@ -85,20 +99,25 @@ namespace MAX.Orders {
     /// <summary>
     /// Represents a group of SubOrders that can be called from a given parent order. SubOrders can be added or removed using Register and Unregister.
     /// </summary>
-    public class SubOrderGroup {
+    public class SubOrderGroup
+    {
         public enum UsageResult { NoneFound, Success, Disallowed }
 
         public string parentOrderName;
         public List<SubOrder> subOrders;
 
-        public SubOrderGroup(string parentOrd, List<SubOrder> initialOrds) {
+        public SubOrderGroup(string parentOrd, List<SubOrder> initialOrds)
+        {
             parentOrderName = parentOrd;
             subOrders = initialOrds;
         }
 
-        public void Register(SubOrder subOrd) {
-            foreach (SubOrder sub in subOrders) {
-                if (subOrd.AnyMatchingAlias(sub)) {
+        public void Register(SubOrder subOrd)
+        {
+            foreach (SubOrder sub in subOrders)
+            {
+                if (subOrd.AnyMatchingAlias(sub))
+                {
                     throw new ArgumentException(
                         string.Format("One or more designations of the existing suborder \"{0}\" conflicts with the suborder \"{1}\" that is being registered.",
                         sub.Name, subOrd.Name));
@@ -107,22 +126,26 @@ namespace MAX.Orders {
             subOrders.Add(subOrd);
         }
 
-        public void Unregister(SubOrder subOrd) {
+        public void Unregister(SubOrder subOrd)
+        {
             subOrders.Remove(subOrd);
         }
 
-        public UsageResult Use(Player p, string message, bool alertNoneFound = true) {
+        public UsageResult Use(Player p, string message, bool alertNoneFound = true)
+        {
             string[] args = message.SplitSpaces(2);
             string ord = args[0];
 
-            foreach (SubOrder subOrd in subOrders) {
+            foreach (SubOrder subOrd in subOrders)
+            {
                 if (!subOrd.Match(ord)) { continue; }
                 if (!subOrd.Allowed(p, parentOrderName)) { return UsageResult.Disallowed; }
 
                 string[] bArgs = new string[subOrd.ArgCount];
                 string[] ordArgs = args.Length > 1 ? args[1].SplitSpaces(subOrd.ArgCount) : new string[] { "" };
 
-                for (int i = 0; i < bArgs.Length; i++) {
+                for (int i = 0; i < bArgs.Length; i++)
+                {
                     if (i < ordArgs.Length) { bArgs[i] = ordArgs[i]; }
                     else { bArgs[i] = ""; }
                 }
@@ -130,20 +153,24 @@ namespace MAX.Orders {
                 subOrd.behavior(p, bArgs);
                 return UsageResult.Success;
             }
-            if (alertNoneFound) {
+            if (alertNoneFound)
+            {
                 p.Message("There is no {0} order \"{1}\".", parentOrderName, message);
                 p.Message("See &T/help {0}&S for all {0} orders.", parentOrderName);
             }
             return UsageResult.NoneFound;
         }
 
-        public void DisplayAvailable(Player p) {
+        public void DisplayAvailable(Player p)
+        {
             p.Message("&HOrders: &S{0}", subOrders.Join(grp => grp.Name));
             p.Message("&HUse &T/Help {0} [order] &Hfor more details", parentOrderName);
         }
 
-        public void DisplayHelpFor(Player p, string subOrdName) {
-            foreach (SubOrder subOrd in subOrders) {
+        public void DisplayHelpFor(Player p, string subOrdName)
+        {
+            foreach (SubOrder subOrd in subOrders)
+            {
                 if (!subOrd.Match(subOrdName)) { continue; }
                 subOrd.DisplayHelp(p);
                 return;

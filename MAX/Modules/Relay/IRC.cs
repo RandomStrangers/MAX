@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MAX.Events.ServerEvents;
+using MAX.Orders;
+using Sharkbite.Irc;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using MAX.Orders;
-using MAX.Events.ServerEvents;
-using Sharkbite.Irc;
-using System.IO;
 
 namespace MAX.Relay.IRC
 {
@@ -77,11 +77,9 @@ namespace MAX.Relay.IRC
             conn.Hostname = Server.Config.IRCServer;
             conn.Port = Server.Config.IRCPort;
             conn.UseSSL = Server.Config.IRCSSL;
-            // most IRC servers supporting SSL/TLS do so on port 6697
-            if (conn.Port == 6697) conn.UseSSL = true;
             conn.Nick = botNick;
             conn.UserName = botNick;
-            conn.RealName = Server.SoftwareNameVersioned;
+            conn.RealName = Server.NameVersioned;
             HookIRCEvents();
             bool usePass = Server.Config.IRCIdentify && Server.Config.IRCPassword.Length > 0;
             conn.ServerPassword = usePass ? Server.Config.IRCPassword : "*";
@@ -98,7 +96,7 @@ namespace MAX.Relay.IRC
             {
                 conn.Disconnect(reason);
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 Logger.LogError(e);
             }
@@ -314,12 +312,12 @@ namespace MAX.Relay.IRC
         public void JoinChannels()
         {
             Logger.Log(LogType.RelayActivity, "Joining IRC channels...");
-            foreach (string chan in Channels) 
-            { 
-                Join(chan); 
+            foreach (string chan in Channels)
+            {
+                Join(chan);
             }
-            foreach (string chan in OpChannels) 
-            { 
+            foreach (string chan in OpChannels)
+            {
                 Join(chan);
             }
             ready = true;
@@ -396,9 +394,9 @@ namespace MAX.Relay.IRC
     {
         public Dictionary<string, List<string>> userMap = new Dictionary<string, List<string>>();
         public IRCBot bot;
-        public void Clear() 
-        { 
-            userMap.Clear(); 
+        public void Clear()
+        {
+            userMap.Clear();
         }
         public void OnLeftChannel(string userNick, string channel)
         {
@@ -457,7 +455,7 @@ namespace MAX.Relay.IRC
             {
                 if (unprefixNick == Unprefix(chanNicks[i]))
                 {
-                    chanNicks[i] = n; 
+                    chanNicks[i] = n;
                     return;
                 }
             }
@@ -539,7 +537,7 @@ namespace MAX.Relay.IRC
                 string prefix = GetPrefix(chanNicks[index]);
                 if (prefix.Length == 0 || prefix == "+")
                 { // + prefix is 'voiced user'
-                    error = "You must be at least a half-op on the channel to use orders from IRC."; 
+                    error = "You must be at least a half-op on the channel to use orders from IRC.";
                     return false;
                 }
                 return true;
@@ -559,23 +557,25 @@ namespace MAX.Relay.IRC
                         return true;
                     }
                 }
-                error = "You must have joined the opchannel to use orders from IRC."; 
+                error = "You must have joined the opchannel to use orders from IRC.";
                 return false;
             }
         }
     }
     public class IRCAddon : Addon
     {
-        public override string name { get { return "IRCRelay"; } }
+        public override string Name { get { return "IRCRelay"; } }
         public override string MAX_Version { get { return "0.0.0.1"; } }
         public static IRCBot Bot = new IRCBot();
+        public static Order ordIRCBot = new OrdIRCBot();
+        public static Order ordIRCControllers = new OrdIRCControllers();
         public override void Load(bool startup)
         {
             if (!Directory.Exists("text/irc"))
             {
                 Directory.CreateDirectory("text/irc");
             }
-            Order.Register(new OrdIRCBot(), new OrdIrcControllers());
+            Order.Register(ordIRCBot, ordIRCControllers);
             Bot.ReloadConfig();
             Bot.Connect();
             OnConfigUpdatedEvent.Register(OnConfigUpdated, Priority.Low);
@@ -584,26 +584,26 @@ namespace MAX.Relay.IRC
         {
             OnConfigUpdatedEvent.Unregister(OnConfigUpdated);
             Bot.Disconnect("Disconnecting IRC bot");
-            Order.Unregister(Order.Find("IRCBot"), Order.Find("IRCControllers"));
+            Order.Unregister(ordIRCBot, ordIRCControllers);
         }
-        public void OnConfigUpdated() 
-        { 
-            Bot.ReloadConfig(); 
+        public void OnConfigUpdated()
+        {
+            Bot.ReloadConfig();
         }
     }
     public class OrdIRCBot : RelayBotOrd
     {
-        public override string name { get { return "IRCBot"; } }
+        public override string Name { get { return "IRCBot"; } }
         public override OrderDesignation[] Designations
         {
             get { return new[] { new OrderDesignation("ResetBot", "reset"), new OrderDesignation("ResetIRC", "reset") }; }
         }
         public override RelayBot Bot { get { return IRCAddon.Bot; } }
     }
-    public class OrdIrcControllers : BotControllersOrd
+    public class OrdIRCControllers : BotControllersOrd
     {
-        public override string name { get { return "IRCControllers"; } }
-        public override string shortcut { get { return "IRCCtrl"; } }
+        public override string Name { get { return "IRCControllers"; } }
+        public override string Shortcut { get { return "IRCCtrl"; } }
         public override RelayBot Bot { get { return IRCAddon.Bot; } }
     }
 }

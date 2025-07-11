@@ -15,23 +15,25 @@
     or implied. See the Licenses for the specific language governing
     permissions and limitations under the Licenses.
  */
-using System.Collections.Generic;
 using MAX.Orders.Moderation;
+using System.Collections.Generic;
 
-namespace MAX.Orders.Info 
+namespace MAX.Orders.Info
 {
-    public sealed class OrdClones : Order2 
+    public class OrdClones : Order
     {
-        public override string name { get { return "Clones"; } }
-        public override string shortcut { get { return "Alts"; } }
-        public override string type { get { return OrderTypes.Information; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Owner; } }
-        public override bool UseableWhenFrozen { get { return true; } }
-        public override OrderDesignation[] Designations {
+        public override string Name { get { return "Clones"; } }
+        public override string Shortcut { get { return "Alts"; } }
+        public override string Type { get { return OrderTypes.Information; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Owner; } }
+        public override bool UseableWhenJailed { get { return true; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("WhoIP") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0)
             {
                 if (p.IsSuper) { SuperRequiresArgs(p, "IP address"); return; }
@@ -44,15 +46,19 @@ namespace MAX.Orders.Info
             }
 
             List<string> accounts = PlayerInfo.FindAccounts(message);
-            if (accounts.Count == 0) {
+            if (accounts.Count == 0)
+            {
                 p.Message("No players last played with the given IP.");
-            } else {
+            }
+            else
+            {
                 p.Message("These players have the same IP:");
                 p.Message(accounts.Join(alt => p.FormatNick(alt)));
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.Message("&T/Clones [name]");
             p.Message("&HFinds everyone with the same IP as [name]");
             p.Message("&T/Clones [ip address]");

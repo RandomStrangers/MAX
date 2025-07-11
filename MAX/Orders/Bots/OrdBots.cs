@@ -18,24 +18,26 @@
 
 namespace MAX.Orders.Bots
 {
-    public sealed class OrdBots : Order2
+    public class OrdBots : Order
     {
-        public override string name { get { return "Bots"; } }
-        public override string shortcut { get { return "BotList"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Builder; } }
+        public override string Name { get { return "Bots"; } }
+        public override string Shortcut { get { return "BotList"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Builder; } }
 
-        public override void Use(Player p, string message, OrderData data) { 
+        public override void Use(Player p, string message, OrderData data)
+        {
             Level lvl = p.IsSuper ? null : p.level;
             string[] args = message.SplitSpaces(2);
             int offset = 0;
-            
-            if (args.Length == 2 || (message.Length > 0 && !IsListModifier(args[0]))) {
+
+            if (args.Length == 2 || (message.Length > 0 && !IsListModifier(args[0])))
+            {
                 lvl = Matcher.FindLevels(p, args[0]);
                 offset = 1;
                 if (lvl == null) return;
             }
-            
+
             PlayerBot[] bots = lvl.Bots.Items;
             string ord = (lvl == p.level) ? "bots" : "bots " + lvl.name;
             string modifier = args.Length > offset ? args[offset] : "";
@@ -44,19 +46,23 @@ namespace MAX.Orders.Bots
             Paginator.Output(p, bots, FormatBot, ord, "Bots", modifier);
         }
 
-        public static string FormatBot(PlayerBot bot) {
+        public static string FormatBot(PlayerBot bot)
+        {
             string desc = bot.DisplayName;
             if (bot.DisplayName != bot.name) desc += "&S(&1" + bot.name + "&S)";
-            
-            if (!string.IsNullOrEmpty(bot.AIName)) {
+
+            if (!string.IsNullOrEmpty(bot.AIName))
+            {
                 desc += "[" + bot.AIName + "]";
-            } else if (bot.hunt) { desc += "[Hunt]"; }            
+            }
+            else if (bot.hunt) { desc += "[Hunt]"; }
             if (bot.kill) desc += "-kill";
-            
+
             return desc;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/Bots");
             p.Message("&HShows a list of bots on your level, and their AIs and levels");
             p.Message("&T/Bots [level]");

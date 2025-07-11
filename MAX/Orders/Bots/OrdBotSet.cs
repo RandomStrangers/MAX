@@ -17,62 +17,72 @@
  */
 using MAX.Bots;
 
-namespace MAX.Orders.Bots 
+namespace MAX.Orders.Bots
 {
-    public sealed class OrdBotSet : Order2 
+    public class OrdBotSet : Order
     {
-        public override string name { get { return "BotSet"; } }
-        public override string type { get { return OrderTypes.Other; } }
-        public override bool museumUsable { get { return false; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.AdvBuilder; } }
+        public override string Name { get { return "BotSet"; } }
+        public override string Type { get { return OrderTypes.Other; } }
+        public override bool MuseumUsable { get { return false; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.AdvBuilder; } }
         public override bool SuperUseable { get { return false; } }
-        public override OrderPerm[] ExtraPerms {
+        public override OrderPerm[] ExtraPerms
+        {
             get { return new[] { new OrderPerm(LevelPermission.Operator, "can set bots to be killer") }; }
         }
 
-        public override void Use(Player p, string message, OrderData data) {
+        public override void Use(Player p, string message, OrderData data)
+        {
             if (message.Length == 0) { Help(p); return; }
             string[] args = message.SplitSpaces();
             PlayerBot bot = Matcher.FindBots(p, args[0]);
-            if (bot == null) return;            
+            if (bot == null) return;
             if (!LevelInfo.Check(p, data.Rank, p.level, "change AI of bots in this level")) return;
             if (!bot.EditableBy(p, "change the AI of")) { return; }
-            if (args.Length == 1) {
+            if (args.Length == 1)
+            {
                 bot.Instructions.Clear();
                 bot.kill = false;
                 bot.hunt = false;
                 bot.AIName = null;
                 UpdateBot(p, bot, "'s AI was turned off.");
                 return;
-            } else if (args.Length != 2) {
+            }
+            else if (args.Length != 2)
+            {
                 Help(p); return;
             }
 
             string ai = args[1].ToLower();
-            if (ai.CaselessEq("hunt")) {
+            if (ai.CaselessEq("hunt"))
+            {
                 bot.hunt = !bot.hunt;
                 bot.Instructions.Clear();
                 bot.AIName = null;
                 UpdateBot(p, bot, "'s hunt instinct: " + bot.hunt);
                 return;
-            } else if (ai.CaselessEq("kill")) {
+            }
+            else if (ai.CaselessEq("kill"))
+            {
                 if (!CheckExtraPerm(p, data, 1)) return;
                 bot.kill = !bot.kill;
                 UpdateBot(p, bot, "'s kill instinct: " + bot.kill);
                 return;
             }
-            
+
             if (!ScriptFile.Parse(p, bot, ai)) return;
             UpdateBot(p, bot, "'s AI was set to " + ai);
         }
 
-        public static void UpdateBot(Player p, PlayerBot bot, string msg) {
+        public static void UpdateBot(Player p, PlayerBot bot, string msg)
+        {
             p.Message(bot.ColoredName + "&S" + msg);
             Logger.Log(LogType.UserActivity, bot.name + msg);
             BotsFile.Save(p.level);
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/BotSet [bot] <AI script>");
             p.Message("&HMakes [bot] do the instructions in <AI script>");
             p.Message("&H  Special AI scripts: Kill and Hunt");

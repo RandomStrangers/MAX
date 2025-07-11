@@ -17,14 +17,13 @@
 */
 
 using System.Collections.Generic;
-using System.Data;
 
 namespace MAX.Orders.Chatting
 {
-    public class OrdPronouns : Order2
+    public class OrdPronouns : Order
     {
-        public override string name { get { return "Pronouns"; } }
-        public override string type { get { return OrderTypes.Chat; } }
+        public override string Name { get { return "Pronouns"; } }
+        public override string Type { get { return OrderTypes.Chat; } }
         public override bool SuperUseable { get { return false; } }
         public override void Use(Player p, string message, OrderData data)
         {
@@ -51,7 +50,7 @@ namespace MAX.Orders.Chatting
                 pros.Remove(Pronouns.Default.Name);
             }
             List<Pronouns> final = new List<Pronouns>();
-            foreach (var pair in pros)
+            foreach (KeyValuePair<string, Pronouns> pair in pros)
             {
                 final.Add(pair.Value);
             }

@@ -17,50 +17,56 @@
  */
 using MAX.Generator;
 
-namespace MAX.Orders.World {
-    public sealed class OrdResizeLvl : Order2 {
-        public override string name { get { return "ResizeLvl"; } }
-        public override string type { get { return OrderTypes.World; } }
-        public override LevelPermission defaultRank { get { return LevelPermission.Admin; } }
-        public override OrderDesignation[] Designations {
+namespace MAX.Orders.World
+{
+    public class OrdResizeLvl : Order
+    {
+        public override string Name { get { return "ResizeLvl"; } }
+        public override string Type { get { return OrderTypes.World; } }
+        public override LevelPermission DefaultRank { get { return LevelPermission.Admin; } }
+        public override OrderDesignation[] Designations
+        {
             get { return new[] { new OrderDesignation("WResize"), new OrderDesignation("WorldResize") }; }
         }
         public override bool MessageBlockRestricted { get { return true; } }
-        
-        public override void Use(Player p, string message, OrderData data) {
+
+        public override void Use(Player p, string message, OrderData data)
+        {
             string[] args = message.SplitSpaces();
             if (args.Length < 4) { Help(p); return; }
-            
-            bool needConfirm;
-            if (DoResize(p, args, data, out needConfirm)) return;
-            
+
+            if (DoResize(p, args, data, out bool needConfirm)) return;
+
             if (!needConfirm) return;
             p.Message("Type &T/ResizeLvl {0} {1} {2} {3} confirm &Sif you're sure.",
                       args[0], args[1], args[2], args[3]);
         }
 
-        public static bool DoResize(Player p, string[] args, OrderData data, out bool needConfirm) {
+        public static bool DoResize(Player p, string[] args, OrderData data, out bool needConfirm)
+        {
             needConfirm = false;
             Level lvl = Matcher.FindLevels(p, args[0]);
-            
+
             if (lvl == null) return true;
             if (!LevelInfo.Check(p, data.Rank, lvl, "resize this level")) return false;
-            
+
             ushort x = 0, y = 0, z = 0;
             if (!MapGen.GetDimensions(p, args, 1, ref x, ref y, ref z)) return false;
-            
+
             bool confirmed = args.Length > 4 && args[4].CaselessEq("confirm");
-            if (!confirmed && (x < lvl.Width || y < lvl.Height || z < lvl.Length)) {
+            if (!confirmed && (x < lvl.Width || y < lvl.Height || z < lvl.Length))
+            {
                 p.Message("New level dimensions are smaller than the current dimensions, &Wyou will lose blocks&S.");
                 needConfirm = true;
                 return false;
             }
-            
+
             LevelActions.Resize(ref lvl, x, y, z);
             return true;
         }
-        
-        public override void Help(Player p) {
+
+        public override void Help(Player p)
+        {
             p.Message("&T/ResizeLvl [level] [width] [height] [length]");
             p.Message("&HResizes the given level.");
         }

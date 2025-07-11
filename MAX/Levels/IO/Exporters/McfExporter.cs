@@ -22,13 +22,11 @@ using System.IO.Compression;
 
 namespace MAX.Levels.IO
 {
-
     //WARNING! DO NOT CHANGE THE WAY THE LEVEL IS SAVED/LOADED!
     //You MUST make it able to save and load as a new version other wise you will make old levels incompatible!
     public unsafe class McfExporter : IMapExporter
     {
         public override string Extension { get { return ".mcf"; } }
-
         public override void Write(Stream dst, Level lvl)
         {
             using (Stream gs = new GZipStream(dst, CompressionMode.Compress))
@@ -38,10 +36,16 @@ namespace MAX.Levels.IO
         }
         public void SaveMCF(Stream gs, Level lvl)
         {
-            if (lvl.blocks == null || lvl.IsMuseum) return;
+            if (lvl.blocks == null || lvl.IsMuseum)
+            {
+                return;
+            }
             bool cancel = false;
             OnLevelSaveEvent.Call(lvl, ref cancel);
-            if (cancel) return;
+            if (cancel)
+            {
+                return;
+            }
             byte[] header = new byte[16];
             BitConverter.GetBytes(1874).CopyTo(header, 0);
             gs.Write(header, 0, 2);
@@ -71,7 +75,9 @@ namespace MAX.Levels.IO
                 else
                 {
                     if (Block.Convert(lvl.blocks[i]) != Block.Air)
+                    {
                         blockVal = Block.Convert(lvl.blocks[i]);
+                    }
                 }
                 level[i * 2] = (byte)blockVal;
                 level[i * 2 + 1] = (byte)(blockVal >> 8);
@@ -83,7 +89,6 @@ namespace MAX.Levels.IO
                 byte[] header2 = new byte[16];
                 BitConverter.GetBytes(1874).CopyTo(header2, 0);
                 f.Write(header2, 0, 2);
-
                 BitConverter.GetBytes(lvl.Width).CopyTo(header2, 0);
                 BitConverter.GetBytes(lvl.Height).CopyTo(header2, 2);
                 BitConverter.GetBytes(lvl.Length).CopyTo(header2, 4);
@@ -107,7 +112,8 @@ namespace MAX.Levels.IO
                         level2[i] = (byte)Block.Convert(lvl.blocks[i]);
                     }
                 } 
-                f.Write(level2, 0, level2.Length); gs.Close();
+                f.Write(level2, 0, level2.Length); 
+                gs.Close();
             }*/
         }
         public static void WriteHeader(Level lvl, Stream gs, byte[] header)
@@ -128,7 +134,6 @@ namespace MAX.Levels.IO
             header[15] = (byte)lvl.BuildAccess.Min;
             gs.Write(header, 0, header.Length);
         }
-
         public static void WriteBlocksSection(Level lvl, Stream gs)
         {
             byte[] bl = new byte[lvl.blocks.Length * 2];

@@ -143,9 +143,9 @@ namespace MAX.Levels.IO
                 for (int i = 0; i < count; i++)
                 {
                     Check C = checks[i];
-                    *ptrInt = C.Index; 
+                    *ptrInt = C.Index;
                     ptrInt++;
-                    *ptrInt = (int)C.data.Raw; 
+                    *ptrInt = (int)C.data.Raw;
                     ptrInt++;
                     entries++;
 
@@ -172,11 +172,11 @@ namespace MAX.Levels.IO
 
             foreach (Zone z in zones)
             {
-                NetUtils.WriteU16(z.MinX, buffer, 0 * 2); 
+                NetUtils.WriteU16(z.MinX, buffer, 0 * 2);
                 NetUtils.WriteU16(z.MaxX, buffer, 1 * 2);
-                NetUtils.WriteU16(z.MinY, buffer, 2 * 2); 
+                NetUtils.WriteU16(z.MinY, buffer, 2 * 2);
                 NetUtils.WriteU16(z.MaxY, buffer, 3 * 2);
-                NetUtils.WriteU16(z.MinZ, buffer, 4 * 2); 
+                NetUtils.WriteU16(z.MinZ, buffer, 4 * 2);
                 NetUtils.WriteU16(z.MaxZ, buffer, 5 * 2);
                 gs.Write(buffer, 0, 6 * 2);
 
