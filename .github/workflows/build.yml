@@ -20,7 +20,7 @@ jobs:
         id: compile
         run: |
           msbuild MAX.sln /p:Configuration=Release
-          rm bin/MAX.exe bin/MAX.pdb
+          rm bin/MAX.exe
           msbuild MAX/MAX.csproj /p:Configuration=Release
 
       - uses: ./.github/actions/notify_failure
